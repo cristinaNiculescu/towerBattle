@@ -17,7 +17,7 @@ public class AttackingUnit : MonoBehaviour {
 	public bool isInConstruction=false;
 	public int upgrades=0;
 	public Transform UnitFace;
-	public int[] costs= new int[];
+	public int[] costs= new int[5];
 	public int damageAbility1=0;
 	public int damageAbility2=0;
 
