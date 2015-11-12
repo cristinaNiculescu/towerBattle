@@ -9,7 +9,7 @@ public class AttackingUnit : MonoBehaviour {
 	- can be upgraded 2 times
 	 */
 
-	public int HP=250;
+	public float HP=250;
 	public int diameter=30;
 	//public int length;
 	//public int width;
@@ -20,24 +20,31 @@ public class AttackingUnit : MonoBehaviour {
 	public int[] costs= new int[5];
 	public int damageAbility1=0;
 	public int damageAbility2=0;
+	public Transform projectile;
 	int RocksMin;
 	int RocksMax;
 	bool started=false;
+	bool topToBottom=true;
+	float startAngle;
 	// Use this for initialization
 	void Start () {
 		RocksMin = 20;
 		RocksMax = 40;
-		Debug.Log(RocksMax+" " +RocksMin);
+		startAngle = gameObject.transform.rotation.z;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (Time.realtimeSinceStartup);
-		if ((Time.realtimeSinceStartup >= 20) && !started) 
+		//Debug.Log (Time.realtimeSinceStartup);
+		if ((Time.realtimeSinceStartup >= 2) && !started) 
 		{	started=true;
 			Debug.Log("about to autocast");
 			StartCoroutine (rockFlurr ());
 		}
+		if (this.HP <= 0f)
+			Destroy (gameObject);
+
+		Debug.Log (gameObject.name + " " + HP);
 	}
 	/// <summary>
 	/// Attributes the costs.
@@ -55,37 +62,62 @@ public class AttackingUnit : MonoBehaviour {
 		costs [4] = 225;
 	}
 
+
+	IEnumerator rockFlurr(){
+
+		int noRocks = Random.Range (RocksMin, RocksMax);
+		float delayBetweenRockThrows = 20f/(float)noRocks;
+		Debug.Log ("shoots every "+delayBetweenRockThrows);
+		float shootPeriod = 20f;
+		while (shootPeriod-delayBetweenRockThrows>=0) 
+		{
+			yield return new WaitForSeconds(delayBetweenRockThrows);
+			rockFlurrShooting();
+			shootPeriod=shootPeriod-delayBetweenRockThrows;
+
+		}
+		yield return new WaitForSeconds(20);
+		yield return new WaitForSeconds(20);
+		StartCoroutine (rockFlurr());
+	}
+
 	/// <summary>
 	/// Rocks the flurr.
 	/// every 20 sec, the unit will auto-cast a flurry of small rocks in an 30 degrees arc movement to cover the enemy
 	/// area from top to bottom. The small rocks do very little damage (0.5%) per hit, and there 20-40 rocks thrown 
 	/// on each cast. If one of rocks hits the lone scout, it does enough damage to kill it. 
 	/// </summary>
+	void rockFlurrShooting()
+	{	float radius=5; 
+		
+		float x=Mathf.Sin(startAngle)*radius+gameObject.transform.position.x;
+		float y=gameObject.transform.position.y;
+		float z= -Mathf.Abs(Mathf.Cos(startAngle)*radius)+gameObject.transform.position.z;
+		
+		Vector3 shootingPosition=new Vector3(x,y,z);
+		
+		
+		Quaternion rotation=new Quaternion (gameObject.transform.rotation.x,
+		                                    gameObject.transform.rotation.y,
+		                                    gameObject.transform.rotation.z,1); 
+		rockBehavior mov=projectile.GetComponent<rockBehavior>();
+		mov.direction= new Vector3 (x-gameObject.transform.position.x,0,z-gameObject.transform.position.z);
+		//projectile.RotateAround(gameObject.transform.position,new Vector3(0,0,1),startAngle);
+		mov.gameObject.tag = this.gameObject.tag;
 
-	IEnumerator rockFlurr(){
-
-		int noRocks = Random.Range (RocksMin, RocksMax);
-		float delayBetweenRockThrows = (float)noRocks / 20f;
-		float shootPeriod = 20f;
-		while (shootPeriod-delayBetweenRockThrows>=0) 
-		{
-			yield return new WaitForSeconds(delayBetweenRockThrows);
-			shoot();
-			Debug.Log ("shooting for "+shootPeriod+" more secs");
+		Instantiate(projectile,shootingPosition,rotation);
+		
+		
+		if (topToBottom)
+			if (startAngle<180)
+		{ startAngle+=1;
 		}
-		yield return new WaitForSeconds(20);
-		StartCoroutine (rockFlurr());
+		else topToBottom=false; 
+		else if (startAngle>0)
+			startAngle-=1;
+		else topToBottom=true; 
 	}
-
-	void shoot(){
-
-		Vector3 shootingPosition=new Vector3(gameObject.transform.position.x,
-		                                     gameObject.transform.position.y,
-		                                     gameObject.transform.position.z) ;
-		Debug.Log(shootingPosition);
-	}
-	//Throw
-
+	
 	/// <summary>
 	/// Launches missiles. 
 	/// has 3 charges, can be cast at different targets. Every consecutive charge that hits the same target 
@@ -103,9 +135,17 @@ public class AttackingUnit : MonoBehaviour {
 	void mudSplatter(){
 	}
 
+	void OnCollisionEnter(Collision col)
+	{	
+		if (col.gameObject.tag != this.tag)
+			this.HP -= this.HP * 0.05f;
+	}
+
 
 	void UnitUpdate(){
 		RocksMax = 60;
 		RocksMin = 30;
 	}
+
+
 }
