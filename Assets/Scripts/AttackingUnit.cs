@@ -20,15 +20,24 @@ public class AttackingUnit : MonoBehaviour {
 	public int[] costs= new int[5];
 	public int damageAbility1=0;
 	public int damageAbility2=0;
-
+	int RocksMin;
+	int RocksMax;
+	bool started=false;
 	// Use this for initialization
 	void Start () {
-	
+		RocksMin = 20;
+		RocksMax = 40;
+		Debug.Log(RocksMax+" " +RocksMin);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		Debug.Log (Time.realtimeSinceStartup);
+		if ((Time.realtimeSinceStartup >= 20) && !started) 
+		{	started=true;
+			Debug.Log("about to autocast");
+			StartCoroutine (rockFlurr ());
+		}
 	}
 	/// <summary>
 	/// Attributes the costs.
@@ -53,9 +62,29 @@ public class AttackingUnit : MonoBehaviour {
 	/// on each cast. If one of rocks hits the lone scout, it does enough damage to kill it. 
 	/// </summary>
 
-	void rockFlurr(){
+	IEnumerator rockFlurr(){
 
+		int noRocks = Random.Range (RocksMin, RocksMax);
+		float delayBetweenRockThrows = (float)noRocks / 20f;
+		float shootPeriod = 20f;
+		while (shootPeriod-delayBetweenRockThrows>=0) 
+		{
+			yield return new WaitForSeconds(delayBetweenRockThrows);
+			shoot();
+			Debug.Log ("shooting for "+shootPeriod+" more secs");
+		}
+		yield return new WaitForSeconds(20);
+		StartCoroutine (rockFlurr());
 	}
+
+	void shoot(){
+
+		Vector3 shootingPosition=new Vector3(gameObject.transform.position.x,
+		                                     gameObject.transform.position.y,
+		                                     gameObject.transform.position.z) ;
+		Debug.Log(shootingPosition);
+	}
+	//Throw
 
 	/// <summary>
 	/// Launches missiles. 
@@ -72,5 +101,11 @@ public class AttackingUnit : MonoBehaviour {
 	/// It has 20 sec cool down. 
 	/// </summary>
 	void mudSplatter(){
+	}
+
+
+	void UnitUpdate(){
+		RocksMax = 60;
+		RocksMin = 30;
 	}
 }
