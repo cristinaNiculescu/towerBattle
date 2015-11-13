@@ -44,7 +44,7 @@ public class AttackingUnit : MonoBehaviour {
 		if (this.HP <= 0f)
 			Destroy (gameObject);
 
-		Debug.Log (gameObject.name + " " + HP);
+		Debug.Log (gameObject.tag + " " + HP);
 	}
 	/// <summary>
 	/// Attributes the costs.
@@ -137,8 +137,13 @@ public class AttackingUnit : MonoBehaviour {
 
 	void OnCollisionEnter(Collision col)
 	{	
-		if (col.gameObject.tag != this.tag)
+		if (col.gameObject.tag != this.tag) 
+		{
 			this.HP -= this.HP * 0.05f;
+			Debug.Log (col.gameObject.name+" "+col.gameObject.tag+" in "+gameObject.tag);
+			Destroy (col.gameObject);
+		}
+
 	}
 
 

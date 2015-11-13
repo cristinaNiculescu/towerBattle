@@ -26,12 +26,12 @@ public class rockBehavior : MonoBehaviour {
 
 		if (col.gameObject.tag != this.tag)
 		{ Debug.Log("collided"+col.gameObject.name);
-			if(col.gameObject is AttackingUnit) 
+		/*	if(col.gameObject is AttackingUnit) 
 			{ Debug.Log("atck");
 				AttackingUnit tempUnit=col.gameObject.GetComponent<AttackingUnit>();
 			tempUnit.HP-=tempUnit.HP*0.05f;
 			Debug.Log ("collided with attackunit");
-		}
+		}*/
 		}
 	}
 
