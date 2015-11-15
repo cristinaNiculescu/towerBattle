@@ -15,9 +15,12 @@ public class rockBehavior : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		transform.position += direction * 0.5f;	
-		if( transform.position.x<=-1000f ||transform.position.x>=1000f ||
-		   transform.position.z<=-1000f ||transform.position.z>=1000f) 
-			Destroy (gameObject);
+		if (transform.position.x <= -1000f || transform.position.x >= 1000f ||
+			transform.position.z <= -1000f || transform.position.z >= 1000f) {
+			Destroy (gameObject, 1f);
+			//Debug.Log("Destroyed");
+			}
+
 
 	}
 

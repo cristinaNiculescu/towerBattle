@@ -1,22 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class AttackingUnit : MonoBehaviour {
-	/*
-	-the attacking unit has: - 250 hp;
-	- 30x30 size;
-	- requires timer
-	- can be upgraded 2 times
-	 */
 
 	public float HP=250;
-	public int diameter=30;
-	//public int length;
-	//public int width;
-	public string type="attack";
 	public bool isInConstruction=false;
 	public int upgrades=0;
-	public Transform UnitFace;
+	//public Transform UnitFace;
 	public int[] costs= new int[5];
 	public int damageAbility1=0;
 	public int damageAbility2=0;
@@ -26,25 +17,98 @@ public class AttackingUnit : MonoBehaviour {
 	bool started=false;
 	bool topToBottom=true;
 	float startAngle;
+	public GameObject healthBar;
+	Slider HP_Bar;
+	BaseManager BaseUnit;
+
+	GameObject panel;
+	bool canBeClicked;
+	bool activeMarker=false;
+	string tempName;
+
 	// Use this for initialization
 	void Start () {
+		isInConstruction = true;
+		StartCoroutine (waitConstruction ());
 		RocksMin = 20;
 		RocksMax = 40;
 		startAngle = gameObject.transform.rotation.z;
+		healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
+		HP_Bar = healthBar.GetComponent<Slider> ();
+		HP_Bar.minValue = 0;
+		HP_Bar.maxValue = 250;
+		GameObject temp=GameObject.Find("Base");
+		BaseUnit=temp.GetComponent<BaseManager>();
+
+		tempName=gameObject.name.Substring(0,9);
+		Debug.Log(tempName);
+		panel = GameObject.Find ("BuildPanelfor"+tempName);
+		changePanel ();
+		panel.SetActive(activeMarker);
 	}
-	
+
+
+	IEnumerator waitConstruction(){
+		yield return new WaitForSeconds (20f);
+		isInConstruction = false;
+	}
+
 	// Update is called once per frame
 	void Update () {
-		//Debug.Log (Time.realtimeSinceStartup);
-		if ((Time.realtimeSinceStartup >= 2) && !started) 
-		{	started=true;
-			Debug.Log("about to autocast");
-			StartCoroutine (rockFlurr ());
-		}
-		if (this.HP <= 0f)
-			Destroy (gameObject);
 
-		Debug.Log (gameObject.tag + " " + HP);
+		if (!isInConstruction) 
+		{
+			if ((Time.realtimeSinceStartup >= 20) && !started) {
+				started = true;
+				//Debug.Log("about to autocast");
+				StartCoroutine (rockFlurr ());
+			}
+			if (this.HP <= 0f) {	
+				Destroy (gameObject, 0.1f);
+				BaseUnit.reCheckShield ();
+			}
+
+			Debug.Log (gameObject.tag + " " + HP);
+			HP_Bar.value = HP;
+		}
+	}
+
+	void OnMouseEnter(){
+		canBeClicked = true;
+	}
+	void OnMouseExit(){
+		canBeClicked = false;
+	}
+
+	void OnMouseUp()
+	{	if (canBeClicked) {
+			panel.SetActive (activeMarker);
+			activeMarker = !activeMarker;
+			//Debug.Log (activeMarker);
+		}
+	}
+
+	void changePanel()
+	{ 	
+		Debug.Log ("BuildPanelfor" + tempName + "/buildAtck");
+		GameObject tempOBj = GameObject.Find ("BuildPanelfor" + tempName + "/Text");
+		Text panelTitle = tempOBj.GetComponent<Text> ();
+		panelTitle.text = "Abilities";
+
+		tempOBj= GameObject.Find("BuildPanelfor"+tempName+"/BuildDef");
+		Button btn = tempOBj.GetComponent<Button> ();
+		Text btnText = btn.GetComponentInChildren<Text> ();
+		btnText.text = "Launch Missile";
+		btn.onClick.AddListener (() => missileLaunch ());
+
+		tempOBj= GameObject.Find("BuildPanelfor"+tempName+"/buildAtck");
+		tempOBj.SetActive (false);
+
+		tempOBj= GameObject.Find("BuildPanelfor"+tempName+"/BuildSpec");
+		Button btn2 = tempOBj.GetComponent<Button> ();
+		Text btn2text = btn2.GetComponentInChildren<Text> ();
+		btn2text.text = "Throw Mud";
+		btn2.onClick.AddListener (() => mudSplatter ());
 	}
 	/// <summary>
 	/// Attributes the costs.
@@ -67,7 +131,7 @@ public class AttackingUnit : MonoBehaviour {
 
 		int noRocks = Random.Range (RocksMin, RocksMax);
 		float delayBetweenRockThrows = 20f/(float)noRocks;
-		Debug.Log ("shoots every "+delayBetweenRockThrows);
+		//Debug.Log ("shoots every "+delayBetweenRockThrows);
 		float shootPeriod = 20f;
 		while (shootPeriod-delayBetweenRockThrows>=0) 
 		{
@@ -125,6 +189,7 @@ public class AttackingUnit : MonoBehaviour {
     /// unit health.  The ability has 20 sec cool down.
 	/// </summary>
 	void missileLaunch(){
+		Debug.Log ("launched");
 	}
 
 	/// <summary>
@@ -133,6 +198,7 @@ public class AttackingUnit : MonoBehaviour {
 	/// It has 20 sec cool down. 
 	/// </summary>
 	void mudSplatter(){
+		Debug.Log ("mudssssss");
 	}
 
 	void OnCollisionEnter(Collision col)
