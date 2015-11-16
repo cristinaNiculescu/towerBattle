@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BaseManager : MonoBehaviour {
 
@@ -16,11 +17,19 @@ public class BaseManager : MonoBehaviour {
 		structure.HPMax = 2000;
 		UnitsBuilt = new Transform[5];
 
+		if (gameObject.tag == "Enemy")
+			structure.healthBar = GameObject.Find ("HealthBarforEnemyBase");
+		else structure.healthBar = GameObject.Find ("HealthBarforBase");
+		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
+		structure.HP_Bar.minValue = 0;
+		structure.HP_Bar.maxValue = 2000;
+		structure.HP_Bar.value = structure.HP;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+
+		structure.HP_Bar.value = structure.HP;
 
 	}
 

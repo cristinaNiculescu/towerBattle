@@ -46,7 +46,7 @@ public class AttackingUnit : MonoBehaviour {
 		structure.HPMax = 250;
 		structure.colorUnit = gameObject.GetComponent<Renderer> ().material.color;
 		structure.isInConstruction = true;
-		StartCoroutine(structure.waitConstruction (2f,structure.colorUnit)); //needs to be 20;
+		StartCoroutine(structure.waitConstruction (20f,structure.colorUnit)); //needs to be 20;
 
 		structure.healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
 		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
@@ -143,9 +143,9 @@ public class AttackingUnit : MonoBehaviour {
 
 			if(mudTriggered&&Input.GetMouseButtonUp(0)) 
 			{		
-				Debug.Log("after if");
+				//Debug.Log("after if");
 				ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
-				Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
+				//Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
 					if (Physics.Raycast(ray, out hit, 10000f)) 
 				    {
 						Debug.Log (hit.transform.tag);
@@ -154,7 +154,7 @@ public class AttackingUnit : MonoBehaviour {
 							MudDrop droplet=mud.GetComponent<MudDrop>();
 							droplet.target=hit.transform;
 							Instantiate (mud, gameObject.transform.position, Quaternion.identity);
-							mud.LookAt(target.position);
+							mud.LookAt(hit.transform.position);
 							StartCoroutine(gatherMud());
 						}
 					}
@@ -281,6 +281,8 @@ public class AttackingUnit : MonoBehaviour {
 			triggeredMissileLaunch = true;
 			Debug.Log ("launched");
 			StopCoroutine (rockFlurr ());
+			activeMarker=false;
+			structure.panel.SetActive(activeMarker);
 		}
  	}
 	IEnumerator rechargeMissile(){
@@ -297,12 +299,18 @@ public class AttackingUnit : MonoBehaviour {
 	/// It has 40 sec cool down. 
 	/// </summary>
 	void mudSplatter(){
-		Debug.Log ("mudssssss"+mudTriggered+mudReady);
-		mudTriggered = true;
-		mudReady = false;
+		activeMarker = false;
+		structure.panel.SetActive(activeMarker);
+		//Debug.Log ("mudssssss"+mudTriggered+mudReady);
+		if (mudReady) {
+			mudTriggered = true;
+			mudReady = false;
+		} else
+			Debug.Log ("still gathering mud");
 	}
 
 	IEnumerator gatherMud(){
+		mudTriggered=false;
 		yield return new WaitForSeconds (40);
 		mudReady = true;
 	}
