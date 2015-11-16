@@ -2,68 +2,57 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class DefensiveUnit : MonoBehaviour {
+public class DefensiveUnit : MonoBehaviour{
 
-	public float HP=500;
-	public bool isInConstruction=false;
-	public int upgrades=0;
 	//public Transform UnitFace;
 	public int[] costs= new int[5];
 	public int damageAbility1=0;
 	public int damageAbility2=0;
 
 	bool started=false;
-
-	public GameObject healthBar;
-	Slider HP_Bar;
-	BaseManager BaseUnit;
-	
-	GameObject panel;
 	bool canBeClicked;
 	bool activeMarker=false;
 	string tempName;
 
+	UnitStructure structure;
 
 	// Use this for initialization
 	void Start () {
-	
-		isInConstruction = true;
-		StartCoroutine (waitConstruction ());
+		structure = this.GetComponent<UnitStructure> ();
+		structure.HP = 500;
+		structure.HPMax = 500;
+		structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+		structure.isInConstruction = true;
+		StartCoroutine (structure.waitConstruction (20f,structure.colorUnit));
 
-		healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
-		HP_Bar = healthBar.GetComponent<Slider> ();
-		HP_Bar.minValue = 0;
-		HP_Bar.maxValue = 500;
-		HP = 500;
-		HP_Bar.value = HP;
+		structure.healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
+		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
+		structure.HP_Bar.minValue = 0;
+		structure.HP_Bar.maxValue = 500;
+		structure.HP_Bar.value = structure.HP;
 		GameObject temp=GameObject.Find("Base");
-		BaseUnit=temp.GetComponent<BaseManager>();
+		structure.BaseUnit=temp.GetComponent<BaseManager>();
 		
 		tempName=gameObject.name.Substring(0,9);
 		Debug.Log(tempName);
-		panel = GameObject.Find ("BuildPanelfor"+tempName);
+		structure.panel = GameObject.Find ("BuildPanelfor"+tempName);
 		changePanel ();
-		panel.SetActive(activeMarker);
+		structure.panel.SetActive(activeMarker);
 	}
-
-	IEnumerator waitConstruction(){
-		yield return new WaitForSeconds (20f);
-		isInConstruction = false;
-	}
+	
 
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (isInConstruction);
-		if (!isInConstruction) 
+		if (!structure.isInConstruction) 
 		{
 
-			if (this.HP <= 0f) {	
+			if (structure.HP <= 0f) {	
 				Destroy (gameObject, 0.1f);
-				BaseUnit.reCheckShield ();
+				structure.BaseUnit.reCheckShield ();
 			}
 			
-			Debug.Log (gameObject.tag + " " + HP);
-			HP_Bar.value = HP;
+		//	Debug.Log (gameObject.tag + " " + structure.HP);
+			structure.HP_Bar.value = structure.HP;
 		}
 	}
 	
@@ -77,7 +66,7 @@ public class DefensiveUnit : MonoBehaviour {
 	
 	void OnMouseUp()
 	{	if (canBeClicked) {
-			panel.SetActive (activeMarker);
+			structure.panel.SetActive (activeMarker);
 			activeMarker = !activeMarker;
 			//Debug.Log (activeMarker);
 		}
@@ -85,7 +74,7 @@ public class DefensiveUnit : MonoBehaviour {
 	
 	void changePanel()
 	{ 	
-		Debug.Log ("BuildPanelfor" + tempName + "/buildAtck");
+	//	Debug.Log ("BuildPanelfor" + tempName + "/buildAtck");
 		GameObject tempOBj = GameObject.Find ("BuildPanelfor" + tempName + "/Text");
 		Text panelTitle = tempOBj.GetComponent<Text> ();
 		panelTitle.text = "Abilities";

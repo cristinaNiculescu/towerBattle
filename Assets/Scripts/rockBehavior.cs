@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class rockBehavior : MonoBehaviour {
+public class RockBehavior : MonoBehaviour {
 
 	float posX;
 	float posZ;
@@ -10,11 +10,16 @@ public class rockBehavior : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		//gameObject.GetComponent<Rigidbody>().velocity =new Vector3(0, 0, 0);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		transform.position += direction * 0.5f;	
+		//direction.x = direction.x * 0.5f;
+		//direction.y = direction.y * 0f;
+		//direction.z = direction.z * 0.5f;
+
+		transform.position += direction*0.5f;	
 		if (transform.position.x <= -1000f || transform.position.x >= 1000f ||
 			transform.position.z <= -1000f || transform.position.z >= 1000f) {
 			Destroy (gameObject, 1f);
@@ -27,15 +32,12 @@ public class rockBehavior : MonoBehaviour {
 	void OnCollisionEnter(Collision col)
 	{	
 
-		if (col.gameObject.tag != this.tag)
-		{ Debug.Log("collided"+col.gameObject.name);
-		/*	if(col.gameObject is AttackingUnit) 
-			{ Debug.Log("atck");
-				AttackingUnit tempUnit=col.gameObject.GetComponent<AttackingUnit>();
-			tempUnit.HP-=tempUnit.HP*0.05f;
-			Debug.Log ("collided with attackunit");
-		}*/
+		if (col.transform.tag == "Enemy") {
+			col.gameObject.GetComponent<UnitStructure> ().HP -= col.gameObject.GetComponent<UnitStructure> ().HPMax *
+				0.05f;
+			Destroy(gameObject);	
 		}
+
 	}
 
 	/*void OnBecameInvisible()

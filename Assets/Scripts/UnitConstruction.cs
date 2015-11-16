@@ -55,6 +55,7 @@ public class UnitConstruction : MonoBehaviour {
 		hpbar.SetActive (true);
 		BaseUnit.UnitsBuilt[index-49]=unit;
 		BaseUnit.reCheckShield ();
+		unit.transform.LookAt (GameObject.FindWithTag("Enemy").transform.position);
 		Instantiate (unit, gameObject.transform.position, Quaternion.identity);
 		//panel.SetActive (false);
 		Destroy(gameObject);
