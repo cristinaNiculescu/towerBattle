@@ -10,6 +10,10 @@ public class MudDrop : MonoBehaviour {
 	float initialSpeed;
 	GameObject resourceFieldTargeted;
 	bool started;
+
+	public float dur;
+	public float speedRed;
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("mud thrown");
@@ -25,7 +29,7 @@ public class MudDrop : MonoBehaviour {
 			if (!started)
 			{	initialSpeed=target.gameObject.GetComponent<ResourceField>().speed;
 				resourceFieldTargeted=target.gameObject;
-				StartCoroutine(slowed ());
+				StartCoroutine(slowed (speedRed,dur));
 				started=true;
 				Debug.Log(initialSpeed);
 
@@ -68,11 +72,11 @@ public class MudDrop : MonoBehaviour {
 		}
 	}*/
 
-	IEnumerator slowed()
+	IEnumerator slowed(float speedReduction, float duration)
 	{	Debug.Log ("started cor");
-		resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed*=0.5f;
+		resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed*=speedReduction;
 		resourceFieldTargeted.GetComponent<Renderer> ().material = mud;
-		yield return new WaitForSeconds(20f);
+		yield return new WaitForSeconds(duration);
 		resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed=initialSpeed;
 		Debug.Log("changedMaterialback");
 		resourceFieldTargeted.GetComponent<Renderer> ().material =resource;

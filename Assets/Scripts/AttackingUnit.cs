@@ -37,13 +37,19 @@ public class AttackingUnit : MonoBehaviour {
 	bool mudReady=true;
 	bool mudTriggered=false;
 	public Transform mud;
+	float mudImpactSpeed=0.5f;
+	float mudImpactDuration=20f;
 
+	int upgradeMultiplier=1;
+	float missileCooldown=20f;
 
 	// Use this for initialization
 	void Start () {
 		structure = this.GetComponent<UnitStructure> ();
 		structure.HP = 250;
 		structure.HPMax = 250;
+		attributeCosts ();
+
 		structure.colorUnit = gameObject.GetComponent<Renderer> ().material.color;
 		structure.isInConstruction = true;
 		StartCoroutine(structure.waitConstruction (20f,structure.colorUnit)); //needs to be 20;
@@ -51,7 +57,11 @@ public class AttackingUnit : MonoBehaviour {
 		structure.healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
 		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
 		structure.HP_Bar.minValue = 0;
-		structure.HP_Bar.maxValue = 250;
+		structure.HP_Bar.maxValue = structure.HPMax;
+
+		structure.name = "Attacking Unit";
+		GameObject temp=GameObject.Find("Base");
+		structure.BaseUnit=temp.GetComponent<BaseManager>();
 
 		tempName=gameObject.name.Substring(0,9);
 	//	Debug.Log(tempName);
@@ -68,7 +78,7 @@ public class AttackingUnit : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (!structure.isInConstruction) 
+		if (!structure.isInConstruction && !structure.isUnderRepair) 
 		{
 			if (!started) 
 			{
@@ -89,29 +99,29 @@ public class AttackingUnit : MonoBehaviour {
 				ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 				if (Physics.Raycast (ray, out hit, 10000f) && (missileCurrentCharges < 3)) 
 				{
-					Debug.Log (hit.transform.tag);
+					//Debug.Log (hit.transform.tag);
 					if (hit.transform.tag == "Enemy") 
 					{
-						Debug.Log (hit.transform);
+					//	Debug.Log (hit.transform);
 						target = hit.transform; 
 						targets[missileCurrentCharges] = target;
-						Debug.Log (hit.transform+""+target+""+targets[missileCurrentCharges]);
+					//	Debug.Log (hit.transform+""+target+""+targets[missileCurrentCharges]);
 						MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove> ();
 						damage.target=target;
 
-						Debug.Log("currentCharges:"+missileCurrentCharges);
+						//Debug.Log("currentCharges:"+missileCurrentCharges);
 
 						bool sameTarget = true;
 						for (int i=0; i<missileCurrentCharges; i++)
 						{	if (targets[i].name!= target.name)
 								sameTarget = false;
-							Debug.Log(targets[i].name+""+target.name+""+sameTarget);
+							//Debug.Log(targets[i].name+""+target.name+""+sameTarget);
 						}
 
 						if (sameTarget && Time.realtimeSinceStartup-timeAtMissileLaunch<=5.0f)
 						{	
-							Debug.Log(Time.realtimeSinceStartup-timeAtMissileLaunch);
-							damage.missileDamagePercentage = 5 + missileCurrentCharges;
+							//Debug.Log(Time.realtimeSinceStartup-timeAtMissileLaunch);
+							damage.missileDamagePercentage = 5 + missileCurrentCharges*upgradeMultiplier;
 						}
 						else
 						{
@@ -131,7 +141,7 @@ public class AttackingUnit : MonoBehaviour {
 						{	
 							missileAbilityAvailable=false;
 							StartCoroutine(rockFlurr ());
-							StartCoroutine(rechargeMissile());
+							StartCoroutine(rechargeMissile(missileCooldown));
 						
 						} else
 							Debug.Log ("couldn't shoot");
@@ -148,11 +158,13 @@ public class AttackingUnit : MonoBehaviour {
 				//Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
 					if (Physics.Raycast(ray, out hit, 10000f)) 
 				    {
-						Debug.Log (hit.transform.tag);
+					//	Debug.Log (hit.transform.tag);
 						if (hit.transform.tag == "enemy_Resource") 
 						{	
 							MudDrop droplet=mud.GetComponent<MudDrop>();
 							droplet.target=hit.transform;
+							droplet.speedRed=mudImpactSpeed;
+							droplet.dur=mudImpactDuration;
 							Instantiate (mud, gameObject.transform.position, Quaternion.identity);
 							mud.LookAt(hit.transform.position);
 							StartCoroutine(gatherMud());
@@ -161,9 +173,12 @@ public class AttackingUnit : MonoBehaviour {
 			}
 		
 	}
+		structure.status = status();
+		Debug.Log (status()+" "+structure.status);
 }
 
 	void OnMouseEnter(){
+		if (!structure.isUnderRepair && !UnitStructure.TeamLookingForTarget)
 		canBeClicked = true;
 	}
 	void OnMouseExit(){
@@ -209,11 +224,11 @@ public class AttackingUnit : MonoBehaviour {
 	/// 4- to upgrade step 2: 225 resources;
 	/// </summary>
 	void attributeCosts(){
-		costs [0] = 40;
-		costs [1] = 15;
-		costs [2] = 35;
-		costs [3] = 100;
-		costs [4] = 225;
+		structure.costs [0] = 40; // build
+		structure.costs [1] = 15; // cast rockFlurr
+		structure.costs [2] = 35; // cast mudSplatter
+		structure.costs [3] = 100; //upgrade step 1
+		structure.costs [4] = 225; //upgrade step 2
 	}
 
 
@@ -279,14 +294,15 @@ public class AttackingUnit : MonoBehaviour {
 	void missileLaunch(){	
 		if (missileAbilityAvailable) {
 			triggeredMissileLaunch = true;
-			Debug.Log ("launched");
+			BaseManager.resources-=structure.costs[1];
 			StopCoroutine (rockFlurr ());
 			activeMarker=false;
 			structure.panel.SetActive(activeMarker);
 		}
+		else Debug.Log("missiles not ready yet");
  	}
-	IEnumerator rechargeMissile(){
-		yield return new WaitForSeconds (20);
+	IEnumerator rechargeMissile(float cooldown){
+		yield return new WaitForSeconds (cooldown);
 		missileAbilityAvailable = true;
 		for (int i=0; i<=2; i++)
 			targets[i] = null;
@@ -305,6 +321,7 @@ public class AttackingUnit : MonoBehaviour {
 		if (mudReady) {
 			mudTriggered = true;
 			mudReady = false;
+			BaseManager.resources-=structure.costs[2];
 		} else
 			Debug.Log ("still gathering mud");
 	}
@@ -320,9 +337,40 @@ public class AttackingUnit : MonoBehaviour {
 
 	}
 
-	void UnitUpdate(){
-		RocksMax = 60;
-		RocksMin = 30;
+	public void upgrade(){
+		structure.upgrades++;
+		Debug.Log ("upgrading attacking, step"+structure.upgrades);
+		if (structure.upgrades == 1) {
+			StartCoroutine(structure.waitConstruction (30f,structure.colorUnit)); //needs to be 20;
+			upgradeMultiplier=2;
+			mudImpactSpeed=0.6f;
+			mudImpactDuration=30f;
+		}
+		if (structure.upgrades==2) 
+		{	
+			StartCoroutine(structure.waitConstruction (30f,structure.colorUnit));
+			missileCooldown=15f;
+			RocksMax = 60;
+			RocksMin = 40;
+			BaseManager.resources-=structure.costs[5];
+		}
+	}
+
+	public string status(){
+		string message=" ";
+		if (structure.isUnderRepair)
+			message="repairing";
+		if (structure.isInConstruction)
+			if (structure.upgrades == 0)
+				message="building";
+			else
+				message="upgrading";
+		if(!mudReady) message+=" gathering mud;";
+		else message+=" mud ready;";
+		if(!missileAbilityAvailable) message+=" preparing missiles;";
+		else message+=" missiles ready;";
+		return message;
+	
 	}
 
 

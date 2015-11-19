@@ -21,29 +21,36 @@ public class DefensiveUnit : MonoBehaviour{
 		structure = this.GetComponent<UnitStructure> ();
 		structure.HP = 500;
 		structure.HPMax = 500;
+		attributeCosts ();
+		//Debug.Log (structure.costs [0]);
 		structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
 		structure.isInConstruction = true;
 		StartCoroutine (structure.waitConstruction (20f,structure.colorUnit));
+		BaseManager.resources -= structure.costs [0];
 
 		structure.healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
 		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
 		structure.HP_Bar.minValue = 0;
-		structure.HP_Bar.maxValue = 500;
+		structure.HP_Bar.maxValue = structure.HPMax;
 		structure.HP_Bar.value = structure.HP;
+
+		structure.name = "Defensive Unit";
 		GameObject temp=GameObject.Find("Base");
 		structure.BaseUnit=temp.GetComponent<BaseManager>();
 		
 		tempName=gameObject.name.Substring(0,9);
-		Debug.Log(tempName);
+		//Debug.Log(tempName);
 		structure.panel = GameObject.Find ("BuildPanelfor"+tempName);
 		changePanel ();
 		structure.panel.SetActive(activeMarker);
+
+
 	}
 	
 
 	// Update is called once per frame
 	void Update () {
-		if (!structure.isInConstruction) 
+		if (!structure.isInConstruction && !structure.isUnderRepair) 
 		{
 
 			if (structure.HP <= 0f) {	
@@ -54,11 +61,14 @@ public class DefensiveUnit : MonoBehaviour{
 		//	Debug.Log (gameObject.tag + " " + structure.HP);
 			structure.HP_Bar.value = structure.HP;
 		}
+
+		structure.status = status ();
 	}
 	
 
 	void OnMouseEnter(){
-		canBeClicked = true;
+		if (!structure.isUnderRepair && !UnitStructure.TeamLookingForTarget)
+			canBeClicked = true;
 	}
 	void OnMouseExit(){
 		canBeClicked = false;
@@ -121,6 +131,23 @@ public class DefensiveUnit : MonoBehaviour{
 		activeMarker = false;
 		structure.panel.SetActive(activeMarker);
 		Debug.Log ("threw rock");
+	}
+
+	void attributeCosts(){
+		structure.costs [0] = 40;
+		structure.costs [1] = 15;
+		structure.costs [2] = 35;
+		structure.costs [3] = 100;
+		structure.costs [4] = 225;
+	}
+
+	public void upgrade(){
+		Debug.Log ("upgrading defensive");
+	}
+
+
+	public string status(){
+		return "status";
 	}
 
 }

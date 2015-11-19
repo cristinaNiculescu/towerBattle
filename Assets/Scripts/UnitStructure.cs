@@ -11,17 +11,24 @@ public class UnitStructure : MonoBehaviour {
 	public GameObject healthBar;
 	public Slider HP_Bar;
 	public BaseManager BaseUnit;
-
+	public string name;
 	public GameObject panel;
 	bool canBeClicked;
 	bool activeMarker=false;
 	string tempName;
 	GameObject image;
 	public Color colorUnit;
+	public bool isUnderRepair;
+	public string status;
+
+	public int[] costs= new int[5];
+	public static bool  TeamLookingForTarget;
 
 	// Use this for initialization
 	void Start () {
 	
+		TeamLookingForTarget = false;
+
 	//	HP = HPMax;
 	}
 
@@ -43,6 +50,8 @@ public class UnitStructure : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
+
+
 }

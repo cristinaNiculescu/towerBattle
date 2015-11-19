@@ -33,6 +33,10 @@ public class RockBehavior : MonoBehaviour {
 	{	
 
 		if (col.transform.tag == "Enemy") {
+			if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower>0)
+				col.gameObject.GetComponent<UnitStructure> ().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure> ().HPMax *
+					0.05f;
+			else
 			col.gameObject.GetComponent<UnitStructure> ().HP -= col.gameObject.GetComponent<UnitStructure> ().HPMax *
 				0.05f;
 			Destroy(gameObject);	

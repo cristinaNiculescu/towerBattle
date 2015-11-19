@@ -7,7 +7,7 @@ public class ResourceField : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		gameObject.tag = "enemy_Resource";
+		//gameObject.tag = "enemy_Resource";
 		//Debug.Log (gameObject.tag);
 		speed = 2;
 	}

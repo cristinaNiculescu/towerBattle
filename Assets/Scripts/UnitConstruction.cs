@@ -51,14 +51,19 @@ public class UnitConstruction : MonoBehaviour {
 	{
 		unit.name = gameObject.name;
 		int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-		//Debug.Log (gameObject.name[gameObject.name.Length - 1]+","+index);
-		hpbar.SetActive (true);
-		BaseUnit.UnitsBuilt[index-49]=unit;
-		BaseUnit.reCheckShield ();
-		unit.transform.LookAt (GameObject.FindWithTag("Enemy").transform.position);
-		Instantiate (unit, gameObject.transform.position, Quaternion.identity);
-		//panel.SetActive (false);
-		Destroy(gameObject);
+		int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
+		if (BaseManager.resources - constructionCost >= 0) 
+		{
+			hpbar.SetActive (true);
+			BaseUnit.UnitsBuilt [index - 49] = unit;
+
+			BaseUnit.reCheckShield ();
+			unit.transform.LookAt (GameObject.FindWithTag ("Enemy").transform.position);
+			Instantiate (unit, gameObject.transform.position, Quaternion.identity);
+
+			Destroy (gameObject);
+		}
+
 	}
 
 }
