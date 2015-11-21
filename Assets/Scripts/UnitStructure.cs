@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.UI;
 
-public class UnitStructure : MonoBehaviour {
+public class UnitStructure : NetworkBehaviour {
 
 	public float HP;
 	public float HPMax;

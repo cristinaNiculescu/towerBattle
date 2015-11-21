@@ -50,11 +50,23 @@ public class CameraController : MonoBehaviour
             dragOrigin = Input.mousePosition;
             return;
         }
+        //Right-MB
+        if (Input.GetMouseButton(1))
+        {
+            Vector3 pos = cam.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
+            //Move the direction we are pulling
+            //Vector3 move = new Vector3(pos.x, 0f, pos.y);
+            Vector3 move = new Vector3(pos.y, 0f, -pos.x);
+            //Set the Move direction to a negative value, since we want a inverted direction drag.
+            cam.transform.Translate(move * Time.deltaTime * dragSpeed, Space.World);
+        }
+        //Wheel-MB
         if (Input.GetMouseButton(2))
         {
             Vector3 pos = cam.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
             //Move the direction we are pulling
-            Vector3 move = new Vector3(pos.x, 0f, pos.y);
+            //Vector3 move = new Vector3(pos.x, 0f, pos.y);
+            Vector3 move = new Vector3(pos.y, 0f, -pos.x);
             //Set the Move direction to a negative value, since we want a inverted direction drag.
             cam.transform.Translate(-move * Time.deltaTime * dragSpeed, Space.World);
         }

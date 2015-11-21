@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System;
 
-public class UnitConstruction : MonoBehaviour {
+public class UnitConstruction : NetworkBehaviour {
 
 	public GameObject cs;
 	bool activeMarker=false;
@@ -59,11 +60,17 @@ public class UnitConstruction : MonoBehaviour {
 
 			BaseUnit.reCheckShield ();
 			unit.transform.LookAt (GameObject.FindWithTag ("Enemy").transform.position);
-			Instantiate (unit, gameObject.transform.position, Quaternion.identity);
-
-			Destroy (gameObject);
+            GameObject myUnit = (GameObject)Instantiate(unit.gameObject, gameObject.transform.position, Quaternion.identity);
+            CmdBuildUnit(myUnit);
+            Destroy(gameObject);
 		}
 
 	}
+
+    [Command]
+    void CmdBuildUnit(GameObject unit)
+    {
+        NetworkServer.Spawn(unit);
+    }
 
 }

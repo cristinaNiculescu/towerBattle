@@ -14,7 +14,7 @@ public class Player_NetworkingSetup : NetworkBehaviour {
             GetComponent<FlareLayer>().enabled = true;
             GetComponent<GUILayer>().enabled = true;
             GetComponent<AudioListener>().enabled = true;
-            GetComponent<CameraController>().enabled = true;
+            //GetComponent<CameraController>().enabled = true;
         }
 	}
 }
