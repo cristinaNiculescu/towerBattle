@@ -20,7 +20,17 @@ public class UnitStructure : NetworkBehaviour {
 	GameObject image;
 	public Color colorUnit;
 	public bool isUnderRepair;
-	public string status;
+	//public string status;
+	public bool isDisoriented;
+	public float disorientDur;
+	
+	//[SerializeField]
+	private string status;
+	
+	public string statusUpdater{
+		get{ return status;}
+		set {status=value;}
+	}
 
 	public int[] costs= new int[5];
 	public static bool  TeamLookingForTarget;
@@ -52,6 +62,11 @@ public class UnitStructure : NetworkBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+	}
+	public IEnumerator dizzy(float duration){
+		Debug.Log ("is disoriented");
+		yield return new WaitForSeconds(duration);
+		isDisoriented = false;
 	}
 
 

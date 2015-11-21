@@ -51,19 +51,24 @@ public class UnitConstruction : NetworkBehaviour {
 	public void build(Transform unit)
 	{
 		unit.name = gameObject.name;
-		int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-		int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
-		if (BaseManager.resources - constructionCost >= 0) 
-		{
+		int index = (int)(gameObject.name [gameObject.name.Length - 1]);
+     
+		int constructionCost = unit.GetComponent<UnitStructure> ().costs [0];
+     
+		if (BaseManager.resources - constructionCost >= 0) {
+    
+			BaseManager.resources -= constructionCost;
+            BaseManager.notEnough="";
 			hpbar.SetActive (true);
 			BaseUnit.UnitsBuilt [index - 49] = unit;
 
 			BaseUnit.reCheckShield ();
 			unit.transform.LookAt (GameObject.FindWithTag ("Enemy").transform.position);
-            GameObject myUnit = (GameObject)Instantiate(unit.gameObject, gameObject.transform.position, Quaternion.identity);
-            CmdBuildUnit(myUnit);
-            Destroy(gameObject);
+			Instantiate (unit, gameObject.transform.position, Quaternion.identity);
+
+			Destroy (gameObject);
 		}
+        else BaseManager.notEnough="not enough resources";
 
 	}
 

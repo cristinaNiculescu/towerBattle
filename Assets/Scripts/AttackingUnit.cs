@@ -7,186 +7,168 @@ public class AttackingUnit : NetworkBehaviour
 {
 
     UnitStructure structure;
-    public int[] costs = new int[5];
-    public int damageAbility1 = 0;
-    public int damageAbility2 = 0;
-    public Transform projectile;
-    int RocksMin;
-    int RocksMax;
-    bool started = false;
-    bool topToBottom = true;
-    float startAngle;
+    
 
-    bool canBeClicked;
-    bool activeMarker = false;
-    string tempName;
-
-    public Texture2D cursorCrosshair;
-
-    public CursorMode cursorMode = CursorMode.Auto;
-    public Vector2 hotSpot = Vector2.zero;
-
-    public Transform missile;
-    bool triggeredMissileLaunch = false;
-    RaycastHit hit;
-    Ray ray;
-    Transform target;
-    int missileCurrentCharges = 0;
-    bool missileAbilityAvailable = true;
-    Transform[] targets;
-    float timeAtMissileLaunch;
-
-    bool mudReady = true;
-    bool mudTriggered = false;
-    public Transform mud;
-    float mudImpactSpeed = 0.5f;
-    float mudImpactDuration = 20f;
-
-    int upgradeMultiplier = 1;
-    float missileCooldown = 20f;
+	public Transform projectile;
+	int RocksMin;
+	int RocksMax;
+	bool started = false;
+	bool topToBottom = true;
+	float startAngle;
+	bool canBeClicked;
+	bool activeMarker = false;
+	string tempName;
+	public string message = " ";
+	public Texture2D cursorCrosshair;
+	public CursorMode cursorMode = CursorMode.Auto;
+	public Vector2 hotSpot = Vector2.zero;
+	public Transform missile;
+	bool triggeredMissileLaunch = false;
+	RaycastHit hit;
+	Ray ray;
+	Transform target;
+	int missileCurrentCharges = 0;
+	bool missileAbilityAvailable = true;
+	Transform[] targets;
+	float timeAtMissileLaunch;
+	bool mudReady = true;
+	bool mudTriggered = false;
+	public Transform mud;
+	float mudImpactSpeed = 0.5f;
+	float mudImpactDuration = 20f;
+	int upgradeMultiplier = 1;
+	float missileCooldown = 20f;
+	IEnumerator co;
+	bool throwingRocks = false;
 
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 250;
-        structure.HPMax = 250;
-        attributeCosts();
-
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
-
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-
-        structure.name = "Attacking Unit";
-        GameObject temp = GameObject.Find("Base");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
-
-        tempName = gameObject.name.Substring(0, 9);
-        //	Debug.Log(tempName);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
-
-        targets = new Transform[3];
-        RocksMin = 20;
-        RocksMax = 40;
-        startAngle = gameObject.transform.rotation.z;
+		structure = this.GetComponent<UnitStructure> ();
+		structure.HP = 250;
+		structure.HPMax = 250;
+		//attributeCosts ();
+		
+		structure.colorUnit = gameObject.GetComponent<Renderer> ().material.color;
+		structure.isInConstruction = true;
+		StartCoroutine (structure.waitConstruction (20f, structure.colorUnit)); //needs to be 20;
+		
+		structure.healthBar = GameObject.Find ("HealthBarfor" + gameObject.name);
+		structure.HP_Bar = structure.healthBar.GetComponent<Slider> ();
+		structure.HP_Bar.minValue = 0;
+		structure.HP_Bar.maxValue = structure.HPMax;
+		
+		structure.name = "Attacking Unit";
+		GameObject temp = GameObject.Find ("Base");
+		structure.BaseUnit = temp.GetComponent<BaseManager> ();
+		
+		tempName = gameObject.name.Substring (0, 9);
+		//	Debug.Log(tempName);
+		structure.panel = GameObject.Find ("BuildPanelfor" + tempName);
+		changePanel ();
+		structure.panel.SetActive (activeMarker);
+		
+		targets = new Transform[3];
+		RocksMin = 20;
+		RocksMax = 40;
+		startAngle = gameObject.transform.rotation.z;
+		co = rockFlurr ();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
+        //if (!isLocalPlayer)
+       // {
+        //    return;
+        //}
 
-        if (!structure.isInConstruction && !structure.isUnderRepair)
-        {
-            if (!started)
-            {
-                started = true;
-                StartCoroutine(rockFlurr());
-            }
-            if (structure.HP <= 0f)
-            {
-                Destroy(gameObject, 0.1f);
-                structure.BaseUnit.reCheckShield();
-            }
-
-            //Debug.Log (gameObject.tag + " " + HP);
-            structure.HP_Bar.value = structure.HP;
-
-            if (triggeredMissileLaunch && Input.GetMouseButtonUp(0))
-            {
-                ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out hit, 10000f) && (missileCurrentCharges < 3))
-                {
-                    //Debug.Log (hit.transform.tag);
-                    if (hit.transform.tag == "Enemy")
-                    {
-                        //	Debug.Log (hit.transform);
-                        target = hit.transform;
-                        targets[missileCurrentCharges] = target;
-                        //	Debug.Log (hit.transform+""+target+""+targets[missileCurrentCharges]);
-                        MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                        damage.target = target;
-
-                        //Debug.Log("currentCharges:"+missileCurrentCharges);
-
-                        bool sameTarget = true;
-                        for (int i = 0; i < missileCurrentCharges; i++)
-                        {
-                            if (targets[i].name != target.name)
-                                sameTarget = false;
-                            //Debug.Log(targets[i].name+""+target.name+""+sameTarget);
-                        }
-
-                        if (sameTarget && Time.realtimeSinceStartup - timeAtMissileLaunch <= 5.0f)
-                        {
-                            //Debug.Log(Time.realtimeSinceStartup-timeAtMissileLaunch);
-                            damage.missileDamagePercentage = 5 + missileCurrentCharges * upgradeMultiplier;
-                        }
-                        else
-                        {
-                            damage.missileDamagePercentage = 5;
-                        }
-                        missileCurrentCharges++;
-                        timeAtMissileLaunch = Time.realtimeSinceStartup;
-                        Instantiate(missile, gameObject.transform.position, Quaternion.identity);
-                        missile.LookAt(target.position);
-                        triggeredMissileLaunch = false;
-                        if (missileCurrentCharges == 3)
-                        {
-                            missileAbilityAvailable = false;
-                            StartCoroutine(rockFlurr());
-                            StartCoroutine(rechargeMissile(missileCooldown));
-
-                        }
-                        else
-                            Debug.Log("couldn't shoot");
-                    }
-
-                }
-            }
-
-
-            if (mudTriggered && Input.GetMouseButtonUp(0))
-            {
-                //Debug.Log("after if");
-                ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
-                if (Physics.Raycast(ray, out hit, 10000f))
-                {
-                    //	Debug.Log (hit.transform.tag);
-                    if (hit.transform.tag == "enemy_Resource")
-                    {
-                        MudDrop droplet = mud.GetComponent<MudDrop>();
-                        droplet.target = hit.transform;
-                        droplet.speedRed = mudImpactSpeed;
-                        droplet.dur = mudImpactDuration;
-                        Instantiate(mud, gameObject.transform.position, Quaternion.identity);
-                        mud.LookAt(hit.transform.position);
-                        StartCoroutine(gatherMud());
-                    }
-                }
-            }
-
-        }
-        structure.status = status();
-        Debug.Log(status() + " " + structure.status);
+		if (!structure.isInConstruction && !structure.isUnderRepair && !structure.isDisoriented) {
+			if (!started) {
+				started = true;
+				//co = rockFlurr ();
+				StartCoroutine (co);
+			}
+			if (structure.HP <= 0f) {	
+				Destroy (gameObject, 0.1f);
+				structure.BaseUnit.reCheckShield ();
+			}
+			
+			
+			structure.HP_Bar.value = structure.HP;
+			
+			if (triggeredMissileLaunch && Input.GetMouseButtonUp (0)) {
+				ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
+				if (Physics.Raycast (ray, out hit, 10000f) && (missileCurrentCharges < 3)) {
+					
+					if (hit.transform.tag == "Enemy") {
+						target = hit.transform; 
+						targets [missileCurrentCharges] = target;
+						MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove> ();
+						damage.target = target;
+						
+						bool sameTarget = true;
+						for (int i=0; i<missileCurrentCharges; i++) {
+							if (targets [i].name != target.name)
+								sameTarget = false;
+						}
+						
+						if (sameTarget && Time.realtimeSinceStartup - timeAtMissileLaunch <= 5.0f) {	
+							damage.missileDamagePercentage = 5 + missileCurrentCharges * upgradeMultiplier;
+						} else {
+							damage.missileDamagePercentage = 5;
+						}
+						missileCurrentCharges++;
+						timeAtMissileLaunch = Time.realtimeSinceStartup;
+						Instantiate (missile, gameObject.transform.position, Quaternion.identity);
+						missile.LookAt (target.position);
+						triggeredMissileLaunch = false;
+						if (missileCurrentCharges == 3) {	
+							missileAbilityAvailable = false;
+							StartCoroutine (co);
+							StartCoroutine (rechargeMissile (missileCooldown));
+							
+						} 
+					}
+					
+				}
+			}
+			
+			
+			if (mudTriggered && Input.GetMouseButtonUp (0)) {		
+				//Debug.Log("after if");
+				ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
+				//Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
+				if (Physics.Raycast (ray, out hit, 10000f)) {
+					//	Debug.Log (hit.transform.tag);
+					if (hit.transform.tag == "enemy_Resource") {	
+						MudDrop droplet = mud.GetComponent<MudDrop> ();
+						droplet.target = hit.transform;
+						droplet.speedRed = mudImpactSpeed;
+						droplet.dur = mudImpactDuration;
+						Instantiate (mud, gameObject.transform.position, Quaternion.identity);
+						mud.LookAt (hit.transform.position);
+						StartCoroutine (gatherMud ());
+					}
+				}
+			}
+			
+		} else 
+			if (started) 
+				if (structure.isInConstruction || structure.isUnderRepair || structure.isDisoriented)
+					StopCoroutine (co);
+		
+		
+		status ();
+		structure.statusUpdater = message;
+		//	Debug.Log (structure.status);
     }
 
     void OnMouseEnter()
     {
-        if (!structure.isUnderRepair && !UnitStructure.TeamLookingForTarget)
-            canBeClicked = true;
-    }
+		if (!structure.isInConstruction && !structure.isDisoriented && !structure.isUnderRepair && !UnitStructure.TeamLookingForTarget)
+			canBeClicked = true;
+	}
     void OnMouseExit()
     {
         canBeClicked = false;
@@ -258,7 +240,7 @@ public class AttackingUnit : NetworkBehaviour
         }
 
 
-        StartCoroutine(rockFlurr());
+		StartCoroutine (co);
     }
     /// <summary>
     /// Rocks the flurr.
@@ -304,18 +286,24 @@ public class AttackingUnit : NetworkBehaviour
     /// within 5 sec of the previous hit, deals 1% more damage. Each missile does 5% damage out of max enemy
     /// unit health.  The ability has 20 sec cool down.
     /// </summary>
-    void missileLaunch()
-    {
-        if (missileAbilityAvailable)
-        {
-            triggeredMissileLaunch = true;
-            BaseManager.resources -= structure.costs[1];
-            StopCoroutine(rockFlurr());
-            activeMarker = false;
-            structure.panel.SetActive(activeMarker);
-        }
-        else Debug.Log("missiles not ready yet");
-    }
+	void missileLaunch ()
+	{	
+		if (missileAbilityAvailable) {
+			if (BaseManager.resources - structure.costs [1] >= 0) {
+				BaseManager.resources -= structure.costs [1];
+				BaseManager.notEnough = "";
+				triggeredMissileLaunch = true;
+				
+				StopCoroutine (co);
+				activeMarker = false;
+				structure.panel.SetActive (activeMarker);
+			} else
+				BaseManager.notEnough = "not enough resources";
+		} else
+			Debug.Log ("missiles not ready yet");
+	}
+
+
     IEnumerator rechargeMissile(float cooldown)
     {
         yield return new WaitForSeconds(cooldown);
@@ -332,17 +320,20 @@ public class AttackingUnit : NetworkBehaviour
     /// </summary>
     void mudSplatter()
     {
-        activeMarker = false;
-        structure.panel.SetActive(activeMarker);
-        //Debug.Log ("mudssssss"+mudTriggered+mudReady);
-        if (mudReady)
-        {
-            mudTriggered = true;
-            mudReady = false;
-            BaseManager.resources -= structure.costs[2];
-        }
-        else
-            Debug.Log("still gathering mud");
+		activeMarker = false;
+		structure.panel.SetActive (activeMarker);
+		//Debug.Log ("mudssssss"+mudTriggered+mudReady);
+		if (mudReady) {
+			if (BaseManager.resources - structure.costs [2] >= 0) {
+				BaseManager.resources -= structure.costs [2];
+				BaseManager.notEnough = "";
+				mudTriggered = true;
+				mudReady = false;
+			} else
+				BaseManager.notEnough = "not enough resources";
+			;
+		} else
+			Debug.Log ("still gathering mud");
     }
 
     IEnumerator gatherMud()
@@ -352,49 +343,63 @@ public class AttackingUnit : NetworkBehaviour
         mudReady = true;
     }
 
-    void OnCollisionEnter(Collision col)
-    {
+   
 
-    }
-
-    public void upgrade()
+    public void upgrade(float upgradeDuration)
     {
-        structure.upgrades++;
-        Debug.Log("upgrading attacking, step" + structure.upgrades);
-        if (structure.upgrades == 1)
-        {
-            StartCoroutine(structure.waitConstruction(30f, structure.colorUnit)); //needs to be 20;
-            upgradeMultiplier = 2;
-            mudImpactSpeed = 0.6f;
-            mudImpactDuration = 30f;
-        }
-        if (structure.upgrades == 2)
-        {
-            StartCoroutine(structure.waitConstruction(30f, structure.colorUnit));
-            missileCooldown = 15f;
-            RocksMax = 60;
-            RocksMin = 40;
-            BaseManager.resources -= structure.costs[5];
-        }
+		structure.upgrades++;
+		Debug.Log ("upgrading attacking, step" + structure.upgrades);
+		if (structure.upgrades == 1) {
+			if (BaseManager.resources - structure.costs [3] >= 0) {
+				BaseManager.resources -= structure.costs [3];
+				BaseManager.notEnough = "";
+				StartCoroutine (structure.waitConstruction (upgradeDuration, structure.colorUnit)); //needs to be 20;
+				upgradeMultiplier = 2;
+				mudImpactSpeed = 0.6f;
+				mudImpactDuration = 30f;
+			} else
+				BaseManager.notEnough = "not enough resources";
+		}
+		if (structure.upgrades == 2) {
+			if (BaseManager.resources - structure.costs [4] >= 0) {
+				BaseManager.resources -= structure.costs [4];
+				BaseManager.notEnough = "";
+				StartCoroutine (structure.waitConstruction (upgradeDuration, structure.colorUnit));
+				missileCooldown = 15f;
+				RocksMax = 60;
+				RocksMin = 40;
+			} else
+				BaseManager.notEnough = "not enough resources";
+		}
     }
 
     public string status()
     {
-        string message = " ";
-        if (structure.isUnderRepair)
-            message = "repairing";
-        if (structure.isInConstruction)
-            if (structure.upgrades == 0)
-                message = "building";
-            else
-                message = "upgrading";
-        if (!mudReady) message += " gathering mud;";
-        else message += " mud ready;";
-        if (!missileAbilityAvailable) message += " preparing missiles;";
-        else message += " missiles ready;";
-        return message;
+		if (structure.isUnderRepair) {
+			message = "repairing";
+			return message;
+		} else if (structure.isInConstruction) {
+			if (structure.upgrades == 0) {
+				message = "building";
+				return message;
+			} else {
+				message = "upgrading";
+				return message;
+			}
+		} else {
+			if (!mudReady)
+				message += "gathering mud;";
+			else
+				message += " mud ready;";
+			
+			if (!missileAbilityAvailable)
+				message += " preparing missiles;";
+			else
+				message += " missiles ready;";
+			
+			return message;
+		}
+	}
+   }
 
-    }
 
-
-}
