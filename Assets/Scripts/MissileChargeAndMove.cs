@@ -10,7 +10,7 @@ public class MissileChargeAndMove : MonoBehaviour {
 	public Transform target;
 
 	void Start () {
-		Debug.Log ("% damage:" + missileDamagePercentage);
+		//Debug.Log ("% damage:" + missileDamagePercentage);
 	}
 	
 	// Update is called once per frame

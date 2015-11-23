@@ -30,7 +30,7 @@ public class DefensiveUnit : MonoBehaviour{
 	float cloudCooldown;
 	float cloudDuration=10f;
 	int cloudRadius=60;
-	
+	string message;
 	
 	// Use this for initialization
 	void Start () {
@@ -115,7 +115,7 @@ public class DefensiveUnit : MonoBehaviour{
 					puff.dur=cloudDuration;
 					puff.size=new Vector3((float) cloudRadius,1f,(float)cloudRadius);
 					puff.position=new Vector3(hit.transform.position.x,10f,hit.transform.position.z);
-					Debug.Log(puff.position + " " + hit.transform.position);
+//					Debug.Log(puff.position + " " + hit.transform.position);
 					Instantiate (cloud, puff.position, Quaternion.identity);
 					cloudCharges++;
 					cloudTriggered=false;
@@ -187,7 +187,7 @@ public class DefensiveUnit : MonoBehaviour{
 				activeMarker = false;
 				structure.panel.SetActive (activeMarker);
 				cloudTriggered=true;
-				Debug.Log ("cloud is above");
+//				Debug.Log ("cloud is above");
 			}
 			else BaseManager.notEnough="not enough resources";
 		}
@@ -216,7 +216,7 @@ public class DefensiveUnit : MonoBehaviour{
 				activeMarker = false;
 				structure.panel.SetActive (activeMarker);
 				rockTriggered=true;
-				Debug.Log ("threw rock");
+			//	Debug.Log ("threw rock");
 			}
 			else BaseManager.notEnough="not enough resources";
 		}
@@ -238,7 +238,7 @@ public class DefensiveUnit : MonoBehaviour{
 	}
 	
 	public void upgrade(float upgradeDuration){
-		Debug.Log ("upgrading defensive, step"+structure.upgrades);
+		//Debug.Log ("upgrading defensive, step"+structure.upgrades);
 		structure.upgrades++;
 		if (structure.upgrades == 1) {
 			if (BaseManager.resources-structure.costs[3]>=0)
@@ -268,8 +268,36 @@ public class DefensiveUnit : MonoBehaviour{
 	}
 	
 	
-	public string status(){
-		return "status";
+	public string status ()
+	{	message = " ";
+
+		if (structure) {
+			if (structure.isInConstruction) {
+				message = "building";
+				return message;
+			} else if (structure.isUnderRepair) {
+				if (structure.upgrades == 0) {
+					message = "repairing";
+					return message;
+				} else {
+					message = "upgrading";
+					return message;
+				}
+			} else {
+				if (!cloudReady)
+					message += " cloud forming;";
+				else
+					message += " cloud ready;";
+			
+				if (!rockReady)
+					message += " getting THE rock;";
+				else
+					message += " rock ready;";
+			
+				return message;
+			}
+		} else
+			return message;
 	}
 	
 }

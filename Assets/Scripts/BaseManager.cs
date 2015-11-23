@@ -7,7 +7,8 @@ public class BaseManager : MonoBehaviour
 	
 	public int shieldDamageTaken = 0;
 	public float shieldPower = 500;
-	public Transform[] UnitsBuilt;
+//	public Transform[] UnitsBuilt;
+	public GameObject[] UnitsBuilt;
 	float shieldMultiplier = 0;
 	public static int resources = 200;
 	float gatheringSpeed;
@@ -26,7 +27,8 @@ public class BaseManager : MonoBehaviour
 		structure = this.GetComponent<UnitStructure>();
 		structure.HP = 2000;
 		structure.HPMax = 2000;
-		UnitsBuilt = new Transform[5];
+		//UnitsBuilt = new Transform[5];
+		UnitsBuilt = new GameObject[5];
 		
 		if (gameObject.tag == "Enemy")
 			structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
@@ -63,10 +65,10 @@ public class BaseManager : MonoBehaviour
 	{
 		
 		structure.HP_Bar.value = structure.HP;
-		if (clicked && (this.tag != "Enemy"))
+		if (this.tag != "Enemy")
 		{
-			updateText();
-			Debug.Log(GameObject.FindWithTag("Enemy").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP);
+			//updateText();
+//			Debug.Log(GameObject.FindWithTag("Enemy").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP);
 			if (structure.HP <= 0)
 			{
 				Lost();
@@ -90,7 +92,7 @@ public class BaseManager : MonoBehaviour
 		shieldPower = (int)temp + shieldPower;
 	}
 	
-	void updateText()
+	/*void updateText()
 	{   
 		
 		gatheringSpeed = 0;
@@ -110,7 +112,7 @@ public class BaseManager : MonoBehaviour
 						
 						infos [i].text = "Unit" + i + ": " 
 							+ temp.name + "\n" + "Health: " + temp.HP + "\n" + "Status: " + temp.statusUpdater;
-						Debug.Log(temp.statusUpdater);
+						//Debug.Log(temp.statusUpdater);
 						
 						if (temp.GetComponent<SpecialUnit>())
 						{
@@ -125,11 +127,11 @@ public class BaseManager : MonoBehaviour
 			}
 		}
 	}
-	
+	*/
 	void OnMouseUp()
 	{
 		if (this.tag != "Enemy")
-			updateText();
+		//	updateText();
 		clicked = true;
 	}
 	

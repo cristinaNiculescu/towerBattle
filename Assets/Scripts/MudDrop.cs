@@ -16,7 +16,7 @@ public class MudDrop : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Debug.Log ("mud thrown");
+//		Debug.Log ("mud thrown");
 	}
 	
 	// Update is called once per frame
@@ -31,7 +31,7 @@ public class MudDrop : MonoBehaviour {
 				resourceFieldTargeted=target.gameObject;
 				StartCoroutine(slowed (speedRed,dur));
 				started=true;
-				Debug.Log(initialSpeed);
+//				Debug.Log(initialSpeed);
 
 			}
 			//StartCoroutine(slowed());
@@ -73,12 +73,12 @@ public class MudDrop : MonoBehaviour {
 	}*/
 
 	IEnumerator slowed(float speedReduction, float duration)
-	{	Debug.Log ("started cor");
+	{	//Debug.Log ("started cor");
 		resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed*=speedReduction;
 		resourceFieldTargeted.GetComponent<Renderer> ().material = mud;
 		yield return new WaitForSeconds(duration);
 		resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed=initialSpeed;
-		Debug.Log("changedMaterialback");
+		//Debug.Log("changedMaterialback");
 		resourceFieldTargeted.GetComponent<Renderer> ().material =resource;
 		Destroy(gameObject);
 	}

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class SpecialUnit : MonoBehaviour
 {
@@ -29,7 +30,19 @@ public class SpecialUnit : MonoBehaviour
 	Vector3 origin;
 	bool scoutTriggered=false;
 	Vector3 newPosition;
-	
+	float scoutDistance;
+	public GameObject scout;
+	Coroutine sc;
+	int scoutCurrentStep=0;
+	int steps=0;
+	bool scisRunning=false;
+	float timeScoutSpawned;
+	float durationBetweenSteps;
+	GameObject scoutInstantiated;
+
+	List <Vector3> positions=new List<Vector3>();
+	string message;
+	Vector3 newPositionForScout;
 	// Use this for initialization
 	void Start()
 	{
@@ -43,7 +56,7 @@ public class SpecialUnit : MonoBehaviour
 		structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
 		structure.isInConstruction = true;
 		structure.statusUpdater = status();
-		Debug.Log(structure.statusUpdater);
+//		Debug.Log(structure.statusUpdater);
 		StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
 		BaseManager.resources -= structure.costs [0];
 		
@@ -98,7 +111,7 @@ public class SpecialUnit : MonoBehaviour
 							BaseManager.resources-=(int)repairCost;
 							BaseManager.notEnough=" ";
 							
-							Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under repair");
+							//Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under repair");
 							target.GetComponent<UnitStructure>().isUnderRepair = true;
 							StartCoroutine(repairDeployed(target, repDur, repCD));
 							repairDeployedTeam = false;
@@ -122,7 +135,7 @@ public class SpecialUnit : MonoBehaviour
 					    hit.transform.tag == "special")
 					{
 						target = hit.transform;
-						Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under upgrade");
+						//Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under upgrade");
 						target.GetComponent<UnitStructure>().isUnderRepair = true;
 						StartCoroutine(upgradeDeployed(target.transform));
 						upgradeDeployedTeam = false;
@@ -133,12 +146,82 @@ public class SpecialUnit : MonoBehaviour
 			
 			if ( scoutTriggered && Input.GetMouseButtonDown(0))
 			{
-				newPosition=new Vector3(Screen.width-Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
-				Debug.Log(newPosition);
-				
+				Vector3 positionAtClickInWorld=new Vector3(Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
+
+				//positionAtClickInWorld=Camera.main.ScreenToWorldPoint(positionAtClickInWorld);
+				positions.Add(positionAtClickInWorld);	
 			}
+
+			if (scoutTriggered && Input.GetMouseButtonDown(1))
+			{
+				scoutTriggered=false;
+				Debug.Log(scoutDistance);
+				//scoutDistance =Mathf.Sqrt(scoutDistance);
+
+				float scoutMissionDuration=scoutDistance/10f;
+
+				int ID =Instantiate(scout,transform.position,Quaternion.identity).GetInstanceID();
+				GameObject [] scouts=GameObject.FindGameObjectsWithTag("Scout");
 			
-			Debug.Log(origin+" "+newPosition);
+				for (int i=0;i<scouts.Length;i++)
+					if (scouts[i].GetInstanceID()==ID)
+						scoutInstantiated=scouts[i];
+				//Debug.Log("ID:"+ scoutInstantiated.GetInstanceID() +" "+ ID);
+				timeScoutSpawned=Time.realtimeSinceStartup;
+				steps=positions.Count;
+				durationBetweenSteps=2*scoutMissionDuration/(float)steps;
+				scoutCurrentStep=0;
+				Debug.Log("duration:"+scoutMissionDuration);
+				newPositionForScout=origin;
+				StartCoroutine(scoutOut(scoutMissionDuration));
+
+			}
+
+			if (scisRunning)
+			{	
+				Debug.Log("coroutine is running");
+				if(scoutCurrentStep<=steps)
+				{	
+					Debug.Log(scoutCurrentStep +" "+ steps + "timeScoutSpawned:" + timeScoutSpawned+"duration betweenSteps:"+durationBetweenSteps);
+					float timeToCompare=timeScoutSpawned+durationBetweenSteps*(scoutCurrentStep+1);
+					Debug.Log((int)timeToCompare+" "+(int)Time.realtimeSinceStartup);
+					scoutInstantiated.transform.position=Vector3.MoveTowards(scoutInstantiated.transform.position, 
+					                                                         newPositionForScout, 30f/durationBetweenSteps);
+
+					if ((int)timeToCompare==(int)Time.realtimeSinceStartup)
+					{ int j=0;
+						foreach(Vector3 v in positions)
+						{
+							if (scoutCurrentStep==j)
+							{// float distanceToCarry=Vector3.SqrMagnitude(scoutInstantiated.transform.position-v);
+								newPositionForScout=Camera.main.ScreenToWorldPoint(v);
+								newPositionForScout=new Vector3(newPositionForScout.x,newPositionForScout.z,0f);
+								Debug.Log("assigned new position" + newPositionForScout);
+
+							}
+							j++;
+						}
+						scoutCurrentStep++;
+					}
+				}
+			}
+			if (scoutInstantiated && (positions.Count!=0))
+				{	 
+				//Debug.Log(scoutInstantiated.transform.position+" "+positions[positions.Count-1]);
+				if ((scoutInstantiated.transform.position.x==positions[positions.Count-1].x ) &&
+				    (scoutInstantiated.transform.position.z==positions[positions.Count-1].z )
+				    )
+					Destroy(scoutInstantiated);
+							
+				if(scisRunning==false)
+				{
+					Destroy(scoutInstantiated);
+
+				}
+				}
+
+			
+//			Debug.Log(origin+" "+newPosition);
 			
 			if (!startedGathering)
 			{
@@ -150,7 +233,7 @@ public class SpecialUnit : MonoBehaviour
 		}
 		
 		structure.statusUpdater = status();
-		Debug.Log(structure.statusUpdater);
+//		Debug.Log(structure.statusUpdater);
 	}
 	
 	void OnGUI(){
@@ -158,10 +241,28 @@ public class SpecialUnit : MonoBehaviour
 		{
 			Debug.Log(origin+" "+newPosition);
 			float width = 3.0f;
-			Color color = Color.magenta;                    
-			Drawing.DrawLine(origin,newPosition,color,width);
-			Debug.Log(origin+" "+newPosition);
-			
+			Color color = Color.magenta;
+			Vector3 previousStep=new Vector3();
+			scoutDistance=0f;
+			previousStep=origin;
+			foreach (Vector3 v in positions)
+			{	Drawing.DrawLine(previousStep,v,color,width);
+				//Vector3 difference=v-previousStep;
+				scoutDistance+=Vector3.Distance(Camera.main.ScreenToWorldPoint(previousStep),Camera.main.ScreenToWorldPoint(v));
+				previousStep=v;
+			}
+			Debug.Log("newly calculated distance:"+scoutDistance);
+		}
+		if (scisRunning) {
+			float width = 3.0f;
+			Color color = Color.cyan;
+			Vector3 previousStep=origin;
+			foreach (Vector3 v in positions) {
+				Drawing.DrawLine (previousStep, v, color, width);
+				Vector3 difference = v - previousStep;
+				//scoutDistance += Vector3.SqrMagnitude (difference);
+				previousStep = v;
+			}
 		}
 	}
 	
@@ -221,18 +322,18 @@ public class SpecialUnit : MonoBehaviour
 			repairDeployedTeam = true;
 			UnitStructure.TeamLookingForTarget = true;
 		} else
-			Debug.Log("repairs not ready yet");
+			//Debug.Log("repairs not ready yet");
 		
 		activeMarker = false;
 		structure.panel.SetActive(activeMarker);
-		Debug.Log("sent repair");
+		//Debug.Log("sent repair");
 	}
 	
 	IEnumerator repairDeployed(Transform target, float repairDuration, float repairCooldown)
 	{   
 		UnitStructure.TeamLookingForTarget = false;
 		
-		Debug.Log("started cor" + target + "" + repairDuration + " " + repairCooldown + " " + target.GetComponent<UnitStructure>().colorUnit);
+		//Debug.Log("started cor" + target + "" + repairDuration + " " + repairCooldown + " " + target.GetComponent<UnitStructure>().colorUnit);
 		
 		if (target)
 		{   
@@ -261,7 +362,7 @@ public class SpecialUnit : MonoBehaviour
 			upgradeDeployedTeam = true;
 			UnitStructure.TeamLookingForTarget = true;
 		} else
-			Debug.Log("upgrades not ready yet");
+			//Debug.Log("upgrades not ready yet");
 		activeMarker = false;
 		structure.panel.SetActive(activeMarker);
 		//Debug.Log ("sent upgrade");
@@ -275,7 +376,7 @@ public class SpecialUnit : MonoBehaviour
 		if (target)
 		{
 			
-			Debug.Log("in cor: " + target.tag);
+			//Debug.Log("in cor: " + target.tag);
 			switch (target.tag)
 			{
 			case "attacking":
@@ -292,7 +393,7 @@ public class SpecialUnit : MonoBehaviour
 		yield return new WaitForSeconds(60f);
 		upgradeReady = true;
 		target.GetComponent<UnitStructure>().isUnderRepair = false;
-		Debug.Log("done upgrading");
+		//Debug.Log("done upgrading");
 		
 	}
 	
@@ -302,7 +403,7 @@ public class SpecialUnit : MonoBehaviour
 		for (int i=0; i<resourceFields.Length; i++)
 			gathered += resourceFields [i].GetComponent<ResourceField>().speed;
 		lastGathered = gathered;
-		Debug.Log(lastGathered);
+//		Debug.Log(lastGathered);
 		StartCoroutine(addResources());
 		
 	}
@@ -325,17 +426,28 @@ public class SpecialUnit : MonoBehaviour
 				BaseManager.resources -= structure.costs [4];
 				BaseManager.notEnough = "";
 				scoutTriggered=true;
-				origin = new Vector3(Screen.width-Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
-				newPosition=origin;
+				positions=new List<Vector3> ();
+				//origin = new Vector3(Screen.width-Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
+				origin=Camera.main.WorldToScreenPoint(this.transform.position);
+				origin=new Vector3(origin.x,Screen.height-origin.y,origin.z);
+				newPositionForScout=origin;
+				positions.Add(origin);
 				scoutReady = false;
 				activeMarker = false;
 				structure.panel.SetActive(activeMarker);
-				Debug.Log("scout out");
+			//	Debug.Log("scout out");
 			} else
 				BaseManager.notEnough = "not enough resources";
 		}
 	}
-	
+
+	IEnumerator scoutOut(float duration){
+
+			scisRunning = true;
+			yield return new WaitForSeconds (2*duration);
+			scisRunning = false;
+	}
+
 	void attributeCosts()
 	{
 		structure.costs [0] = 20; //to build
@@ -347,7 +459,7 @@ public class SpecialUnit : MonoBehaviour
 	
 	public void upgrade(float upgradeDur)
 	{
-		Debug.Log("upgrading special, step" + structure.upgrades);
+		//Debug.Log("upgrading special, step" + structure.upgrades);
 		structure.upgrades++;
 		if (structure.upgrades == 1)
 		{
@@ -379,25 +491,45 @@ public class SpecialUnit : MonoBehaviour
 		}
 		
 		
-		Debug.Log("upgrading special");
+		//Debug.Log("upgrading special");
 	}
 	
 	public string status()
-	{
-		//return "status";
-		if (structure.isInConstruction)
-		{
-			if (structure.upgrades == 0)
-			{
-				return "building";
-				//return message;
-			} else
-			{
-				return "upgrading";
-				//return message;
+	{message = " ";
+		
+		if (structure) {
+			if (structure.isInConstruction) {
+				message = "building";
+				return message;
+			} else if (structure.isUnderRepair) {
+				if (structure.upgrades == 0) {
+					message = "repairing";
+					return message;
+				} else {
+					message = "upgrading";
+					return message;
+				}
+			} else {
+				if (scoutReady)
+					message += " scout ready;";
+				else
+					message += " scout recuperating;";
+				
+				if (repairReady)
+					message += " repair crew ready;";
+				else
+					message += " repair crew regenarating;";
+
+				if (upgradeReady)
+					message += " upgrade crew ready;";
+				else
+					message += " upgrade crew regenarating;";
+
+				return message;
 			}
 		} else
-			return "status";
+			return message;
+
 	}
 	
 }
