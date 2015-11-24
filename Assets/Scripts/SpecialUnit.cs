@@ -22,8 +22,8 @@ public class SpecialUnit : MonoBehaviour
 	public float lastGathered;
 	bool startedGathering = false;
 	float upgradeDuration;
-	float repDur;
-	float repCD;
+	float repairDuration;
+	float repairCooldown;
 	public GameObject[] resourceFields;
 	
 	bool scoutReady=true;
@@ -41,8 +41,11 @@ public class SpecialUnit : MonoBehaviour
 	GameObject scoutInstantiated;
 
 	List <Vector3> positions=new List<Vector3>();
+	List <Vector3> destinations=new List<Vector3>();
 	string message;
 	Vector3 newPositionForScout;
+	Vector3 scoutDirection;
+	float currentDistance;
 	// Use this for initialization
 	void Start()
 	{
@@ -57,7 +60,7 @@ public class SpecialUnit : MonoBehaviour
 		structure.isInConstruction = true;
 		structure.statusUpdater = status();
 //		Debug.Log(structure.statusUpdater);
-		StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+		StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); 
 		BaseManager.resources -= structure.costs [0];
 		
 		structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
@@ -77,8 +80,8 @@ public class SpecialUnit : MonoBehaviour
 		structure.panel.SetActive(activeMarker);
 		
 		upgradeDuration = 30f;
-		repDur = 30f;
-		repCD = 60f;
+		repairDuration = 30f;
+		repairCooldown = 60f;
 	}
 	
 	
@@ -113,7 +116,7 @@ public class SpecialUnit : MonoBehaviour
 							
 							//Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under repair");
 							target.GetComponent<UnitStructure>().isUnderRepair = true;
-							StartCoroutine(repairDeployed(target, repDur, repCD));
+							StartCoroutine(repairDeployed(target, repairDuration, repairCooldown));
 							repairDeployedTeam = false;
 							repairReady = false;
 						}   
@@ -146,77 +149,85 @@ public class SpecialUnit : MonoBehaviour
 			
 			if ( scoutTriggered && Input.GetMouseButtonDown(0))
 			{
-				Vector3 positionAtClickInWorld=new Vector3(Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
-
-				//positionAtClickInWorld=Camera.main.ScreenToWorldPoint(positionAtClickInWorld);
+				Vector3 positionAtClickInWorld=new Vector3(Input.mousePosition.x,Screen.height-Input.mousePosition.y,0);
 				positions.Add(positionAtClickInWorld);	
 			}
 
 			if (scoutTriggered && Input.GetMouseButtonDown(1))
 			{
 				scoutTriggered=false;
-				Debug.Log(scoutDistance);
-				//scoutDistance =Mathf.Sqrt(scoutDistance);
+				//Debug.Log(scoutDistance);
+				float scoutMissionDuration=scoutDistance/4f;
 
-				float scoutMissionDuration=scoutDistance/10f;
 
+				if (BaseManager.resources - structure.costs [4]-(int)scoutMissionDuration/4 >= 0)
+				{
+					BaseManager.resources -= structure.costs [4]-(int)scoutMissionDuration/4;
+					BaseManager.notEnough = "";
 				int ID =Instantiate(scout,transform.position,Quaternion.identity).GetInstanceID();
 				GameObject [] scouts=GameObject.FindGameObjectsWithTag("Scout");
 			
 				for (int i=0;i<scouts.Length;i++)
 					if (scouts[i].GetInstanceID()==ID)
 						scoutInstantiated=scouts[i];
-				//Debug.Log("ID:"+ scoutInstantiated.GetInstanceID() +" "+ ID);
 				timeScoutSpawned=Time.realtimeSinceStartup;
-				steps=positions.Count;
-				durationBetweenSteps=2*scoutMissionDuration/(float)steps;
-				scoutCurrentStep=0;
-				Debug.Log("duration:"+scoutMissionDuration);
-				newPositionForScout=origin;
-				StartCoroutine(scoutOut(scoutMissionDuration));
 
+				steps=positions.Count;
+				durationBetweenSteps=scoutMissionDuration/(float)steps;
+				scoutCurrentStep=0;
+				destinations=new List<Vector3>();
+				//Debug.Log("duration:"+scoutMissionDuration);
+				//newPositionForScout=origin;
+				StartCoroutine(scoutOut(scoutMissionDuration));
+				}
+				else {BaseManager.notEnough = "not enough resources";
+					StartCoroutine(scoutOut(0));}
 			}
 
 			if (scisRunning)
 			{	
-				Debug.Log("coroutine is running");
+				//Debug.Log("coroutine is running");
 				if(scoutCurrentStep<=steps)
 				{	
-					Debug.Log(scoutCurrentStep +" "+ steps + "timeScoutSpawned:" + timeScoutSpawned+"duration betweenSteps:"+durationBetweenSteps);
-					float timeToCompare=timeScoutSpawned+durationBetweenSteps*(scoutCurrentStep+1);
-					Debug.Log((int)timeToCompare+" "+(int)Time.realtimeSinceStartup);
-					scoutInstantiated.transform.position=Vector3.MoveTowards(scoutInstantiated.transform.position, 
-					                                                         newPositionForScout, 30f/durationBetweenSteps);
+					//Debug.Log(scoutCurrentStep +" "+ steps + "timeScoutSpawned:" + timeScoutSpawned+"duration betweenSteps:"+durationBetweenSteps);
+					float timeToCompare=timeScoutSpawned+durationBetweenSteps*scoutCurrentStep;
+					//Debug.Log((int)timeToCompare+" "+(int)Time.realtimeSinceStartup);
+
 
 					if ((int)timeToCompare==(int)Time.realtimeSinceStartup)
 					{ int j=0;
 						foreach(Vector3 v in positions)
 						{
 							if (scoutCurrentStep==j)
-							{// float distanceToCarry=Vector3.SqrMagnitude(scoutInstantiated.transform.position-v);
-								newPositionForScout=Camera.main.ScreenToWorldPoint(v);
-								newPositionForScout=new Vector3(newPositionForScout.x,newPositionForScout.z,0f);
-								Debug.Log("assigned new position" + newPositionForScout);
-
+							{	newPositionForScout=Camera.main.ScreenToWorldPoint(new Vector3(v.x, Screen.height-v.y,700f));
+								//newPositionForScout=new Vector3(newPositionForScout.x,0f,newPositionForScout.z);
+								destinations.Add(newPositionForScout);
+								//Debug.Log("assigned new position" + newPositionForScout);
+								scoutDirection = scoutInstantiated.transform.position - newPositionForScout;
+								currentDistance = scoutDirection.magnitude;
 							}
 							j++;
 						}
 						scoutCurrentStep++;
 					}
+					scoutInstantiated.transform.position=Vector3.MoveTowards(scoutInstantiated.transform.position,newPositionForScout, 
+					                                                         Time.deltaTime*currentDistance/durationBetweenSteps);
 				}
+
 			}
-			if (scoutInstantiated && (positions.Count!=0))
-				{	 
-				//Debug.Log(scoutInstantiated.transform.position+" "+positions[positions.Count-1]);
-				if ((scoutInstantiated.transform.position.x==positions[positions.Count-1].x ) &&
-				    (scoutInstantiated.transform.position.z==positions[positions.Count-1].z )
-				    )
-					Destroy(scoutInstantiated);
+
 							
 				if(scisRunning==false)
 				{
+				if (scoutInstantiated )
 					Destroy(scoutInstantiated);
-
+				if (scoutInstantiated && (destinations.Count!=0))
+				{	 
+					//Debug.Log(scoutInstantiated.transform.position+" "+positions[positions.Count-1]);
+					if (((int)scoutInstantiated.transform.position.x==(int)destinations[destinations.Count-1].x)
+					    && ((int)scoutInstantiated.transform.position.z==(int)destinations[destinations.Count-1].z)
+					    )
+						Destroy(scoutInstantiated);
 				}
 				}
 
@@ -239,29 +250,50 @@ public class SpecialUnit : MonoBehaviour
 	void OnGUI(){
 		if (scoutTriggered)
 		{
-			Debug.Log(origin+" "+newPosition);
+			//Debug.Log(origin+" "+newPosition);
 			float width = 3.0f;
 			Color color = Color.magenta;
 			Vector3 previousStep=new Vector3();
 			scoutDistance=0f;
 			previousStep=origin;
 			foreach (Vector3 v in positions)
-			{	Drawing.DrawLine(previousStep,v,color,width);
-				//Vector3 difference=v-previousStep;
-				scoutDistance+=Vector3.Distance(Camera.main.ScreenToWorldPoint(previousStep),Camera.main.ScreenToWorldPoint(v));
+
+			{	
+				/*if (v.x==0)
+					v.x==0.001f;
+				if (v.x==0)
+					v.x==0.001f;
+				if (v.x==0)
+					v.x==0.001f;*/
+				if (v==origin){
+					Drawing.DrawLine(previousStep,v+new Vector3(0.01f,0.01f,0.01f),color,width);
+					Vector3 difference=Camera.main.ScreenToWorldPoint(new Vector3(previousStep.x,previousStep.y,700f))-Camera.main.ScreenToWorldPoint(new Vector3(v.x, v.y,700f));
+					scoutDistance+=difference.magnitude;
+					previousStep=v+new Vector3(0.01f,0.01f,0.01f);
+				}
+				else{
+				Drawing.DrawLine(previousStep,v,color,width);
+					Vector3 difference=Camera.main.ScreenToWorldPoint(new Vector3(previousStep.x,previousStep.y,700f))-Camera.main.ScreenToWorldPoint(new Vector3(v.x, v.y,700f));
+				scoutDistance+=difference.magnitude;
 				previousStep=v;
+				}
 			}
-			Debug.Log("newly calculated distance:"+scoutDistance);
+			//Debug.Log("newly calculated distance:"+scoutDistance);
 		}
 		if (scisRunning) {
 			float width = 3.0f;
 			Color color = Color.cyan;
 			Vector3 previousStep=origin;
+
 			foreach (Vector3 v in positions) {
-				Drawing.DrawLine (previousStep, v, color, width);
+				if (v==origin){
+					Drawing.DrawLine(previousStep,v+new Vector3(0.01f,0.01f,0.1f),color,width);
+					previousStep=v+new Vector3(0.01f,0.01f,0.01f);}
+				else{
+					Drawing.DrawLine (previousStep, v, color, width);
 				Vector3 difference = v - previousStep;
 				//scoutDistance += Vector3.SqrMagnitude (difference);
-				previousStep = v;
+					previousStep = v;}
 			}
 		}
 	}
@@ -403,7 +435,6 @@ public class SpecialUnit : MonoBehaviour
 		for (int i=0; i<resourceFields.Length; i++)
 			gathered += resourceFields [i].GetComponent<ResourceField>().speed;
 		lastGathered = gathered;
-//		Debug.Log(lastGathered);
 		StartCoroutine(addResources());
 		
 	}
@@ -421,31 +452,28 @@ public class SpecialUnit : MonoBehaviour
 		
 		if (scoutReady)
 		{
-			if (BaseManager.resources - structure.costs [4] >= 0)
-			{
-				BaseManager.resources -= structure.costs [4];
-				BaseManager.notEnough = "";
+
 				scoutTriggered=true;
 				positions=new List<Vector3> ();
-				//origin = new Vector3(Screen.width-Input.mousePosition.x,Screen.height-Input.mousePosition.y,Input.mousePosition.z);
 				origin=Camera.main.WorldToScreenPoint(this.transform.position);
 				origin=new Vector3(origin.x,Screen.height-origin.y,origin.z);
 				newPositionForScout=origin;
-				positions.Add(origin);
+				//positions.Add(origin);
 				scoutReady = false;
 				activeMarker = false;
 				structure.panel.SetActive(activeMarker);
-			//	Debug.Log("scout out");
-			} else
-				BaseManager.notEnough = "not enough resources";
+			/*} else
+				BaseManager.notEnough = "not enough resources";*/
 		}
 	}
 
 	IEnumerator scoutOut(float duration){
 
 			scisRunning = true;
-			yield return new WaitForSeconds (2*duration);
+			yield return new WaitForSeconds (duration);
 			scisRunning = false;
+			yield return new WaitForSeconds (20f+duration);
+			scoutReady = true;
 	}
 
 	void attributeCosts()
@@ -471,7 +499,7 @@ public class SpecialUnit : MonoBehaviour
 					resourceFields [i].GetComponent<ResourceField>().speed = 3;
 				StartCoroutine(structure.waitConstruction(upgradeDur, structure.colorUnit)); //needs to be 30 for upgrades;
 				upgradeDuration = 20f;
-				repDur = 20f;
+				repairDuration = 20f;
 			} else
 				BaseManager.notEnough = "not enough resources";
 		}
@@ -484,7 +512,7 @@ public class SpecialUnit : MonoBehaviour
 				StartCoroutine(structure.waitConstruction(upgradeDur, structure.colorUnit));
 				for (int i=0; i<resourceFields.Length; i++)
 					resourceFields [i].GetComponent<ResourceField>().speed = 5;
-				repDur = 15f;
+				repairDuration = 15f;
 				upgradeDuration = 15f;
 			} else
 				BaseManager.notEnough = "not enough resources";

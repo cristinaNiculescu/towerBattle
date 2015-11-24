@@ -41,6 +41,9 @@ public class RockBehavior : MonoBehaviour {
 				0.05f;
 			Destroy(gameObject);	
 		}
+		/*if (col.transform.tag == "Enemy_Scout") {
+			Destroy(col.gameObject);
+		}*/
 
 	}
 
