@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 
-public class RockBehavior : MonoBehaviour {
+public class RockBehavior : NetworkBehaviour {
 
 	float posX;
 	float posZ;

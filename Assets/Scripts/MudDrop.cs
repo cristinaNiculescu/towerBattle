@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 
-public class MudDrop : MonoBehaviour {
+public class MudDrop : NetworkBehaviour {
 
 	public Material resource;
 	public Material mud;
