@@ -9,7 +9,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
     public List<GameObject> unitSpots = new List<GameObject>();
 
     bool hasChecked = false;
-    public Transform[] prefabUnits = new Transform[3];
+    public List<Transform> prefabUnits = new List<Transform>();
     public Button[] btns;
     public GameObject[] unitSpotsSpawned;
 
@@ -27,7 +27,6 @@ public class Player_NetworkingSetup : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        Transform bla = prefabUnits[1];
         //Enable all local Player Components
         if (isLocalPlayer)
         {
@@ -50,11 +49,10 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 int j = 0;
                 foreach (Button btn in btns)
                 {
-                    Debug.Log(unitSpot.transform + " " + btns.Length);
                     btn.onClick.RemoveAllListeners();
                     // btns[j].onClick.AddListener( delegate {unitSpotsSpawned[i].GetComponent<UnitConstruction>().build(unitSpotsSpawned[i].transform);});
-                    btns[j].onClick.AddListener(delegate { build(unitSpot, j); });
-                    Debug.Log(btns[j].onClick.GetPersistentMethodName(0) + "building : " + prefabUnits[j]);
+                    btn.onClick.AddListener(delegate { build(unitSpot, j); });
+                    Debug.Log("btn.onClick.GetPersistentMethodName(0) = " + btn.onClick.GetPersistentMethodName(0) + " : " + prefabUnits.ToArray()[j]);
                     j++;
                 }
                 k++;
@@ -64,7 +62,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     public void build(GameObject obj, int value)
     {
-        Debug.Log("Wazzaup!......." + prefabUnits.Length);
+        Debug.Log("Wazzaup!......." + prefabUnits.Count);
         obj.GetComponent<UnitConstruction>().build(prefabUnits[value]);
     }
 
@@ -77,14 +75,16 @@ public class Player_NetworkingSetup : NetworkBehaviour
     [ClientCallback]
     public void SpawnUnitSpots(GameObject unitSpot)
     {
-        CmdSpawnUnitSpots(unitSpot);
+        var go = (GameObject)Instantiate(unitSpot);
+        CmdSpawnUnitSpots(go);
     }
 
     [Command]
     public void CmdSpawnUnitSpots(GameObject unitSpot)
     {
-        var go = (GameObject)Instantiate(unitSpot);
-        NetworkServer.SpawnWithClientAuthority(go, connectionToClient);
+        //var go = (GameObject)Instantiate(unitSpot);
+        //NetworkServer.Spawn(unitSpot);
+        NetworkServer.SpawnWithClientAuthority(unitSpot, base.connectionToClient);
     }
 
     //[ClientCallback]

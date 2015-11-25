@@ -22,7 +22,7 @@ public class UnitConstruction : NetworkBehaviour
         cs = GameObject.Find("Canvas");
         if (cs != null)
         {
-            string name = gameObject.name.Substring(0,9);
+            string name = gameObject.name.Substring(0, 9);
             Debug.Log(name);
             panel = GameObject.Find("BuildPanelfor" + name);
             panel.SetActive(false);
@@ -58,14 +58,14 @@ public class UnitConstruction : NetworkBehaviour
         }
     }
 
-    [ClientCallback]
     public void build(Transform unit)
     {
         Debug.Log("I was called to arms!");
         if (unit.GetComponent<UnitStructure>() != null)
         {
             Debug.Log("localPlayerAuthority = " + localPlayerAuthority + ", hasAuthority = " + hasAuthority);
-            unit.name = gameObject.name;
+            string name = gameObject.name.Substring(0, 9);
+            unit.name = name;
             int index = (int)(gameObject.name[gameObject.name.Length - 1]);
             int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
             if (BaseManager.resources - constructionCost >= 0)
@@ -94,7 +94,6 @@ public class UnitConstruction : NetworkBehaviour
     /// Setup a connection to client currently playing.
     /// Assign the connection to the variable myPlayerConnection.
     /// </summary>
-    [ClientCallback]
     private void SetupConnectionToClient(GameObject unit)
     {
         List<PlayerController> playerControllers = NetworkManager.singleton.client.connection.playerControllers;
