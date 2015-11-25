@@ -7,6 +7,7 @@ using System;
 
 public class UnitConstruction : NetworkBehaviour
 {
+    [SerializeField]
     public NetworkConnection myPlayerConnection = null;
     public GameObject cs;
     bool activeMarker = false;

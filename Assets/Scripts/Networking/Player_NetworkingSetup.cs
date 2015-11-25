@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
+using UnityEngine.Events;
 
 public class Player_NetworkingSetup : NetworkBehaviour
 {
@@ -49,15 +50,19 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 int j = 0;
                 foreach (Button btn in btns)
                 {
-                    btn.onClick.RemoveAllListeners();
                     // btns[j].onClick.AddListener( delegate {unitSpotsSpawned[i].GetComponent<UnitConstruction>().build(unitSpotsSpawned[i].transform);});
-                    btn.onClick.AddListener(delegate { build(unitSpot, j); });
-                    Debug.Log("btn.onClick.GetPersistentMethodName(0) = " + btn.onClick.GetPersistentMethodName(0) + " : " + prefabUnits.ToArray()[j]);
+                    //btn.onClick.AddListener(delegate { build(unitSpot, j); });
+                    AddListener(btn, unitSpot, j);
                     j++;
                 }
                 k++;
             }
         }
+    }
+
+    void AddListener(Button b, GameObject obj, int value)
+    {
+        b.onClick.AddListener(() => build(obj, value));
     }
 
     public void build(GameObject obj, int value)
