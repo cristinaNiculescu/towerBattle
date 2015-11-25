@@ -7,7 +7,6 @@ using System;
 
 public class UnitConstruction : NetworkBehaviour
 {
-    [SerializeField]
     public NetworkConnection myPlayerConnection = null;
     public GameObject cs;
     bool activeMarker = false;
@@ -20,7 +19,8 @@ public class UnitConstruction : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        cs = GameObject.Find("Canvas");
+        //cs = GameObject.Find("Canvas");
+        cs = GameObject.Find("Canvas(Clone)");
         if (cs != null)
         {
             string name = gameObject.name.Substring(0, 9);
@@ -29,7 +29,8 @@ public class UnitConstruction : NetworkBehaviour
             panel.SetActive(false);
             hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
             hpbar.SetActive(false);
-            GameObject temp = GameObject.Find("Base");
+            //GameObject temp = GameObject.Find("Base");
+            GameObject temp = GameObject.Find("Base(Clone)");
             BaseUnit = temp.GetComponent<BaseManager>();
         }
     }
@@ -37,7 +38,8 @@ public class UnitConstruction : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (!hasAuthority)
+            return;
     }
 
     void OnMouseEnter()
@@ -75,12 +77,11 @@ public class UnitConstruction : NetworkBehaviour
                 BaseManager.notEnough = "";
                 hpbar.SetActive(true);
                 //BaseUnit.UnitsBuilt[index - 49] = unit;
-
                 BaseUnit.reCheckShield();
                 unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
                 unit.transform.position = gameObject.transform.position;
-                SetupConnectionToClient(unit.gameObject);
-                CmdBuildUnit(unit.gameObject);
+                GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
+                CmdBuildUnit(unit.gameObject, theLocaPlayerObject);
                 CmdDestroydUnit(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
@@ -95,7 +96,7 @@ public class UnitConstruction : NetworkBehaviour
     /// Setup a connection to client currently playing.
     /// Assign the connection to the variable myPlayerConnection.
     /// </summary>
-    private void SetupConnectionToClient(GameObject unit)
+    private void SetupConnectionToClient(GameObject unit, GameObject player)
     {
         List<PlayerController> playerControllers = NetworkManager.singleton.client.connection.playerControllers;
         foreach (PlayerController playerController in playerControllers)
@@ -107,26 +108,18 @@ public class UnitConstruction : NetworkBehaviour
                 myPlayerConnection = NetworkManager.singleton.client.connection;
                 Debug.Log("myPlayerConnection was null = " + myPlayerConnection);
                 GameObject obj = GameObject.FindWithTag("MainCamera");
-                Debug.Log("Camera name = " + obj.name);
             }
-            Debug.Log("myPlayerConnection = " + myPlayerConnection);
+            Debug.Log("player connectionToClient = " + player.GetComponent<NetworkIdentity>().connectionToClient);
         }
     }
 
     [Command]
-    public void CmdBuildUnit(GameObject unit)
+    public void CmdBuildUnit(GameObject unit, GameObject player)
     {
         GameObject obj = Instantiate(unit, unit.transform.position, Quaternion.identity) as GameObject;
-        Debug.Log("OBJ - clientAuthorityOwner before = " + obj.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         Debug.Log("localPlayerAuth before = " + obj.GetComponent<NetworkIdentity>().localPlayerAuthority);
-        //if (base.isLocalPlayer && myPlayerConnection != null)
-        //{
-        //    obj.GetComponent<NetworkIdentity>().RemoveClientAuthority(myPlayerConnection);
-        //    Debug.Log("LALAASDASDasD");
-        //}
-        NetworkServer.SpawnWithClientAuthority(obj, myPlayerConnection);
-        Debug.Log("OBJ - clientAuthorityOwner after = " + obj.GetComponent<NetworkIdentity>().clientAuthorityOwner);
-        Debug.Log("OBJ - localPlayerAuth after = " + obj.GetComponent<NetworkIdentity>().localPlayerAuthority);
+        NetworkServer.SpawnWithClientAuthority(obj, player);
+        Debug.Log("localPlayerAuth after = " + obj.GetComponent<NetworkIdentity>().localPlayerAuthority);
     }
 
     [Command]

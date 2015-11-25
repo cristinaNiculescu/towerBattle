@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 public class AttackingUnit : NetworkBehaviour
 {
-
     UnitStructure structure;
-
 
     public Transform projectile;
     int RocksMin;
@@ -59,7 +57,8 @@ public class AttackingUnit : NetworkBehaviour
         structure.HP_Bar.maxValue = structure.HPMax;
 
         structure.name = "Attacking Unit";
-        GameObject temp = GameObject.Find("Base");
+        //GameObject temp = GameObject.Find("Base");
+        GameObject temp = GameObject.Find("Base(Clone)");
         structure.BaseUnit = temp.GetComponent<BaseManager>();
 
         tempName = gameObject.name.Substring(0, 9);
@@ -200,7 +199,7 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        //Debug.Log ("BuildPanelfor" + tempName + "/buildAtck");
+        Debug.Log("BuildPanelfor" + tempName + "/buildAtck");
         GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
         Text panelTitle = tempOBj.GetComponent<Text>();
         panelTitle.text = "Abilities";
@@ -211,7 +210,7 @@ public class AttackingUnit : NetworkBehaviour
         btnText.text = "Missiles";
         btn.onClick.AddListener(() => missileLaunch());
 
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/buildAtck");
+        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildAtck");
         tempOBj.SetActive(false);
 
         tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
