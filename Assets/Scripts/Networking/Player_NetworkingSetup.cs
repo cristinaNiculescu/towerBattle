@@ -31,6 +31,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
+        Debug.Log("playerControllerID : " + playerControllerId);
+
         //Enable all local Player Components
         if (isLocalPlayer)
         {
@@ -84,17 +86,28 @@ public class Player_NetworkingSetup : NetworkBehaviour
     }
 
     [ClientCallback]
+    //public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
     public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
     {
-        //var go = (GameObject)Instantiate(unitSpot);
-        CmdSpawnUnitSpots(unitSpot, player);
+        int prefabIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(unitSpot);
+        //Debug.Log("We are about to Spawn = " + unitSpot);
+        foreach (GameObject obj in NetworkManager.singleton.spawnPrefabs)
+        {
+            Debug.Log("OBJ = " + obj.name);
+        }
+        CmdSpawnUnitSpots(prefabIndex, player);
     }
 
     [Command]
-    public void CmdSpawnUnitSpots(GameObject unitSpot, GameObject player)
+    //public void CmdSpawnUnitSpots(GameObject spawnUnitSpot, GameObject thePlayer)
+    public void CmdSpawnUnitSpots(int spawnIndex, GameObject thePlayer)
     {
-        var go = (GameObject)Instantiate(unitSpot);
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        GameObject unitSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
+        //Debug.Log("spawnUnitSpot = " + unitSpawned + ", thePlayer = " + thePlayer);
+        //var go = (GameObject)Instantiate(spawnUnitSpot);
+        var go = (GameObject)Instantiate(unitSpawned);
+        NetworkServer.SpawnWithClientAuthority(go, thePlayer);//Works! Assigns Auhtority to thePlayer GameObject.
+        //NetworkServer.Spawn(go);
         Debug.Log("go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
     }
 }

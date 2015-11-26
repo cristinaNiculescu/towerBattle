@@ -199,7 +199,7 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        Debug.Log("BuildPanelfor" + tempName + "/buildAtck");
+        //Debug.Log("BuildPanelfor" + tempName + "/buildAtck");
         GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
         Text panelTitle = tempOBj.GetComponent<Text>();
         panelTitle.text = "Abilities";

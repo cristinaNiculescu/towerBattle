@@ -66,7 +66,7 @@ public class BaseManager : MonoBehaviour
 		if (clicked && (this.tag != "Enemy"))
 		{
 			updateText();
-			Debug.Log(GameObject.FindWithTag("Enemy").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP);
+            //Debug.Log(GameObject.FindWithTag("Enemy").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP);
 			if (structure.HP <= 0)
 			{
 				Lost();
