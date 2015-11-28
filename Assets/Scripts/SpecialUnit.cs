@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.UI;
 
-public class SpecialUnit : MonoBehaviour
+public class SpecialUnit : NetworkBehaviour
 {
-
     UnitStructure structure;
     bool started = false;
     bool canBeClicked;
@@ -33,46 +33,51 @@ public class SpecialUnit : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        resourceFields = new GameObject[3];
-        resourceFields = GameObject.FindGameObjectsWithTag("resource");
+        if (localPlayerAuthority)
+        {
+            resourceFields = new GameObject[3];
+            resourceFields = GameObject.FindGameObjectsWithTag("resource");
 
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 200;
-        structure.HPMax = 200;
-        attributeCosts();
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        structure.statusUpdater = status();
-        //Debug.Log(structure.statusUpdater);
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
-        BaseManager.resources -= structure.costs[0];
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 200;
+            structure.HPMax = 200;
+            attributeCosts();
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            structure.statusUpdater = status();
+            //Debug.Log(structure.statusUpdater);
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            BaseManager.resources -= structure.costs[0];
 
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-        structure.HP_Bar.value = structure.HP;
+            structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
+            structure.HP_Bar.value = structure.HP;
 
-        structure.name = "Special Unit";
-        //GameObject temp = GameObject.Find("Base");
-        GameObject temp = GameObject.Find("Base(Clone)");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
+            structure.name = "Special Unit";
+            //GameObject temp = GameObject.Find("Base");
+            GameObject temp = GameObject.Find("Base(Clone)");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
 
-        tempName = gameObject.name.Substring(0, 9);
-        //Debug.Log(tempName);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
+            tempName = gameObject.name.Substring(0, 9);
+            //Debug.Log(tempName);
+            structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
 
-        upgradeDuration = 30f;
-        repDur = 30f;
-        repCD = 60f;
+            upgradeDuration = 30f;
+            repDur = 30f;
+            repCD = 60f;
+        }
     }
 
 
     // Update is called once per frame
     void Update()
     {
+        if (!hasAuthority)
+            return;
         if (!structure.isInConstruction && !structure.isUnderRepair && !structure.isDisoriented)
         {
             if (repairDeployedTeam && Input.GetMouseButtonUp(0))
@@ -164,7 +169,6 @@ public class SpecialUnit : MonoBehaviour
             Color color = Color.magenta;
             Drawing.DrawLine(origin, newPosition, color, width);
             Debug.Log(origin + " " + newPosition);
-
         }
     }
 
@@ -259,7 +263,6 @@ public class SpecialUnit : MonoBehaviour
 
     void upgradeUnits()
     {
-
         if (upgradeReady)
         {
             upgradeDeployedTeam = true;
@@ -309,7 +312,6 @@ public class SpecialUnit : MonoBehaviour
         lastGathered = gathered;
         //Debug.Log(lastGathered);
         StartCoroutine(addResources());
-
     }
 
     IEnumerator addResources()
@@ -319,10 +321,8 @@ public class SpecialUnit : MonoBehaviour
         gatherResources();
     }
 
-
     void sendScout()
     {
-
         if (scoutReady)
         {
             if (BaseManager.resources - structure.costs[4] >= 0)
@@ -385,8 +385,6 @@ public class SpecialUnit : MonoBehaviour
             else
                 BaseManager.notEnough = "not enough resources";
         }
-
-
         Debug.Log("upgrading special");
     }
 
@@ -409,5 +407,4 @@ public class SpecialUnit : MonoBehaviour
         else
             return "status";
     }
-
 }

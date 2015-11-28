@@ -19,51 +19,63 @@ public class UnitConstruction : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        //cs = GameObject.Find("Canvas");
-        cs = GameObject.Find("Canvas(Clone)");
-        if (cs != null)
+        if (true)
         {
-            string name = gameObject.name.Substring(0, 9);
-            Debug.Log(name);
-            panel = GameObject.Find("BuildPanelfor" + name);
-            panel.SetActive(false);
-            hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-            hpbar.SetActive(false);
-            //GameObject temp = GameObject.Find("Base");
-            GameObject temp = GameObject.Find("Base(Clone)");
-            BaseUnit = temp.GetComponent<BaseManager>();
+            cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
+            if (cs == null)
+            {
+                cs = GameObject.Find("CanvasClient(Clone)");//Then we must be the client....
+            }
+            Debug.Log(cs != null ? "Yeah CS was not null" : "cs null....ERROR!!!!!");
+            if (cs != null)
+            {
+                string name = base.gameObject.name.Substring(0, 9);
+                //Debug.Log(name);// UnitSpot names
+                panel = GameObject.Find("BuildPanelfor" + name);
+                GameObject player = GameObject.FindWithTag("MainCamera");
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                hpbar.SetActive(false);
+                //GameObject temp = GameObject.Find("Base");
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!hasAuthority)
+        if (!localPlayerAuthority)
             return;
     }
 
     void OnMouseEnter()
     {
-        canBeClicked = true;
+        if (localPlayerAuthority)
+            canBeClicked = true;
     }
     void OnMouseExit()
     {
-        canBeClicked = false;
+        if (localPlayerAuthority)
+            canBeClicked = false;
     }
 
     void OnMouseUp()
     {
-        if (canBeClicked)
+        if (localPlayerAuthority)
         {
-            panel.SetActive(activeMarker);
-            activeMarker = !activeMarker;
-            //Debug.Log (activeMarker);
+            if (canBeClicked)
+            {
+                panel.SetActive(activeMarker);
+                activeMarker = !activeMarker;
+                //Debug.Log(activeMarker);
+            }
         }
     }
 
     public void build(Transform unit)
     {
-        Debug.Log("I was called to arms!");
         if (unit.GetComponent<UnitStructure>() != null)
         {
             Debug.Log("localPlayerAuthority = " + localPlayerAuthority + ", hasAuthority = " + hasAuthority);
@@ -75,14 +87,15 @@ public class UnitConstruction : NetworkBehaviour
             {
                 BaseManager.resources -= constructionCost;
                 BaseManager.notEnough = "";
+                Debug.Log("hpBar = " + hpbar.name);
                 hpbar.SetActive(true);
                 //BaseUnit.UnitsBuilt[index - 49] = unit;
                 BaseUnit.reCheckShield();
+                unit.transform.position = this.gameObject.transform.position;
                 unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
-                unit.transform.position = gameObject.transform.position;
                 GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
-                CmdBuildUnit(unit.gameObject, theLocaPlayerObject);
-                CmdDestroydUnit(gameObject);
+                BuildUnit(unit.gameObject, theLocaPlayerObject);
+                Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
         }
@@ -92,40 +105,38 @@ public class UnitConstruction : NetworkBehaviour
         }
     }
 
-    /// <summary>
-    /// Setup a connection to client currently playing.
-    /// Assign the connection to the variable myPlayerConnection.
-    /// </summary>
-    private void SetupConnectionToClient(GameObject unit, GameObject player)
+
+    [ClientCallback]
+    void Unspawn(GameObject obj)
     {
-        List<PlayerController> playerControllers = NetworkManager.singleton.client.connection.playerControllers;
-        foreach (PlayerController playerController in playerControllers)
-        {
-            Debug.Log("PlayerController unetView = " + playerController.unetView);
-            myPlayerConnection = playerController.unetView.clientAuthorityOwner;
-            if (myPlayerConnection == null)
-            {
-                myPlayerConnection = NetworkManager.singleton.client.connection;
-                Debug.Log("myPlayerConnection was null = " + myPlayerConnection);
-                GameObject obj = GameObject.FindWithTag("MainCamera");
-            }
-            Debug.Log("player connectionToClient = " + player.GetComponent<NetworkIdentity>().connectionToClient);
-        }
+        NetworkInstanceId unitId = obj.GetComponent<NetworkIdentity>().netId;
+        CmdUnspawnUnit(unitId);
+    }
+
+    [ClientCallback]
+    void BuildUnit(GameObject theUnitToBuild, GameObject player)
+    {
+        int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
+        CmdBuildUnit(theUnitToBuildIndex, player);
     }
 
     [Command]
-    public void CmdBuildUnit(GameObject unit, GameObject player)
+    public void CmdUnspawnUnit(NetworkInstanceId objID)
     {
-        GameObject obj = Instantiate(unit, unit.transform.position, Quaternion.identity) as GameObject;
-        Debug.Log("localPlayerAuth before = " + obj.GetComponent<NetworkIdentity>().localPlayerAuthority);
-        NetworkServer.SpawnWithClientAuthority(obj, player);
-        Debug.Log("localPlayerAuth after = " + obj.GetComponent<NetworkIdentity>().localPlayerAuthority);
+        GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
+        NetworkServer.UnSpawn(unspawnedObj);
+        //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
+        unspawnedObj.GetComponent<MeshRenderer>().enabled = false;
     }
 
     [Command]
-    public void CmdDestroydUnit(GameObject obj)
+    public void CmdBuildUnit(int unitIndex, GameObject player)
     {
-        NetworkServer.Destroy(obj);
-        Debug.Log("DESTROY! = " + obj.name);
+        //GameObject obj = Instantiate(unit, unit.transform.position, Quaternion.identity) as GameObject;
+        GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
+        Debug.Log("unitToBuild : " + unitToBuild.transform.position);
+        GameObject go = GameObject.Instantiate(unitToBuild);
+        Debug.Log("go : " + go.transform.position);
+        NetworkServer.SpawnWithClientAuthority(go, player);
     }
 }

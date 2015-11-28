@@ -42,42 +42,46 @@ public class AttackingUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 250;
-        structure.HPMax = 250;
-        //attributeCosts ();
+        if (localPlayerAuthority)
+        {
+            Debug.Log("BOOM! Attacking Unit Arrived Setting vars!");
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 250;
+            structure.HPMax = 250;
+            //attributeCosts ();
 
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
 
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
+            structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
 
-        structure.name = "Attacking Unit";
-        //GameObject temp = GameObject.Find("Base");
-        GameObject temp = GameObject.Find("Base(Clone)");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
+            structure.name = "Attacking Unit";
+            //GameObject temp = GameObject.Find("Base");
+            GameObject temp = GameObject.Find("Base(Clone)");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
 
-        tempName = gameObject.name.Substring(0, 9);
-        //	Debug.Log(tempName);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
+            tempName = gameObject.name.Substring(0, 9);
+            //	Debug.Log(tempName);
+            structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
 
-        targets = new Transform[3];
-        RocksMin = 20;
-        RocksMax = 40;
-        startAngle = gameObject.transform.rotation.z;
-        co = rockFlurr();
+            targets = new Transform[3];
+            RocksMin = 20;
+            RocksMax = 40;
+            startAngle = gameObject.transform.rotation.z;
+            co = rockFlurr();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!hasAuthority)
+        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
         {
             return;
         }
@@ -94,10 +98,7 @@ public class AttackingUnit : NetworkBehaviour
                 Destroy(gameObject, 0.1f);
                 structure.BaseUnit.reCheckShield();
             }
-
-
             structure.HP_Bar.value = structure.HP;
-
             if (triggeredMissileLaunch && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -128,7 +129,8 @@ public class AttackingUnit : NetworkBehaviour
                         }
                         missileCurrentCharges++;
                         timeAtMissileLaunch = Time.realtimeSinceStartup;
-                        CmdSpawnMissle(missile.gameObject);
+                        //CmdSpawnMissle(missile.gameObject);
+                        LaunchMissile(missile.gameObject);//Launch a missile
                         missile.LookAt(target.position);
                         triggeredMissileLaunch = false;
                         if (missileCurrentCharges == 3)
@@ -136,19 +138,14 @@ public class AttackingUnit : NetworkBehaviour
                             missileAbilityAvailable = false;
                             StartCoroutine(co);
                             StartCoroutine(rechargeMissile(missileCooldown));
-
                         }
                     }
-
                 }
             }
 
-
             if (mudTriggered && Input.GetMouseButtonUp(0))
             {
-                //Debug.Log("after if");
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
                     //	Debug.Log (hit.transform.tag);
@@ -164,7 +161,6 @@ public class AttackingUnit : NetworkBehaviour
                     }
                 }
             }
-
         }
         else
             if (started)
@@ -249,12 +245,10 @@ public class AttackingUnit : NetworkBehaviour
             yield return new WaitForSeconds(delayBetweenRockThrows);
             rockFlurrShooting();
             shootPeriod = shootPeriod - delayBetweenRockThrows;
-
         }
-
-
         StartCoroutine(co);
     }
+
     /// <summary>
     /// Rocks the flurr.
     /// every 20 sec, the unit will auto-cast a flurry of small rocks in an 30 degrees arc movement to cover the enemy
@@ -268,10 +262,7 @@ public class AttackingUnit : NetworkBehaviour
         float x = -Mathf.Sin(startAngle) * radius + gameObject.transform.position.x;
         float y = 0f;
         float z = Mathf.Abs(Mathf.Cos(startAngle) * radius) + gameObject.transform.position.z;
-
         Vector3 shootingPosition = new Vector3(x, y, z);
-
-
         Quaternion rotation = new Quaternion(gameObject.transform.rotation.x,
                                             gameObject.transform.rotation.y,
                                             gameObject.transform.rotation.z, 1);
@@ -280,8 +271,6 @@ public class AttackingUnit : NetworkBehaviour
         //projectile.RotateAround(gameObject.transform.position,new Vector3(0,0,1),startAngle);
         mov.gameObject.tag = this.gameObject.tag;
         Instantiate(projectile, shootingPosition, rotation);
-
-
         if (topToBottom)
             if (startAngle < 180)
             {
@@ -320,7 +309,6 @@ public class AttackingUnit : NetworkBehaviour
             Debug.Log("missiles not ready yet");
     }
 
-
     IEnumerator rechargeMissile(float cooldown)
     {
         yield return new WaitForSeconds(cooldown);
@@ -351,7 +339,6 @@ public class AttackingUnit : NetworkBehaviour
             }
             else
                 BaseManager.notEnough = "not enough resources";
-            ;
         }
         else
             Debug.Log("still gathering mud");
@@ -363,8 +350,6 @@ public class AttackingUnit : NetworkBehaviour
         yield return new WaitForSeconds(40);
         mudReady = true;
     }
-
-
 
     public void upgrade(float upgradeDuration)
     {
@@ -436,19 +421,20 @@ public class AttackingUnit : NetworkBehaviour
         }
     }
 
-    [Command]
-    void CmdSpawnMissle(GameObject missile)
+    [ClientCallback]
+    void LaunchMissile(GameObject missile)
     {
-        GameObject missileObj = Instantiate(missile, gameObject.transform.position, Quaternion.identity) as GameObject;
-        if (!isLocalPlayer)
-        {
-            NetworkServer.Spawn(missile);
-            print("Hey Server here!");
-        }
-        else
-        {
-            NetworkServer.SpawnWithClientAuthority(missile, base.connectionToClient);
-            print("Hey LocalPlayer here!");
-        }
+        int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
+        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        CmdLaunchMissle(missileIndex, player);
+    }
+
+    [Command]
+    void CmdLaunchMissle(int missileIndex, GameObject player)
+    {
+        GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
+        GameObject go = GameObject.Instantiate(missileToLaunch);
+        go.transform.position = this.gameObject.transform.position;
+        NetworkServer.SpawnWithClientAuthority(go, player);
     }
 }

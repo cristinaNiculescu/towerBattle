@@ -8,14 +8,15 @@ using UnityEngine.Events;
 public class Player_NetworkingSetup : NetworkBehaviour
 {
     public List<GameObject> unitSpots = new List<GameObject>();
-
     bool hasChecked = false;
     public List<Transform> prefabUnits = new List<Transform>();
     public GameObject canvas;
+    public GameObject clientCanvas;
     public GameObject playerBase;
     public GameObject enemyBase;
     public Button[] btns;
     public GameObject[] unitSpotsSpawned;
+    public uint netIDValue = 0;
 
     public override void OnStartLocalPlayer()
     {
@@ -23,16 +24,14 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             if (this.isClient)
             {
-                Debug.Log("Client " + base.netId);
+                Debug.Log("Client net ID " + base.netId.Value);
+                netIDValue = base.netId.Value;
             }
         }
     }
 
-    // Use this for initialization
     void Start()
     {
-        Debug.Log("playerControllerID : " + playerControllerId);
-
         //Enable all local Player Components
         if (isLocalPlayer)
         {
@@ -40,27 +39,31 @@ public class Player_NetworkingSetup : NetworkBehaviour
             GetComponent<FlareLayer>().enabled = true;
             GetComponent<GUILayer>().enabled = true;
             GetComponent<AudioListener>().enabled = true;
-            Instantiate(canvas);
+            //GetComponent<CameraController>().enabled = true;
+            if (base.netId.Value == 1)
+            {
+                Instantiate(canvas);
+            }
+            else
+                Instantiate(clientCanvas);
+
             Instantiate(playerBase);
             Instantiate(enemyBase);
-            //GetComponent<CameraController>().enabled = true;
-
+            //SpawnPlayerSetup(canvas, playerBase, enemyBase, gameObject);
             for (int i = 0; i < unitSpots.Count; i++)
             {
-                SpawnUnitSpots(unitSpots[i], gameObject);
+                SpawnUnitSpots(unitSpots[i], this.gameObject);
             }
             int k = 0;
             unitSpotsSpawned = GameObject.FindGameObjectsWithTag("UnitSpots");
             foreach (GameObject unitSpot in unitSpotsSpawned)
             {
                 GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k + 1));//Plus one because the numbering of panels start from '1' and ends with '5'.
-                Debug.Log("Panel found = " + panel.name);
+                //Debug.Log("Panel found = " + panel.name);
                 btns = panel.GetComponentsInChildren<Button>();
                 int j = 0;
                 foreach (Button btn in btns)
                 {
-                    // btns[j].onClick.AddListener( delegate {unitSpotsSpawned[i].GetComponent<UnitConstruction>().build(unitSpotsSpawned[i].transform);});
-                    //btn.onClick.AddListener(delegate { build(unitSpot, j); });
                     AddListener(btn, unitSpot, j);
                     j++;
                 }
@@ -86,28 +89,43 @@ public class Player_NetworkingSetup : NetworkBehaviour
     }
 
     [ClientCallback]
-    //public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
     public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
     {
         int prefabIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(unitSpot);
         //Debug.Log("We are about to Spawn = " + unitSpot);
-        foreach (GameObject obj in NetworkManager.singleton.spawnPrefabs)
-        {
-            Debug.Log("OBJ = " + obj.name);
-        }
         CmdSpawnUnitSpots(prefabIndex, player);
     }
+
+    //[ClientCallback]
+    //public void SpawnPlayerSetup(GameObject prefab1, GameObject prefab2, GameObject prefab3, GameObject player)
+    //{
+    //    int prefabIndex1 = NetworkManager.singleton.spawnPrefabs.IndexOf(prefab1);
+    //    int prefabIndex2 = NetworkManager.singleton.spawnPrefabs.IndexOf(prefab2);
+    //    int prefabIndex3 = NetworkManager.singleton.spawnPrefabs.IndexOf(prefab3);
+    //    CmdSpawnPlayerSetup(prefabIndex1, player);//Canvas
+    //    CmdSpawnPlayerSetup(prefabIndex2, player);//PlayerBase
+    //    CmdSpawnPlayerSetup(prefabIndex3, player);//EnemyBase
+    //}
 
     [Command]
     //public void CmdSpawnUnitSpots(GameObject spawnUnitSpot, GameObject thePlayer)
     public void CmdSpawnUnitSpots(int spawnIndex, GameObject thePlayer)
     {
         GameObject unitSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
-        //Debug.Log("spawnUnitSpot = " + unitSpawned + ", thePlayer = " + thePlayer);
-        //var go = (GameObject)Instantiate(spawnUnitSpot);
-        var go = (GameObject)Instantiate(unitSpawned);
-        NetworkServer.SpawnWithClientAuthority(go, thePlayer);//Works! Assigns Auhtority to thePlayer GameObject.
-        //NetworkServer.Spawn(go);
-        Debug.Log("go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
+        GameObject go = null;
+        if (base.connectionToClient.connectionId == -1)//The Host must not spawn anything... 
+        {
+            go = (GameObject)Instantiate(unitSpawned);
+            go.transform.position = new Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
+            NetworkServer.SpawnWithClientAuthority(go, thePlayer);//Works! Assigns Auhtority to thePlayer GameObject.
+            //Debug.Log("Server go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
+        }
+        else
+        {
+            go = (GameObject)Instantiate(unitSpawned);
+            go.transform.position = new Vector3(-go.transform.position.x, go.transform.position.y, -go.transform.position.z);
+            NetworkServer.SpawnWithClientAuthority(go, thePlayer);//Works! Assigns Auhtority to thePlayer GameObject.
+            //Debug.Log("Client go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
+        }
     }
 }

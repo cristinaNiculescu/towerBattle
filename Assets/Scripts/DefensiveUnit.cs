@@ -36,35 +36,38 @@ public class DefensiveUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 500;
-        structure.HPMax = 500;
-        attributeCosts();
-        //Debug.Log (structure.costs [0]);
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
-        //BaseManager.resources -= structure.costs [0];
+        if (localPlayerAuthority)
+        {
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 500;
+            structure.HPMax = 500;
+            attributeCosts();
+            //Debug.Log (structure.costs [0]);
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            //BaseManager.resources -= structure.costs [0];
 
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-        structure.HP_Bar.value = structure.HP;
+            structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
+            structure.HP_Bar.value = structure.HP;
 
-        structure.name = "Defensive Unit";
-        //GameObject temp = GameObject.Find("Base");
-        GameObject temp = GameObject.Find("Base(Clone)");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
+            structure.name = "Defensive Unit";
+            //GameObject temp = GameObject.Find("Base");
+            GameObject temp = GameObject.Find("Base(Clone)");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
 
-        tempName = gameObject.name.Substring(0, 9);
-        //Debug.Log(tempName);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
+            tempName = gameObject.name.Substring(0, 9);
+            //Debug.Log(tempName);
+            structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
 
-        disorientDuration = 10f;
-        rockCooldown = 60;
+            disorientDuration = 10f;
+            rockCooldown = 60;
+        }
     }
 
 
@@ -163,7 +166,6 @@ public class DefensiveUnit : NetworkBehaviour
 
     void changePanel()
     {
-
         GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
         Text panelTitle = tempOBj.GetComponent<Text>();
         panelTitle.text = "Abilities";
