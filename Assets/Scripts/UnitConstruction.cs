@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.EventSystems;
 using System.Collections;
@@ -19,22 +20,44 @@ public class UnitConstruction : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        if (true)
+        if (GameObject.Find("Canvas(Clone)") != null)
         {
             cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
-            if (cs == null)
-            {
-                cs = GameObject.Find("CanvasClient(Clone)");//Then we must be the client....
-            }
-            Debug.Log(cs != null ? "Yeah CS was not null" : "cs null....ERROR!!!!!");
+            Debug.Log(cs != null ? "playerControllerId : " + playerControllerId + "Yeah HostCanvas was not null" : "playerControllerId : " + playerControllerId + "HostCanvas null....ERROR!!!!!");
             if (cs != null)
             {
                 string name = base.gameObject.name.Substring(0, 9);
                 //Debug.Log(name);// UnitSpot names
                 panel = GameObject.Find("BuildPanelfor" + name);
-                GameObject player = GameObject.FindWithTag("MainCamera");
+                //GameObject player = GameObject.FindWithTag("MainCamera");
                 panel.SetActive(false);
                 hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                hpbar.SetActive(false);
+                //GameObject temp = GameObject.Find("Base");
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
+        }
+        if (GameObject.Find("CanvasClient(Clone)") != null)
+        {
+            cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
+            if (cs != null)
+            {
+                string name = base.gameObject.name.Substring(0, 9);
+                //Debug.Log(name);// UnitSpot names
+                panel = GameObject.Find("BuildPanelfor" + name);
+                Debug.Log("panel name : " + panel.name);
+                //GameObject player = GameObject.FindWithTag("MainCamera");
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                //foreach (Slider hpSlider in cs.GetComponentsInChildren<Slider>())
+                //{
+                //    Debug.Log("HP Slider : " + hpSlider.gameObject.name);
+                //    if(hpSlider.name == "HealthBarfor" + name + "(Clone)") {
+                //        hpbar = hpSlider.gameObject;
+                //    }
+                //}
+                Debug.Log("hpbar name : " + hpbar.name);
                 hpbar.SetActive(false);
                 //GameObject temp = GameObject.Find("Base");
                 GameObject temp = GameObject.Find("Base(Clone)");
@@ -76,18 +99,17 @@ public class UnitConstruction : NetworkBehaviour
 
     public void build(Transform unit)
     {
-        if (unit.GetComponent<UnitStructure>() != null)
+        if (unit.GetComponent<UnitStructure>() != null && cs != null)
         {
-            Debug.Log("localPlayerAuthority = " + localPlayerAuthority + ", hasAuthority = " + hasAuthority);
             string name = gameObject.name.Substring(0, 9);
             unit.name = name;
-            int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+            //int index = (int)(gameObject.name[gameObject.name.Length - 1]);
             int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
             if (BaseManager.resources - constructionCost >= 0)
             {
                 BaseManager.resources -= constructionCost;
                 BaseManager.notEnough = "";
-                Debug.Log("hpBar = " + hpbar.name);
+                Debug.Log("cs name is = " + cs.name);
                 hpbar.SetActive(true);
                 //BaseUnit.UnitsBuilt[index - 49] = unit;
                 BaseUnit.reCheckShield();
@@ -116,8 +138,8 @@ public class UnitConstruction : NetworkBehaviour
     [ClientCallback]
     void BuildUnit(GameObject theUnitToBuild, GameObject player)
     {
-        int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
-        CmdBuildUnit(theUnitToBuildIndex, player);
+        //int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
+        //CmdBuildUnit(theUnitToBuildIndex, player);
     }
 
     [Command]

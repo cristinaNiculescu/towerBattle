@@ -8,7 +8,7 @@ public class DefensiveUnit : NetworkBehaviour
     //public Transform UnitFace;
     UnitStructure structure;
 
-    bool started = false;
+    //bool started = false;
     bool canBeClicked;
     bool activeMarker = false;
     string tempName;
@@ -28,7 +28,7 @@ public class DefensiveUnit : NetworkBehaviour
     public float cloudCharges;
     bool cloudTriggered = false;
     bool cloudReady = true;
-    float cloudCooldown;
+    float cloudCooldown = 30;
     float cloudDuration = 10f;
     int cloudRadius = 60;
 
@@ -54,7 +54,7 @@ public class DefensiveUnit : NetworkBehaviour
             structure.HP_Bar.maxValue = structure.HPMax;
             structure.HP_Bar.value = structure.HP;
 
-            structure.name = "Defensive Unit";
+            structure.theName = "Defensive Unit";
             //GameObject temp = GameObject.Find("Base");
             GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();

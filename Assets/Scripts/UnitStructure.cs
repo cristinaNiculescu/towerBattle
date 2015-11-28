@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class UnitStructure : NetworkBehaviour
 {
-
     public float HP;
     public float HPMax;
     public bool isInConstruction = false;
@@ -13,10 +12,10 @@ public class UnitStructure : NetworkBehaviour
     public GameObject healthBar;
     public Slider HP_Bar;
     public BaseManager BaseUnit;
-    public string name;
+    public string theName;
     public GameObject panel;
     bool canBeClicked;
-    bool activeMarker = false;
+    //bool activeMarker = false;
     string tempName;
     GameObject image;
     public Color colorUnit;

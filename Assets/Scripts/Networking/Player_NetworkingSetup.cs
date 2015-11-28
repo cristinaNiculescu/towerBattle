@@ -8,7 +8,6 @@ using UnityEngine.Events;
 public class Player_NetworkingSetup : NetworkBehaviour
 {
     public List<GameObject> unitSpots = new List<GameObject>();
-    bool hasChecked = false;
     public List<Transform> prefabUnits = new List<Transform>();
     public GameObject canvas;
     public GameObject clientCanvas;
@@ -16,17 +15,46 @@ public class Player_NetworkingSetup : NetworkBehaviour
     public GameObject enemyBase;
     public Button[] btns;
     public GameObject[] unitSpotsSpawned;
-    public uint netIDValue = 0;
 
     public override void OnStartLocalPlayer()
     {
-        if (base.isLocalPlayer)
+        GetComponent<Camera>().enabled = true;
+        GetComponent<FlareLayer>().enabled = true;
+        GetComponent<GUILayer>().enabled = true;
+        GetComponent<AudioListener>().enabled = true;
+        //GetComponent<CameraController>().enabled = true;
+    }
+
+    public override void PreStartClient()
+    {
+        base.PreStartClient();
+        if (base.netId.Value == 1)
         {
-            if (this.isClient)
+            Instantiate(canvas);
+        }
+        else
+            Instantiate(clientCanvas);
+
+        Instantiate(playerBase);
+        Instantiate(enemyBase);
+        for (int i = 0; i < unitSpots.Count; i++)
+        {
+            //SpawnUnitSpots(unitSpots[i], this.gameObject);
+            SpawnUnitSpots(unitSpots[i], this.connectionToClient);
+        }
+        int k = 0;
+        unitSpotsSpawned = GameObject.FindGameObjectsWithTag("UnitSpots");
+        foreach (GameObject unitSpot in unitSpotsSpawned)
+        {
+            GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k + 1));//Plus one because the numbering of panels start from '1' and ends with '5'.
+            btns = panel.GetComponentsInChildren<Button>();
+            int j = 0;
+            foreach (Button btn in btns)
             {
-                Debug.Log("Client net ID " + base.netId.Value);
-                netIDValue = base.netId.Value;
+                AddListener(btn, unitSpot, j);
+                j++;
             }
+            k++;
         }
     }
 
@@ -35,40 +63,40 @@ public class Player_NetworkingSetup : NetworkBehaviour
         //Enable all local Player Components
         if (isLocalPlayer)
         {
-            GetComponent<Camera>().enabled = true;
-            GetComponent<FlareLayer>().enabled = true;
-            GetComponent<GUILayer>().enabled = true;
-            GetComponent<AudioListener>().enabled = true;
-            //GetComponent<CameraController>().enabled = true;
-            if (base.netId.Value == 1)
-            {
-                Instantiate(canvas);
-            }
-            else
-                Instantiate(clientCanvas);
+            //GetComponent<Camera>().enabled = true;
+            //GetComponent<FlareLayer>().enabled = true;
+            //GetComponent<GUILayer>().enabled = true;
+            //GetComponent<AudioListener>().enabled = true;
+            ////GetComponent<CameraController>().enabled = true;
+            //if (base.netId.Value == 1)
+            //{
+            //    Instantiate(canvas);
+            //}
+            //else
+            //    Instantiate(clientCanvas);
 
-            Instantiate(playerBase);
-            Instantiate(enemyBase);
+            //Instantiate(playerBase);
+            //Instantiate(enemyBase);
             //SpawnPlayerSetup(canvas, playerBase, enemyBase, gameObject);
-            for (int i = 0; i < unitSpots.Count; i++)
-            {
-                SpawnUnitSpots(unitSpots[i], this.gameObject);
-            }
-            int k = 0;
-            unitSpotsSpawned = GameObject.FindGameObjectsWithTag("UnitSpots");
-            foreach (GameObject unitSpot in unitSpotsSpawned)
-            {
-                GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k + 1));//Plus one because the numbering of panels start from '1' and ends with '5'.
-                //Debug.Log("Panel found = " + panel.name);
-                btns = panel.GetComponentsInChildren<Button>();
-                int j = 0;
-                foreach (Button btn in btns)
-                {
-                    AddListener(btn, unitSpot, j);
-                    j++;
-                }
-                k++;
-            }
+            //for (int i = 0; i < unitSpots.Count; i++)
+            //{
+            //    //SpawnUnitSpots(unitSpots[i], this.gameObject);
+            //    SpawnUnitSpots(unitSpots[i], this.connectionToClient);
+            //}
+            //int k = 0;
+            //unitSpotsSpawned = GameObject.FindGameObjectsWithTag("UnitSpots");
+            //foreach (GameObject unitSpot in unitSpotsSpawned)
+            //{
+            //    GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k + 1));//Plus one because the numbering of panels start from '1' and ends with '5'.
+            //    btns = panel.GetComponentsInChildren<Button>();
+            //    int j = 0;
+            //    foreach (Button btn in btns)
+            //    {
+            //        AddListener(btn, unitSpot, j);
+            //        j++;
+            //    }
+            //    k++;
+            //}
         }
     }
 
@@ -85,11 +113,13 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     public void build(GameObject obj, int value)
     {
+        Debug.Log("Obj : " + obj.name + ", Value : " + value);
         obj.GetComponent<UnitConstruction>().build(prefabUnits[value]);
     }
 
     [ClientCallback]
-    public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
+    //public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
+    public void SpawnUnitSpots(GameObject unitSpot, NetworkConnection player)
     {
         int prefabIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(unitSpot);
         //Debug.Log("We are about to Spawn = " + unitSpot);
@@ -108,8 +138,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
     //}
 
     [Command]
-    //public void CmdSpawnUnitSpots(GameObject spawnUnitSpot, GameObject thePlayer)
-    public void CmdSpawnUnitSpots(int spawnIndex, GameObject thePlayer)
+    //public void CmdSpawnUnitSpots(int spawnIndex, GameObject thePlayer)
+    public void CmdSpawnUnitSpots(int spawnIndex, NetworkConnection thePlayer)
     {
         GameObject unitSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
         GameObject go = null;

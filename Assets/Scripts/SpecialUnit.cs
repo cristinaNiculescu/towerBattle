@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class SpecialUnit : NetworkBehaviour
 {
     UnitStructure structure;
-    bool started = false;
+    //bool started = false;
     bool canBeClicked;
     bool activeMarker = false;
     string tempName;
@@ -55,7 +55,7 @@ public class SpecialUnit : NetworkBehaviour
             structure.HP_Bar.maxValue = structure.HPMax;
             structure.HP_Bar.value = structure.HP;
 
-            structure.name = "Special Unit";
+            structure.theName = "Special Unit";
             //GameObject temp = GameObject.Find("Base");
             GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();

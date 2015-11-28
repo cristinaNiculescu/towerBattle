@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.UI;
 
-public class BaseManager : MonoBehaviour
+public class BaseManager : NetworkBehaviour
 {
-	
 	public int shieldDamageTaken = 0;
 	public float shieldPower = 500;
 	public Transform[] UnitsBuilt;
@@ -42,7 +42,7 @@ public class BaseManager : MonoBehaviour
 		{
 			infos = new Text[7];
 			InfoPanel = GameObject.Find("InfoPanel");
-			int i = 0;
+            //int i = 0;
 			Traverse(InfoPanel, 0);
 		}
 		
@@ -109,7 +109,7 @@ public class BaseManager : MonoBehaviour
 						Debug.Log(temp.tag);
 						
 						infos [i].text = "Unit" + i + ": " 
-							+ temp.name + "\n" + "Health: " + temp.HP + "\n" + "Status: " + temp.statusUpdater;
+							+ temp.theName + "\n" + "Health: " + temp.HP + "\n" + "Status: " + temp.statusUpdater;
 						Debug.Log(temp.statusUpdater);
 						
 						if (temp.GetComponent<SpecialUnit>())

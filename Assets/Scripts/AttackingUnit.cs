@@ -37,7 +37,7 @@ public class AttackingUnit : NetworkBehaviour
     int upgradeMultiplier = 1;
     float missileCooldown = 20f;
     IEnumerator co;
-    bool throwingRocks = false;
+    //bool throwingRocks = false;
 
     // Use this for initialization
     void Start()
@@ -59,7 +59,7 @@ public class AttackingUnit : NetworkBehaviour
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = structure.HPMax;
 
-            structure.name = "Attacking Unit";
+            structure.theName = "Attacking Unit";
             //GameObject temp = GameObject.Find("Base");
             GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();
