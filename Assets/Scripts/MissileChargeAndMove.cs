@@ -22,7 +22,7 @@ public class MissileChargeAndMove : NetworkBehaviour
     // Use this for initialization
     [SerializeField]
     float projectileSpeed = 60f;
-    [SerializeField]
+    [SyncVar]
     public Transform target;
 
     void Start()

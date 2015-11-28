@@ -23,7 +23,6 @@ public class UnitConstruction : NetworkBehaviour
         if (GameObject.Find("Canvas(Clone)") != null)
         {
             cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
-            Debug.Log(cs != null ? "playerControllerId : " + playerControllerId + "Yeah HostCanvas was not null" : "playerControllerId : " + playerControllerId + "HostCanvas null....ERROR!!!!!");
             if (cs != null)
             {
                 string name = base.gameObject.name.Substring(0, 9);
@@ -44,19 +43,12 @@ public class UnitConstruction : NetworkBehaviour
             if (cs != null)
             {
                 string name = base.gameObject.name.Substring(0, 9);
-                //Debug.Log(name);// UnitSpot names
+                Debug.Log(name);// UnitSpot names
                 panel = GameObject.Find("BuildPanelfor" + name);
                 Debug.Log("panel name : " + panel.name);
                 //GameObject player = GameObject.FindWithTag("MainCamera");
                 panel.SetActive(false);
                 hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-                //foreach (Slider hpSlider in cs.GetComponentsInChildren<Slider>())
-                //{
-                //    Debug.Log("HP Slider : " + hpSlider.gameObject.name);
-                //    if(hpSlider.name == "HealthBarfor" + name + "(Clone)") {
-                //        hpbar = hpSlider.gameObject;
-                //    }
-                //}
                 Debug.Log("hpbar name : " + hpbar.name);
                 hpbar.SetActive(false);
                 //GameObject temp = GameObject.Find("Base");
@@ -116,6 +108,7 @@ public class UnitConstruction : NetworkBehaviour
                 unit.transform.position = this.gameObject.transform.position;
                 unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
                 GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
+                Debug.Log("theLocaPlayerObject " + theLocaPlayerObject.name);
                 BuildUnit(unit.gameObject, theLocaPlayerObject);
                 Unspawn(gameObject);
             }
@@ -138,8 +131,8 @@ public class UnitConstruction : NetworkBehaviour
     [ClientCallback]
     void BuildUnit(GameObject theUnitToBuild, GameObject player)
     {
-        //int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
-        //CmdBuildUnit(theUnitToBuildIndex, player);
+        int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
+        CmdBuildUnit(theUnitToBuildIndex, player);
     }
 
     [Command]
@@ -154,11 +147,8 @@ public class UnitConstruction : NetworkBehaviour
     [Command]
     public void CmdBuildUnit(int unitIndex, GameObject player)
     {
-        //GameObject obj = Instantiate(unit, unit.transform.position, Quaternion.identity) as GameObject;
         GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
-        Debug.Log("unitToBuild : " + unitToBuild.transform.position);
         GameObject go = GameObject.Instantiate(unitToBuild);
-        Debug.Log("go : " + go.transform.position);
         NetworkServer.SpawnWithClientAuthority(go, player);
     }
 }
