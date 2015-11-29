@@ -20,42 +20,42 @@ public class UnitConstruction : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        if (GameObject.Find("Canvas(Clone)") != null)
-        {
-            cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
-            if (cs != null)
-            {
-                string name = base.gameObject.name.Substring(0, 9);
-                //Debug.Log(name);// UnitSpot names
-                panel = GameObject.Find("BuildPanelfor" + name);
-                //GameObject player = GameObject.FindWithTag("MainCamera");
-                panel.SetActive(false);
-                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-                hpbar.SetActive(false);
-                //GameObject temp = GameObject.Find("Base");
-                GameObject temp = GameObject.Find("Base(Clone)");
-                BaseUnit = temp.GetComponent<BaseManager>();
-            }
-        }
-        if (GameObject.Find("CanvasClient(Clone)") != null)
-        {
-            cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
-            if (cs != null)
-            {
-                string name = base.gameObject.name.Substring(0, 9);
-                Debug.Log(name);// UnitSpot names
-                panel = GameObject.Find("BuildPanelfor" + name);
-                Debug.Log("panel name : " + panel.name);
-                //GameObject player = GameObject.FindWithTag("MainCamera");
-                panel.SetActive(false);
-                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-                Debug.Log("hpbar name : " + hpbar.name);
-                hpbar.SetActive(false);
-                //GameObject temp = GameObject.Find("Base");
-                GameObject temp = GameObject.Find("Base(Clone)");
-                BaseUnit = temp.GetComponent<BaseManager>();
-            }
-        }
+        //if (GameObject.Find("Canvas(Clone)") != null)
+        //{
+        //    cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
+        //    if (cs != null)
+        //    {
+        //        string name = base.gameObject.name.Substring(0, 9);
+        //        //Debug.Log(name);// UnitSpot names
+        //        panel = GameObject.Find("BuildPanelfor" + name);
+        //        //GameObject player = GameObject.FindWithTag("MainCamera");
+        //        panel.SetActive(false);
+        //        hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+        //        hpbar.SetActive(false);
+        //        //GameObject temp = GameObject.Find("Base");
+        //        GameObject temp = GameObject.Find("Base(Clone)");
+        //        BaseUnit = temp.GetComponent<BaseManager>();
+        //    }
+        //}
+        //if (GameObject.Find("CanvasClient(Clone)") != null)
+        //{
+        //    cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
+        //    if (cs != null)
+        //    {
+        //        string name = base.gameObject.name.Substring(0, 9);
+        //        Debug.Log(name);// UnitSpot names
+        //        panel = GameObject.Find("BuildPanelfor" + name);
+        //        Debug.Log("panel name : " + panel.name);
+        //        //GameObject player = GameObject.FindWithTag("MainCamera");
+        //        panel.SetActive(false);
+        //        hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+        //        Debug.Log("hpbar name : " + hpbar.name);
+        //        hpbar.SetActive(false);
+        //        //GameObject temp = GameObject.Find("Base");
+        //        GameObject temp = GameObject.Find("Base(Clone)");
+        //        BaseUnit = temp.GetComponent<BaseManager>();
+        //    }
+        //}
     }
 
     // Update is called once per frame
@@ -120,6 +120,49 @@ public class UnitConstruction : NetworkBehaviour
         }
     }
 
+    public void SetupCanvas()
+    {
+        if (GameObject.Find("Canvas(Clone)") != null)
+        {
+            cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
+            if (cs != null)
+            {
+                string name = base.gameObject.name.Substring(0, 9);
+                //Debug.Log(name);// UnitSpot names
+                panel = GameObject.Find("BuildPanelfor" + name);
+                //GameObject player = GameObject.FindWithTag("MainCamera");
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                hpbar.SetActive(false);
+                //GameObject temp = GameObject.Find("Base");
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
+        }
+        else if (GameObject.Find("CanvasClient(Clone)") != null)
+        {
+            cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
+            if (cs != null)
+            {
+                string name = base.gameObject.name.Substring(0, 9);
+                Debug.Log(name);// UnitSpot names
+                panel = GameObject.Find("BuildPanelfor" + name);
+                Debug.Log("panel name : " + panel.name);
+                //GameObject player = GameObject.FindWithTag("MainCamera");
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                Debug.Log("hpbar name : " + hpbar.name);
+                hpbar.SetActive(false);
+                //GameObject temp = GameObject.Find("Base");
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
+        }
+        else
+        {
+            Debug.Log("T_T.... no canvas!");
+        }
+    }
 
     [ClientCallback]
     void Unspawn(GameObject obj)

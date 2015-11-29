@@ -18,7 +18,6 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     public override void OnStartLocalPlayer()
     {
-        base.OnStartLocalPlayer();
         GetComponent<Camera>().enabled = true;
         GetComponent<FlareLayer>().enabled = true;
         GetComponent<GUILayer>().enabled = true;
@@ -52,6 +51,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 j++;
             }
             k++;
+            unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
         }
     }
 
@@ -89,16 +89,16 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
-            NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
+            //NetworkServer.SpawnWithClientAuthority(go, thePlayer);
+            NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
             Debug.Log("Server go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         }
         else
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(-go.transform.position.x, go.transform.position.y, -go.transform.position.z);
-            NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
+            //NetworkServer.SpawnWithClientAuthority(go, thePlayer);
+            NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
             Debug.Log("Client go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         }
     }
