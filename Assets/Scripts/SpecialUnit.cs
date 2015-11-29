@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class SpecialUnit : MonoBehaviour
+public class SpecialUnit : NetworkBehaviour
 {
 	
 	UnitStructure structure;
@@ -559,5 +560,4 @@ public class SpecialUnit : MonoBehaviour
 			return message;
 
 	}
-	
 }

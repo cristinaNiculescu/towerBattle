@@ -6,7 +6,7 @@ public class CloudSetting : MonoBehaviour {
 	public Transform target;
 	bool started;
 	
-	float projectileSpeed=80f;
+    //float projectileSpeed=80f;
 	public float dur;
 	public Vector3 position;
 	public Vector3 size;

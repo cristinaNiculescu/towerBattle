@@ -4,9 +4,7 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class AttackingUnit : NetworkBehaviour
-{
-
-	UnitStructure structure;
+{	UnitStructure structure;
 	public Transform projectile;
 	int RocksMin;
 	int RocksMax;
@@ -391,6 +389,22 @@ public class AttackingUnit : NetworkBehaviour
 		} else
 			return message;
 	}
+
+
+    [ClientCallback]
+    void LaunchMissile(GameObject missile)
+    {
+        int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
+        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        CmdLaunchMissle(missileIndex, player);
+    }
+
+    [Command]
+    void CmdLaunchMissle(int missileIndex, GameObject player)
+    {
+        GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
+        GameObject go = GameObject.Instantiate(missileToLaunch);
+        go.transform.position = this.gameObject.transform.position;
+        NetworkServer.SpawnWithClientAuthority(go, player);
+    }
 }
-
-
