@@ -8,7 +8,6 @@ using System;
 
 public class UnitConstruction : NetworkBehaviour
 {
-    public NetworkConnection myPlayerConnection = null;
     public GameObject cs;
     bool activeMarker = false;
     Vector3 tempPosition;
@@ -17,68 +16,27 @@ public class UnitConstruction : NetworkBehaviour
     bool canBeClicked;
     BaseManager BaseUnit;
 
-    // Use this for initialization
-    void Start()
-    {
-        //if (GameObject.Find("Canvas(Clone)") != null)
-        //{
-        //    cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
-        //    if (cs != null)
-        //    {
-        //        string name = base.gameObject.name.Substring(0, 9);
-        //        //Debug.Log(name);// UnitSpot names
-        //        panel = GameObject.Find("BuildPanelfor" + name);
-        //        //GameObject player = GameObject.FindWithTag("MainCamera");
-        //        panel.SetActive(false);
-        //        hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-        //        hpbar.SetActive(false);
-        //        //GameObject temp = GameObject.Find("Base");
-        //        GameObject temp = GameObject.Find("Base(Clone)");
-        //        BaseUnit = temp.GetComponent<BaseManager>();
-        //    }
-        //}
-        //if (GameObject.Find("CanvasClient(Clone)") != null)
-        //{
-        //    cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
-        //    if (cs != null)
-        //    {
-        //        string name = base.gameObject.name.Substring(0, 9);
-        //        Debug.Log(name);// UnitSpot names
-        //        panel = GameObject.Find("BuildPanelfor" + name);
-        //        Debug.Log("panel name : " + panel.name);
-        //        //GameObject player = GameObject.FindWithTag("MainCamera");
-        //        panel.SetActive(false);
-        //        hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
-        //        Debug.Log("hpbar name : " + hpbar.name);
-        //        hpbar.SetActive(false);
-        //        //GameObject temp = GameObject.Find("Base");
-        //        GameObject temp = GameObject.Find("Base(Clone)");
-        //        BaseUnit = temp.GetComponent<BaseManager>();
-        //    }
-        //}
-    }
-
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority)
+        if (!localPlayerAuthority && hasAuthority)
             return;
     }
 
     void OnMouseEnter()
     {
-        if (localPlayerAuthority)
+        if (localPlayerAuthority && hasAuthority)
             canBeClicked = true;
     }
     void OnMouseExit()
     {
-        if (localPlayerAuthority)
+        if (localPlayerAuthority && hasAuthority)
             canBeClicked = false;
     }
 
     void OnMouseUp()
     {
-        if (localPlayerAuthority)
+        if (localPlayerAuthority && hasAuthority)
         {
             if (canBeClicked)
             {
@@ -124,6 +82,7 @@ public class UnitConstruction : NetworkBehaviour
     {
         if (GameObject.Find("Canvas(Clone)") != null)
         {
+            Debug.Log("Yay found the Canvas...[SERVER]...(Clone)");
             cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
             if (cs != null)
             {
@@ -141,10 +100,11 @@ public class UnitConstruction : NetworkBehaviour
         }
         else if (GameObject.Find("CanvasClient(Clone)") != null)
         {
+            Debug.Log("Yay found the Canvas...[CLIENT]...(Clone)");
             cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
             if (cs != null)
             {
-                string name = base.gameObject.name.Substring(0, 9);
+                string name = this.gameObject.name.Substring(0, 9);
                 Debug.Log(name);// UnitSpot names
                 panel = GameObject.Find("BuildPanelfor" + name);
                 Debug.Log("panel name : " + panel.name);
@@ -182,7 +142,8 @@ public class UnitConstruction : NetworkBehaviour
     public void CmdUnspawnUnit(NetworkInstanceId objID)
     {
         GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
-        NetworkServer.UnSpawn(unspawnedObj);
+        //NetworkServer.UnSpawn(unspawnedObj);
+        NetworkServer.Destroy(unspawnedObj);
         //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
         unspawnedObj.GetComponent<MeshRenderer>().enabled = false;
     }

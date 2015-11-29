@@ -42,7 +42,7 @@ public class AttackingUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        if (localPlayerAuthority)
+        if (localPlayerAuthority && hasAuthority)
         {
             Debug.Log("BOOM! Attacking Unit Arrived Setting vars!");
             structure = this.GetComponent<UnitStructure>();
