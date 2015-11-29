@@ -27,7 +27,7 @@ public class BaseManager : NetworkBehaviour
         structure.HPMax = 2000;
         UnitsBuilt = new GameObject[5];
 
-        if (gameObject.tag == "Enemy")
+        if (gameObject.tag == "Enemy")//Player 2
             structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
         else
             structure.healthBar = GameObject.Find("HealthBarforBase");
@@ -37,10 +37,16 @@ public class BaseManager : NetworkBehaviour
         structure.HP_Bar.value = structure.HP;
         structure.BaseUnit = this;
 
-        if (this.tag != "Enemy")
+        if (this.name == "Base(Clone)")//Player 1
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel");
+            Traverse(InfoPanel, 0);
+        }
+        if (this.name == "Enemy_base(Clone)")//Player 1
+        {
+            infos = new Text[7];
+            InfoPanel = GameObject.Find("InfoPanel2");
             Traverse(InfoPanel, 0);
         }
     }
@@ -57,10 +63,10 @@ public class BaseManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
-        {
-            return;
-        }
+        //if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        //{
+        //    return;
+        //}
         structure.HP_Bar.value = structure.HP;
         if (this.name == "Base(Clone)")
         {
@@ -69,10 +75,13 @@ public class BaseManager : NetworkBehaviour
                 Lost();
                 Time.timeScale = 0;
             }
-            else if (GameObject.Find("Enemy_base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
+            if (GameObject.Find("Enemy_base(Clone)") != null)
             {
-                Won();
-                Time.timeScale = 0;
+                if (GameObject.Find("Enemy_base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
+                {
+                    Won();
+                    Time.timeScale = 0;
+                }
             }
         }
         if (this.name == "Enemy_base(Clone)")
@@ -82,10 +91,13 @@ public class BaseManager : NetworkBehaviour
                 Lost();
                 Time.timeScale = 0;
             }
-            else if (GameObject.Find("Base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
+            if (GameObject.Find("Base(Clone)") != null)
             {
-                Won();
-                Time.timeScale = 0;
+                if (GameObject.Find("Base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
+                {
+                    Won();
+                    Time.timeScale = 0;
+                }
             }
         }
     }
@@ -104,8 +116,9 @@ public class BaseManager : NetworkBehaviour
 
     void OnMouseUp()
     {
-        if (this.tag != "Enemy")
+        if (this.name == "Base(Clone)")
             clicked = true;
+        if (this.name == "Enemy_base(Clone)") ;
     }
 
     void Lost()

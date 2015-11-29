@@ -42,27 +42,13 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             SpawnUnitSpots(unitSpots[i], this.gameObject);
         }
-        //int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
-        //foreach (GameObject unitSpot in unitSpotsSpawned)
-        //{
-        //    GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
-        //    btns = panel.GetComponentsInChildren<Button>();
-        //    int j = 0;
-        //    foreach (Button btn in btns)
-        //    {
-        //        AddListener(btn, unitSpot, j);
-        //        j++;
-        //    }
-        //    k++;
-        //    unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
-        //}
     }
 
     void Update()
     {
         if (!isLocalPlayer)
             return;
-        if (unitSpotsSpawned.Count == 5 && !hasChecked)
+        if (this.unitSpotsSpawned.Count == 5 && !hasChecked)
         {
             int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
             foreach (GameObject unitSpot in unitSpotsSpawned)
