@@ -25,17 +25,10 @@ public class MissileChargeAndMove : NetworkBehaviour
     [SyncVar]
     public Transform target;
 
-    void Start()
-    {
-        //Debug.Log ("% damage:" + missileDamagePercentage);
-    }
-
     // Update is called once per frame
     void Update()
     {
-
-        this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position,
-                                                                  target.position, projectileSpeed * Time.deltaTime);
+        this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target.position, projectileSpeed * Time.deltaTime);
     }
 
     void OnCollisionEnter(Collision col)

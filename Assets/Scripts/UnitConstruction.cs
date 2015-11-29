@@ -19,8 +19,10 @@ public class UnitConstruction : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && hasAuthority)
+        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        {
             return;
+        }
     }
 
     void OnMouseEnter()
@@ -49,23 +51,20 @@ public class UnitConstruction : NetworkBehaviour
 
     public void build(GameObject unit)
     {
-        unit.name = gameObject.name;
+        unit.name = gameObject.name.Substring(0, 9);
         int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-
         int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
-
         if (BaseManager.resources - constructionCost >= 0)
         {
-
             BaseManager.resources -= constructionCost;
             BaseManager.notEnough = "";
             hpbar.SetActive(true);
-
-
-
+            unit.transform.position = this.gameObject.transform.position;
             unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
-            int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
-
+            GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
+            BuildUnit(unit.gameObject, theLocaPlayerObject);//Build the unit.
+            //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
+            uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
             GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
             for (int i = 0; i < instanceArray.Length; i++)
             {
@@ -74,8 +73,62 @@ public class UnitConstruction : NetworkBehaviour
                 BaseUnit.reCheckShield();
             }
             Destroy(gameObject);
+            Unspawn(gameObject);
         }
         else BaseManager.notEnough = "not enough resources";
+    }
+
+    public void SetupCanvas()
+    {
+        print(GameObject.Find("Canvas(Clone)") != null ? "Yay Canvas(Clone) not null" : "T_T - Canvas(Clone) NULL!");
+        if (GameObject.Find("Canvas(Clone)") != null)
+        {
+            Debug.Log("Yay found the Canvas...[SERVER]...(Clone)");
+            cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
+            print(cs == null ? "Yay Canvas(Clone) not null" : "T_T - Canvas(Clone) NULL!");
+            if (cs != null)
+            {
+                string name = base.gameObject.name.Substring(0, 9);
+                panel = GameObject.Find("BuildPanelfor" + name);
+                print(panel != null);
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                hpbar.SetActive(false);
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
+        }
+        else if (GameObject.Find("CanvasClient(Clone)") != null)
+        {
+            Debug.Log("Yay found the Canvas...[CLIENT]...(Clone)");
+            cs = GameObject.Find("CanvasClient(Clone)");//The Host will search for this....
+            if (cs != null)
+            {
+                string name = this.gameObject.name.Substring(0, 9);
+                Debug.Log(name);// UnitSpot names
+                panel = GameObject.Find("BuildPanelfor" + name);
+                Debug.Log("panel name : " + panel.name);
+                //GameObject player = GameObject.FindWithTag("MainCamera");
+                panel.SetActive(false);
+                hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
+                Debug.Log("hpbar name : " + hpbar.name);
+                hpbar.SetActive(false);
+                //GameObject temp = GameObject.Find("Base");
+                GameObject temp = GameObject.Find("Base(Clone)");
+                BaseUnit = temp.GetComponent<BaseManager>();
+            }
+        }
+        else
+        {
+            Debug.Log("T_T.... no canvas!");
+        }
+    }
+
+    [ClientCallback]
+    void Unspawn(GameObject obj)
+    {
+        NetworkInstanceId unitId = obj.GetComponent<NetworkIdentity>().netId;
+        CmdUnspawnUnit(unitId);
     }
 
     [ClientCallback]
