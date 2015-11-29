@@ -14,7 +14,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
     public GameObject playerBase;
     public GameObject enemyBase;
     public Button[] btns;
-    //public List<GameObject> unitSpotsSpawned;
+    public List<GameObject> unitSpotsSpawned;
     bool hasChecked = false;
 
     public override void OnStartLocalPlayer()
@@ -42,39 +42,41 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             SpawnUnitSpots(unitSpots[i], this.gameObject);
         }
-        int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
-        GameObject[] unitSpotsSpawned = GameObject.FindGameObjectsWithTag("UnitSpots");
-        foreach (GameObject unitSpot in unitSpotsSpawned)
-        {
-            GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
-            btns = panel.GetComponentsInChildren<Button>();
-            int j = 0;
-            foreach (Button btn in btns)
-            {
-                AddListener(btn, unitSpot, j);
-                j++;
-            }
-            k++;
-            unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
-        }
+        //int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
+        //foreach (GameObject unitSpot in unitSpotsSpawned)
+        //{
+        //    GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
+        //    btns = panel.GetComponentsInChildren<Button>();
+        //    int j = 0;
+        //    foreach (Button btn in btns)
+        //    {
+        //        AddListener(btn, unitSpot, j);
+        //        j++;
+        //    }
+        //    k++;
+        //    unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
+        //}
     }
 
     void Update()
     {
         if (!isLocalPlayer)
             return;
-        if (isLocalPlayer && !hasChecked)
+        if (unitSpotsSpawned.Count == 5 && !hasChecked)
         {
-            Debug.Log("Helloooooooo");
-            Dictionary<NetworkInstanceId, NetworkIdentity> clientSpawnedObjects = ClientScene.objects;
-            foreach (NetworkIdentity pair in clientSpawnedObjects.Values)
+            int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
+            foreach (GameObject unitSpot in unitSpotsSpawned)
             {
-                Debug.Log("Client: " + pair.name);
-            }
-            Dictionary<NetworkInstanceId, NetworkIdentity> serverSpawnedObjects = NetworkServer.objects;
-            foreach (NetworkIdentity pair in serverSpawnedObjects.Values)
-            {
-                Debug.Log("Server: " + pair.name);
+                GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
+                btns = panel.GetComponentsInChildren<Button>();
+                int j = 0;
+                foreach (Button btn in btns)
+                {
+                    AddListener(btn, unitSpot, j);
+                    j++;
+                }
+                k++;
+                unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
             }
             hasChecked = true;
         }

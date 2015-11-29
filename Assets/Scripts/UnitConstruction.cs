@@ -16,6 +16,15 @@ public class UnitConstruction : NetworkBehaviour
     bool canBeClicked;
     BaseManager BaseUnit;
 
+    void Start()
+    {
+        if (localPlayerAuthority && hasAuthority)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("MainCamera");
+            player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -51,31 +60,34 @@ public class UnitConstruction : NetworkBehaviour
 
     public void build(GameObject unit)
     {
-        unit.name = gameObject.name.Substring(0, 9);
-        int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-        int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
-        if (BaseManager.resources - constructionCost >= 0)
+        if (NetworkServer.connections.Count > 1)
         {
-            BaseManager.resources -= constructionCost;
-            BaseManager.notEnough = "";
-            hpbar.SetActive(true);
-            unit.transform.position = this.gameObject.transform.position;
-            unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
-            GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
-            BuildUnit(unit.gameObject, theLocaPlayerObject);//Build the unit.
-            //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
-            uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
-            GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
-            for (int i = 0; i < instanceArray.Length; i++)
+            unit.name = gameObject.name.Substring(0, 9);
+            int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+            int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
+            if (BaseManager.resources - constructionCost >= 0)
             {
-                if (instanceArray[i].GetInstanceID() == ID)
-                    BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
-                BaseUnit.reCheckShield();
+                BaseManager.resources -= constructionCost;
+                BaseManager.notEnough = "";
+                hpbar.SetActive(true);
+                unit.transform.position = this.gameObject.transform.position;
+                unit.transform.LookAt(GameObject.FindWithTag("Enemy").transform.position);
+                GameObject theLocaPlayerObject = GameObject.FindWithTag("MainCamera");
+                BuildUnit(unit.gameObject, theLocaPlayerObject);//Build the unit.
+                //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
+                uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
+                GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
+                for (int i = 0; i < instanceArray.Length; i++)
+                {
+                    if (instanceArray[i].GetInstanceID() == ID)
+                        BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
+                    BaseUnit.reCheckShield();
+                }
+                Destroy(gameObject);
+                Unspawn(gameObject);
             }
-            Destroy(gameObject);
-            Unspawn(gameObject);
+            else BaseManager.notEnough = "not enough resources";
         }
-        else BaseManager.notEnough = "not enough resources";
     }
 
     public void SetupCanvas()
@@ -85,7 +97,7 @@ public class UnitConstruction : NetworkBehaviour
         {
             Debug.Log("Yay found the Canvas...[SERVER]...(Clone)");
             cs = GameObject.Find("Canvas(Clone)");//The Host will search for this....
-            print(cs == null ? "Yay Canvas(Clone) not null" : "T_T - Canvas(Clone) NULL!");
+            print(cs != null ? "Yay Canvas(Clone) not null" : "T_T - Canvas(Clone) NULL!");
             if (cs != null)
             {
                 string name = base.gameObject.name.Substring(0, 9);
