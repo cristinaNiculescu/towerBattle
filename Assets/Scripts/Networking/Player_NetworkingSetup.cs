@@ -64,6 +64,34 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 k++;
                 unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
             }
+            if (base.netId.Value == 1)
+            {
+                if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
+                {
+                    GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
+                    foreach (Transform child in csPlayer2.transform)
+                    {
+                        if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
+                        {
+                            child.gameObject.SetActive(false);
+                        }
+                    }
+                }
+            }
+            else if (base.netId.Value == 7)
+            {
+                if (GameObject.Find("Canvas(Clone)") != null)//Player 1
+                {
+                    GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
+                    foreach (Transform child in csPlayer1.transform)
+                    {
+                        if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
+                        {
+                            child.gameObject.SetActive(false);
+                        }
+                    }
+                }
+            }
             hasChecked = true;
         }
     }
@@ -75,7 +103,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     public void build(GameObject obj, int value)
     {
-        obj.GetComponent<UnitConstruction>().build(prefabUnits[value].gameObject);
+        obj.GetComponent<UnitConstruction>().build(prefabUnits[value].gameObject, this.gameObject);
     }
 
     [ClientCallback]
@@ -96,16 +124,16 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
-            //NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
+            NetworkServer.SpawnWithClientAuthority(go, thePlayer);
+            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
             Debug.Log("Server go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         }
         else if (base.connectionToClient.connectionId == 2)//The Second Client to enter the game
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(-go.transform.position.x, go.transform.position.y, -go.transform.position.z);
-            //NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
+            NetworkServer.SpawnWithClientAuthority(go, thePlayer);
+            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
             Debug.Log("Client go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         }
     }

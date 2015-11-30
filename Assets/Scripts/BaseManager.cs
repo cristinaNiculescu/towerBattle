@@ -43,7 +43,7 @@ public class BaseManager : NetworkBehaviour
             InfoPanel = GameObject.Find("InfoPanel");
             Traverse(InfoPanel, 0);
         }
-        if (this.name == "Enemy_base(Clone)")//Player 1
+        if (this.name == "Enemy_base(Clone)")//Player 2
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel2");
@@ -130,5 +130,4 @@ public class BaseManager : NetworkBehaviour
     {
         imageWin.SetActive(true);
     }
-
 }

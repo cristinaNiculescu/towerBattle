@@ -43,39 +43,58 @@ public class AttackingUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 250;
-        structure.HPMax = 250;
-
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
-
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-
-        structure.name = "Attacking Unit";
-        GameObject temp = GameObject.Find("Base");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
-
-        tempName = gameObject.name.Substring(0, 9);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
-
-        targets = new Transform[3];
-        RocksMin = 20;
-        RocksMax = 40;
-        startAngle = gameObject.transform.rotation.z;
-        co = rockFlurr();
+        if (localPlayerAuthority && hasAuthority)
+        {
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 250;
+            structure.HPMax = 250;
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
+            GameObject temp = null;
+            //if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            if (GetComponent<NetworkIdentity>().clientAuthorityOwner == GameObject.Find("Player 7").GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            {
+                Debug.Log("Player 2 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
+                temp = GameObject.Find("Enemy_base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
+            }
+            //else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            else if (GetComponent<NetworkIdentity>().clientAuthorityOwner == GameObject.Find("Player 1").GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            {
+                Debug.Log("Player 1 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+                temp = GameObject.Find("Base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            }
+            Debug.Log("Temp base = " + temp.name);
+            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
+            structure.name = "Attacking Unit";
+            //GameObject temp = GameObject.Find("Base(Clone)");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
+            //tempName = gameObject.name.Substring(0, 9);
+            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
+            targets = new Transform[3];
+            RocksMin = 20;
+            RocksMax = 40;
+            startAngle = gameObject.transform.rotation.z;
+            co = rockFlurr();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        //if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        if (!localPlayerAuthority && !hasAuthority)
         {
             return;
         }
@@ -129,12 +148,10 @@ public class AttackingUnit : NetworkBehaviour
                             missileAbilityAvailable = false;
                             StartCoroutine(co);
                             StartCoroutine(rechargeMissile(missileCooldown));
-
                         }
                     }
                 }
             }
-
             if (mudTriggered && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -153,7 +170,6 @@ public class AttackingUnit : NetworkBehaviour
                     }
                 }
             }
-
         }
         else
             if (started)
@@ -186,24 +202,42 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
-        Text panelTitle = tempOBj.GetComponent<Text>();
-        panelTitle.text = "Abilities";
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
-        Button btn = tempOBj.GetComponent<Button>();
-        Text btnText = btn.GetComponentInChildren<Text>();
-        btnText.text = "Missiles";
-        btn.onClick.AddListener(() => missileLaunch());
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/buildAtck");
-        tempOBj.SetActive(false);
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
-        Button btn2 = tempOBj.GetComponent<Button>();
-        Text btn2text = btn2.GetComponentInChildren<Text>();
-        btn2text.text = "Throw Mud";
-        btn2.onClick.AddListener(() => mudSplatter());
+        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Missiles";
+            btn.onClick.AddListener(() => missileLaunch());
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildAtck");
+            tempOBj.SetActive(false);
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Throw Mud";
+            btn2.onClick.AddListener(() => mudSplatter());
+        }
+        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Missiles";
+            btn.onClick.AddListener(() => missileLaunch());
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildAtck");
+            tempOBj.SetActive(false);
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Throw Mud";
+            btn2.onClick.AddListener(() => mudSplatter());
+        }
     }
 
     /// <summary>
@@ -287,15 +321,13 @@ public class AttackingUnit : NetworkBehaviour
                 BaseManager.resources -= structure.costs[1];
                 BaseManager.notEnough = "";
                 triggeredMissileLaunch = true;
-
                 StopCoroutine(co);
                 activeMarker = false;
                 structure.panel.SetActive(activeMarker);
             }
             else
                 BaseManager.notEnough = "not enough resources";
-        } //else
-        //Debug.Log ("missiles not ready yet");
+        }
     }
 
     IEnumerator rechargeMissile(float cooldown)
@@ -327,7 +359,6 @@ public class AttackingUnit : NetworkBehaviour
             }
             else
                 BaseManager.notEnough = "not enough resources";
-            ;
         }
     }
 
@@ -376,7 +407,6 @@ public class AttackingUnit : NetworkBehaviour
         message = " ";
         if (structure)
         {
-
             if (structure.isInConstruction)
             {
                 message = "building";

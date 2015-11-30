@@ -18,6 +18,14 @@ public class UnitConstruction : NetworkBehaviour
 
     void Start()
     {
+        AssignUnitSpotsToPlayer();
+    }
+
+    /// <summary>
+    /// Assign UnitSpots to the rightful player.
+    /// </summary>
+    private void AssignUnitSpotsToPlayer()
+    {
         if (localPlayerAuthority && hasAuthority)
         {
             if (GameObject.Find("Player 7") != null)
@@ -32,15 +40,6 @@ public class UnitConstruction : NetworkBehaviour
                 Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer1.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
             }
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
-        {
-            return;
         }
     }
 
@@ -63,50 +62,37 @@ public class UnitConstruction : NetworkBehaviour
             {
                 panel.SetActive(activeMarker);
                 activeMarker = !activeMarker;
-                //Debug.Log(activeMarker);
             }
         }
     }
 
-    public void build(GameObject unit)
+    public void build(GameObject unit, GameObject player)
     {
-        if (NetworkServer.connections.Count > 1)
+        unit.name = gameObject.name.Substring(0, 9);
+        int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+        int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
+        if (BaseManager.resources - constructionCost >= 0)
         {
-            unit.name = gameObject.name.Substring(0, 9);
-            int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-            int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
-            if (BaseManager.resources - constructionCost >= 0)
+            BaseManager.resources -= constructionCost;
+            BaseManager.notEnough = "";
+            hpbar.SetActive(true);
+            BuildUnit(unit.gameObject, player);//Build the unit.
+            //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
+            unit.transform.position = this.gameObject.transform.position;
+            uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
+            //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
+            GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
+            for (int i = 0; i < instanceArray.Length; i++)
             {
-                BaseManager.resources -= constructionCost;
-                BaseManager.notEnough = "";
-                hpbar.SetActive(true);
-                unit.transform.position = this.gameObject.transform.position;
-                GameObject theLocaPlayerObject = null;
-                if (GameObject.Find("Player 7") != null)
-                {
-                    unit.transform.LookAt(GameObject.Find("Base(Clone)").transform.position);
-                    theLocaPlayerObject = GameObject.Find("Player 7");
-                }
-                else if (GameObject.Find("Player 1") != null)
-                {
-                    unit.transform.LookAt(GameObject.Find("Enemy_base(Clone)").transform.position);
-                    theLocaPlayerObject = GameObject.Find("Player 1");
-                }
-                BuildUnit(unit.gameObject, theLocaPlayerObject);//Build the unit.
-                //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
-                uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
-                GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
-                for (int i = 0; i < instanceArray.Length; i++)
-                {
-                    if (instanceArray[i].GetInstanceID() == ID)
-                        BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
-                    BaseUnit.reCheckShield();
-                }
-                Destroy(gameObject);
-                Unspawn(gameObject);
+                //if (instanceArray[i].GetInstanceID() == ID)
+                if (instanceArray[i].GetComponent<NetworkIdentity>().netId.Value == ID)
+                    BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
+                BaseUnit.reCheckShield();
             }
-            else BaseManager.notEnough = "not enough resources";
+            //Destroy(gameObject);
+            Unspawn(gameObject);
         }
+        else BaseManager.notEnough = "not enough resources";
     }
 
     public void SetupCanvas()
@@ -123,7 +109,7 @@ public class UnitConstruction : NetworkBehaviour
                 panel.SetActive(false);
                 hpbar = GameObject.Find("HealthBarfor2" + name + "(Clone)");
                 hpbar.SetActive(false);
-                GameObject temp = GameObject.Find("Base(Clone)");
+                GameObject temp = GameObject.Find("Enemy_base(Clone)");
                 BaseUnit = temp.GetComponent<BaseManager>();
             }
         }
@@ -167,15 +153,16 @@ public class UnitConstruction : NetworkBehaviour
     public void CmdUnspawnUnit(NetworkInstanceId objID)
     {
         GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
-        //NetworkServer.UnSpawn(unspawnedObj);
-        NetworkServer.Destroy(unspawnedObj);
+        NetworkServer.UnSpawn(unspawnedObj);
+        //NetworkServer.Destroy(unspawnedObj);
         //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
-        unspawnedObj.GetComponent<MeshRenderer>().enabled = false;
+        //unspawnedObj.GetComponent<MeshRenderer>().enabled = false;
     }
 
     [Command]
     public void CmdBuildUnit(int unitIndex, GameObject player)
     {
+        Debug.Log("Player to give auth = " + player.name);
         GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
         GameObject go = GameObject.Instantiate(unitToBuild);
         NetworkServer.SpawnWithClientAuthority(go, player);
