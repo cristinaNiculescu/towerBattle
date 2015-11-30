@@ -202,7 +202,7 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
@@ -220,7 +220,7 @@ public class AttackingUnit : NetworkBehaviour
             btn2text.text = "Throw Mud";
             btn2.onClick.AddListener(() => mudSplatter());
         }
-        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
+        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
