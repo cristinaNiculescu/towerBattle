@@ -15,16 +15,13 @@ public class UnitStructure : NetworkBehaviour
     public string theName;
     public GameObject panel;
     bool canBeClicked;
-    //bool activeMarker = false;
     string tempName;
     GameObject image;
     public Color colorUnit;
     public bool isUnderRepair;
-    //public string status;
     public bool isDisoriented;
     public float disorientDur;
 
-    //[SerializeField]
     private string status;
 
     public string statusUpdater
@@ -40,7 +37,6 @@ public class UnitStructure : NetworkBehaviour
     void Start()
     {
         TeamLookingForTarget = false;
-        //	HP = HPMax;
     }
 
     public IEnumerator waitConstruction(float duration, Color color)
@@ -55,16 +51,15 @@ public class UnitStructure : NetworkBehaviour
 
             yield return new WaitForSeconds(smoothness);
         }
-        //yield return new WaitForSeconds(20f);
-
         isInConstruction = false;
-        //Debug.Log ("built"+Time.realtimeSinceStartup);
     }
+
     // Update is called once per frame
     void Update()
     {
 
     }
+
     public IEnumerator dizzy(float duration)
     {
         Debug.Log("is disoriented");

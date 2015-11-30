@@ -68,31 +68,34 @@ public class UnitConstruction : NetworkBehaviour
 
     public void build(GameObject unit, GameObject player)
     {
-        unit.name = gameObject.name.Substring(0, 9);
-        int index = (int)(gameObject.name[gameObject.name.Length - 1]);
-        int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
-        if (BaseManager.resources - constructionCost >= 0)
+        if (localPlayerAuthority && hasAuthority)
         {
-            BaseManager.resources -= constructionCost;
-            BaseManager.notEnough = "";
-            hpbar.SetActive(true);
-            BuildUnit(unit.gameObject, player);//Build the unit.
-            //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
-            unit.transform.position = this.gameObject.transform.position;
-            uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
-            //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
-            GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
-            for (int i = 0; i < instanceArray.Length; i++)
+            unit.name = gameObject.name.Substring(0, 9);
+            int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+            int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
+            if (BaseManager.resources - constructionCost >= 0)
             {
-                //if (instanceArray[i].GetInstanceID() == ID)
-                if (instanceArray[i].GetComponent<NetworkIdentity>().netId.Value == ID)
-                    BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
-                BaseUnit.reCheckShield();
+                BaseManager.resources -= constructionCost;
+                BaseManager.notEnough = "";
+                hpbar.SetActive(true);
+                BuildUnit(unit.gameObject, player);//Build the unit.
+                //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
+                unit.transform.position = this.gameObject.transform.position;
+                uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
+                //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
+                GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
+                for (int i = 0; i < instanceArray.Length; i++)
+                {
+                    //if (instanceArray[i].GetInstanceID() == ID)
+                    if (instanceArray[i].GetComponent<NetworkIdentity>().netId.Value == ID)
+                        BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
+                    BaseUnit.reCheckShield();
+                }
+                //Destroy(gameObject);
+                Unspawn(gameObject);
             }
-            //Destroy(gameObject);
-            Unspawn(gameObject);
+            else BaseManager.notEnough = "not enough resources";
         }
-        else BaseManager.notEnough = "not enough resources";
     }
 
     public void SetupCanvas()
@@ -162,9 +165,9 @@ public class UnitConstruction : NetworkBehaviour
     [Command]
     public void CmdBuildUnit(int unitIndex, GameObject player)
     {
-        Debug.Log("Player to give auth = " + player.name);
         GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
         GameObject go = GameObject.Instantiate(unitToBuild);
         NetworkServer.SpawnWithClientAuthority(go, player);
+        Debug.Log("Server: player to give auth = " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
     }
 }

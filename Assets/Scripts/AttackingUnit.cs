@@ -43,8 +43,11 @@ public class AttackingUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
+        //Debug.Log("The client with auth : " + GetComponent<NetworkIdentity>().clientAuthorityOwner);
         if (localPlayerAuthority && hasAuthority)
         {
+            Debug.Log("Player 1 playerControllerId: " + GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId);
+            Debug.Log("Player 2 playerControllerId: " + GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId);
             structure = this.GetComponent<UnitStructure>();
             structure.HP = 250;
             structure.HPMax = 250;
@@ -52,8 +55,7 @@ public class AttackingUnit : NetworkBehaviour
             structure.isInConstruction = true;
             StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
-            //if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
-            if (GetComponent<NetworkIdentity>().clientAuthorityOwner == GameObject.Find("Player 7").GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
@@ -61,8 +63,7 @@ public class AttackingUnit : NetworkBehaviour
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
             }
-            //else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().connectionToClient == GetComponent<NetworkIdentity>().clientAuthorityOwner)
-            else if (GetComponent<NetworkIdentity>().clientAuthorityOwner == GameObject.Find("Player 1").GetComponent<NetworkIdentity>().clientAuthorityOwner)
+            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
@@ -93,7 +94,6 @@ public class AttackingUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
         if (!localPlayerAuthority && !hasAuthority)
         {
             return;

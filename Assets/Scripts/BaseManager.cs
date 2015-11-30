@@ -118,7 +118,8 @@ public class BaseManager : NetworkBehaviour
     {
         if (this.name == "Base(Clone)")
             clicked = true;
-        if (this.name == "Enemy_base(Clone)") ;
+        if (this.name == "Enemy_base(Clone)")
+            clicked = true;
     }
 
     void Lost()
