@@ -5,11 +5,15 @@ using UnityEngine.UI;
 
 public class BaseManager : NetworkBehaviour
 {
+    [SyncVar]
     public int shieldDamageTaken = 0;
+    [SyncVar]
     public float shieldPower = 500;
     public GameObject[] UnitsBuilt = new GameObject[5];
+    [SyncVar]
     float shieldMultiplier = 0;
     public static int resources = 200;
+    [SyncVar]
     float gatheringSpeed;
     UnitStructure structure;
     public GameObject InfoPanel;

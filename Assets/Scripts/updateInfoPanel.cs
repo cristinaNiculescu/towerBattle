@@ -16,7 +16,7 @@ public class updateInfoPanel : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (this.tag != "Enemy")
+        if (this.tag == "Base1")
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel");
@@ -24,7 +24,7 @@ public class updateInfoPanel : MonoBehaviour
             Traverse(InfoPanel, 0);
             UnitsBuilt = new GameObject[5];
         }
-        else if (this.tag == "Enemy")
+        else if (this.tag == "Base2")
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel2");
@@ -47,7 +47,7 @@ public class updateInfoPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag != "Enemy"))
+        if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Base1"))
         {
             {
                 needsRefresh = true;
@@ -61,7 +61,7 @@ public class updateInfoPanel : MonoBehaviour
                 updateText();
             }
         }
-        else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Enemy"))
+        else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Base2"))
         {
             {
                 needsRefresh = true;

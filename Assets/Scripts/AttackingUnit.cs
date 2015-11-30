@@ -52,7 +52,7 @@ public class AttackingUnit : NetworkBehaviour
             structure.HPMax = 250;
             structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
             structure.isInConstruction = true;
-            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
+            StartCoroutine(structure.waitConstruction(1f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
             if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
@@ -93,7 +93,7 @@ public class AttackingUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
+        if (!hasAuthority)
         {
             return;
         }
@@ -106,7 +106,8 @@ public class AttackingUnit : NetworkBehaviour
             }
             if (structure.HP <= 0f)
             {
-                Destroy(gameObject, 0.1f);
+                //Destroy(gameObject, 0.1f);
+                DestroyMePlease(gameObject, 0.1f);
                 structure.BaseUnit.reCheckShield();
             }
             structure.HP_Bar.value = structure.HP;
@@ -120,11 +121,13 @@ public class AttackingUnit : NetworkBehaviour
                     {
                         if (hit.transform.tag == "Base2")
                         {
-                            Debug.Log("Base2 is going to get hit!");
+                            SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
-                            targets[missileCurrentCharges] = target;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                            damage.target = target;
+                            damage.target = target.position;
+                            Debug.Log("damage.target = " + damage.target);
+                            missile.LookAt(target.position);
+                            targets[missileCurrentCharges] = target;
                             bool sameTarget = true;
                             for (int i = 0; i < missileCurrentCharges; i++)
                             {
@@ -141,8 +144,6 @@ public class AttackingUnit : NetworkBehaviour
                             }
                             missileCurrentCharges++;
                             timeAtMissileLaunch = Time.realtimeSinceStartup;
-                            SpawnMissile(missile.gameObject);
-                            missile.LookAt(target.position);
                             triggeredMissileLaunch = false;
                             if (missileCurrentCharges == 3)
                             {
@@ -156,11 +157,13 @@ public class AttackingUnit : NetworkBehaviour
                     {
                         if (hit.transform.tag == "Base1")
                         {
-                            Debug.Log("Base1 is going to get hit!");
+                            SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
-                            targets[missileCurrentCharges] = target;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                            damage.target = target;
+                            damage.target = target.position;
+                            Debug.Log("damage.target = " + damage.target);
+                            missile.LookAt(target.position);
+                            targets[missileCurrentCharges] = target;
                             bool sameTarget = true;
                             for (int i = 0; i < missileCurrentCharges; i++)
                             {
@@ -177,8 +180,6 @@ public class AttackingUnit : NetworkBehaviour
                             }
                             missileCurrentCharges++;
                             timeAtMissileLaunch = Time.realtimeSinceStartup;
-                            SpawnMissile(missile.gameObject);
-                            missile.LookAt(target.position);
                             triggeredMissileLaunch = false;
                             if (missileCurrentCharges == 3)
                             {
@@ -498,22 +499,20 @@ public class AttackingUnit : NetworkBehaviour
     }
 
     [ClientCallback]
-    void SpawnMissile(GameObject missile)
+    void SpawnMissile(GameObject missile, Vector3 target)
     {
         int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnMissile(missileIndex, player);
+        CmdSpawnMissile(missileIndex, target);
     }
 
     [Command]
-    void CmdSpawnMissile(int missileIndex, GameObject player)
+    void CmdSpawnMissile(int missileIndex, Vector3 target)
     {
         GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
         GameObject go = GameObject.Instantiate(missileToLaunch);
         go.transform.position = this.gameObject.transform.position;
-        go.GetComponent<MissileChargeAndMove>().target = this.target;
-        go.transform.LookAt(this.target);
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        go.GetComponent<MissileChargeAndMove>().target = target;
+        NetworkServer.Spawn(go);
     }
 
     [ClientCallback]
@@ -548,5 +547,18 @@ public class AttackingUnit : NetworkBehaviour
         GameObject go = GameObject.Instantiate(rock);
         go.transform.position = shootingPosition;
         NetworkServer.SpawnWithClientAuthority(go, player);
+    }
+
+    [ClientCallback]
+    void DestroyMePlease(GameObject obj, float time)
+    {
+        CmdDestroyMePlease(obj, time);
+    }
+
+    [Command]
+    void CmdDestroyMePlease(GameObject obj, float time)
+    {
+        Debug.Log("Going to destroy : " + obj.name);
+        Destroy(obj, time);
     }
 }
