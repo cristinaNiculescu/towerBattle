@@ -52,8 +52,6 @@ public class SpecialUnit : NetworkBehaviour
     {
         if (localPlayerAuthority && hasAuthority)
         {
-            resourceFields = new GameObject[3];
-            resourceFields = GameObject.FindGameObjectsWithTag("resource");
             structure = this.GetComponent<UnitStructure>();
             structure.HP = 200;
             structure.HPMax = 200;
@@ -63,21 +61,25 @@ public class SpecialUnit : NetworkBehaviour
             structure.statusUpdater = status();
             StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
             GameObject temp = null;
-            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
             {
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
                 temp = GameObject.Find("Enemy_base(Clone)");
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
+                resourceFields = new GameObject[3];
+                resourceFields = GameObject.FindGameObjectsWithTag("Base2_Resources");
             }
-            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
             {
                 Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
                 temp = GameObject.Find("Base(Clone)");
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+                resourceFields = new GameObject[3];
+                resourceFields = GameObject.FindGameObjectsWithTag("Base1_Resources");
             }
             BaseManager.resources -= structure.costs[0];
             //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
@@ -89,8 +91,7 @@ public class SpecialUnit : NetworkBehaviour
             //GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();
             //tempName = gameObject.name.Substring(0, 9);
-            //Debug.Log(tempName);
-            structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             changePanel();
             structure.panel.SetActive(activeMarker);
             upgradeDuration = 30f;
@@ -147,17 +148,13 @@ public class SpecialUnit : NetworkBehaviour
             if (upgradeDeployedTeam && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    //Debug.Log (hit.transform.tag);
-
                     if (hit.transform.tag == "attacking" ||
                         hit.transform.tag == "defense" ||
                         hit.transform.tag == "special")
                     {
                         target = hit.transform;
-                        //Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under upgrade");
                         target.GetComponent<UnitStructure>().isUnderRepair = true;
                         StartCoroutine(upgradeDeployed(target.transform));
                         upgradeDeployedTeam = false;
@@ -175,7 +172,6 @@ public class SpecialUnit : NetworkBehaviour
             if (scoutTriggered && Input.GetMouseButtonDown(1))
             {
                 scoutTriggered = false;
-                //Debug.Log(scoutDistance);
                 float scoutMissionDuration = scoutDistance / 4f;
                 if (BaseManager.resources - structure.costs[4] - (int)scoutMissionDuration / 4 >= 0)
                 {

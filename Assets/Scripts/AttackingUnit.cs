@@ -499,6 +499,7 @@ public class AttackingUnit : NetworkBehaviour
     {
         int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
         GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        Debug.Log("Player missile : " + player.name);
         CmdSpawnMissile(missileIndex, player);
     }
 

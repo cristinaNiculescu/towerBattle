@@ -108,7 +108,6 @@ public class DefensiveUnit : NetworkBehaviour
                         cliffBit.target = hit.transform;
                         cliffBit.dur = disorientDuration;
                         cliffBit.damagePercentage = rockPercentageDamage;
-                        //Instantiate(cliff, gameObject.transform.position, Quaternion.identity);
                         SpawnCliff(cliff.gameObject);
                         cliff.LookAt(hit.transform.position);
                         rockReady = false;
@@ -124,7 +123,6 @@ public class DefensiveUnit : NetworkBehaviour
                         cliffBit.target = hit.transform;
                         cliffBit.dur = disorientDuration;
                         cliffBit.damagePercentage = rockPercentageDamage;
-                        //Instantiate(cliff, gameObject.transform.position, Quaternion.identity);
                         SpawnCliff(cliff.gameObject);
                         cliff.LookAt(hit.transform.position);
                         rockReady = false;

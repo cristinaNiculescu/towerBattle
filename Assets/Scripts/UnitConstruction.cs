@@ -31,13 +31,13 @@ public class UnitConstruction : NetworkBehaviour
             if (GameObject.Find("Player 7") != null)
             {
                 GameObject clientPlayer2 = GameObject.Find("Player 7");//Player 2
-                Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
+                //Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer2.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
             }
             else
             {
                 GameObject clientPlayer1 = GameObject.Find("Player 1");//Player 1
-                Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
+                //Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer1.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
             }
         }
@@ -91,6 +91,7 @@ public class UnitConstruction : NetworkBehaviour
                     BaseUnit.reCheckShield();
                 }
                 //Destroy(gameObject);
+                //gameObject.GetComponent<MeshRenderer>().enabled = false;
                 Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
@@ -101,13 +102,11 @@ public class UnitConstruction : NetworkBehaviour
     {
         if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
         {
-            Debug.Log("Yay found the Canvas...[PLAYER 2]...(Clone)");
             cs = GameObject.Find("CanvasClient(Clone)");
             if (cs != null)
             {
                 string name = this.gameObject.name.Substring(0, 9);
                 panel = GameObject.Find("BuildPanelfor2" + name);
-                print("Player 2 : " + panel != null);
                 panel.SetActive(false);
                 hpbar = GameObject.Find("HealthBarfor2" + name + "(Clone)");
                 hpbar.SetActive(false);
@@ -117,13 +116,11 @@ public class UnitConstruction : NetworkBehaviour
         }
         else if (GameObject.Find("Canvas(Clone)") != null)//Player 1
         {
-            Debug.Log("Yay found the Canvas...[PLAYER 1]...(Clone)");
             cs = GameObject.Find("Canvas(Clone)");
             if (cs != null)
             {
                 string name = base.gameObject.name.Substring(0, 9);
                 panel = GameObject.Find("BuildPanelfor" + name);
-                print(panel != null);
                 panel.SetActive(false);
                 hpbar = GameObject.Find("HealthBarfor" + name + "(Clone)");
                 hpbar.SetActive(false);

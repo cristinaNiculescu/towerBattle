@@ -32,17 +32,18 @@ public class Player_NetworkingSetup : NetworkBehaviour
         {
             Instantiate(canvas);
             Instantiate(playerBase);
+            HideCanvasWhenClientConnect();
         }
         else if (base.netId.Value == 7)
         {
             Instantiate(clientCanvas);
             Instantiate(enemyBase);
+            HideCanvasWhenClientConnect();
         }
         for (int i = 0; i < unitSpots.Count; i++)
         {
             SpawnUnitSpots(unitSpots[i], this.gameObject);
         }
-        HideCanvasWhenClientConnect();
     }
 
     /// <summary>
@@ -86,7 +87,6 @@ public class Player_NetworkingSetup : NetworkBehaviour
             return;
         if (this.unitSpotsSpawned.Count == 5 && !hasChecked)
         {
-            Debug.Log("name " + gameObject.name);
             if (gameObject.name == "Player 1")
             {
                 int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
@@ -103,8 +103,9 @@ public class Player_NetworkingSetup : NetworkBehaviour
                     k++;
                     unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
                 }
+                CmdHideCanvasOnPlayer(canvas.name);
             }
-            if (gameObject.name == "Player 7")
+            else if (gameObject.name == "Player 7")
             {
                 int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
                 foreach (GameObject unitSpot in unitSpotsSpawned)
@@ -120,6 +121,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                     k++;
                     unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
                 }
+                CmdHideCanvasOnPlayer(clientCanvas.name);
             }
             hasChecked = true;
         }
@@ -147,22 +149,51 @@ public class Player_NetworkingSetup : NetworkBehaviour
     {
         GameObject unitSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
         GameObject go = null;
-        //if (base.connectionToClient.connectionId == -1)//The Host must not spawn anything... 
         if (base.connectionToClient.connectionId == 1)//The First Client to enter the game
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(go.transform.position.x, go.transform.position.y, go.transform.position.z);
             NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
-            Debug.Log("Server go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
         }
         else if (base.connectionToClient.connectionId == 2)//The Second Client to enter the game
         {
             go = (GameObject)Instantiate(unitSpawned);
             go.transform.position = new Vector3(-go.transform.position.x, go.transform.position.y, -go.transform.position.z);
             NetworkServer.SpawnWithClientAuthority(go, thePlayer);
-            //NetworkServer.SpawnWithClientAuthority(go, base.connectionToClient);
-            Debug.Log("Client go auth? " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
+        }
+    }
+
+    [Command]
+    void CmdHideCanvasOnPlayer(string canvasName)
+    {
+        RpcHideCanvas(canvasName);
+    }
+
+    [ClientRpc]
+    public void RpcHideCanvas(string canvas)
+    {
+        Debug.Log("The canvas name = " + canvas);
+        if (GameObject.Find(canvas + "(Clone)") != null && canvas == "CanvasClient")//Player 2
+        {
+            GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
+            foreach (Transform child in csPlayer2.transform)
+            {
+                if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+        if (GameObject.Find(canvas + "(Clone)") != null && canvas == "Canvas")//Player 1
+        {
+            GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
+            foreach (Transform child in csPlayer1.transform)
+            {
+                if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
         }
     }
 }
