@@ -50,45 +50,59 @@ public class SpecialUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        resourceFields = new GameObject[3];
-        resourceFields = GameObject.FindGameObjectsWithTag("resource");
-
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 200;
-        structure.HPMax = 200;
-        attributeCosts();
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        structure.statusUpdater = status();
-        //		Debug.Log(structure.statusUpdater);
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
-        BaseManager.resources -= structure.costs[0];
-
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-        structure.HP_Bar.value = structure.HP;
-
-        structure.name = "Special Unit";
-        GameObject temp = GameObject.Find("Base(Clone)");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
-
-        tempName = gameObject.name.Substring(0, 9);
-        //Debug.Log(tempName);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
-
-        upgradeDuration = 30f;
-        repairDuration = 30f;
-        repairCooldown = 60f;
+        if (localPlayerAuthority && hasAuthority)
+        {
+            resourceFields = new GameObject[3];
+            resourceFields = GameObject.FindGameObjectsWithTag("resource");
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 200;
+            structure.HPMax = 200;
+            attributeCosts();
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            structure.statusUpdater = status();
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            GameObject temp = null;
+            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            {
+                Debug.Log("Player 2 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
+                temp = GameObject.Find("Enemy_base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
+            }
+            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            {
+                Debug.Log("Player 1 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+                temp = GameObject.Find("Base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            }
+            BaseManager.resources -= structure.costs[0];
+            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
+            structure.HP_Bar.value = structure.HP;
+            structure.name = "Special Unit";
+            //GameObject temp = GameObject.Find("Base(Clone)");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
+            //tempName = gameObject.name.Substring(0, 9);
+            //Debug.Log(tempName);
+            structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
+            upgradeDuration = 30f;
+            repairDuration = 30f;
+            repairCooldown = 60f;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        if (!localPlayerAuthority && !hasAuthority)
         {
             return;
         }
@@ -220,7 +234,6 @@ public class SpecialUnit : NetworkBehaviour
                     Destroy(scoutInstantiated);
                 if (scoutInstantiated && (destinations.Count != 0))
                 {
-                    //Debug.Log(scoutInstantiated.transform.position+" "+positions[positions.Count-1]);
                     if (((int)scoutInstantiated.transform.position.x == (int)destinations[destinations.Count - 1].x)
                         && ((int)scoutInstantiated.transform.position.z == (int)destinations[destinations.Count - 1].z)
                         )
@@ -313,28 +326,54 @@ public class SpecialUnit : NetworkBehaviour
 
     void changePanel()
     {
-        //  Debug.Log ("BuildPanelfor" + tempName + "/buildAtck");
-        GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
-        Text panelTitle = tempOBj.GetComponent<Text>();
-        panelTitle.text = "Abilities";
+        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
 
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/buildAtck");
-        Button btn3 = tempOBj.GetComponent<Button>();
-        Text btn3Text = btn3.GetComponentInChildren<Text>();
-        btn3Text.text = "Send Scout";
-        btn3.onClick.AddListener(() => sendScout());
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildAtck");
+            Button btn3 = tempOBj.GetComponent<Button>();
+            Text btn3Text = btn3.GetComponentInChildren<Text>();
+            btn3Text.text = "Send Scout";
+            btn3.onClick.AddListener(() => sendScout());
 
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
-        Button btn = tempOBj.GetComponent<Button>();
-        Text btnText = btn.GetComponentInChildren<Text>();
-        btnText.text = "Repair Unit";
-        btn.onClick.AddListener(() => repair());
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Repair Unit";
+            btn.onClick.AddListener(() => repair());
 
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
-        Button btn2 = tempOBj.GetComponent<Button>();
-        Text btn2text = btn2.GetComponentInChildren<Text>();
-        btn2text.text = "Upgrade Unit";
-        btn2.onClick.AddListener(() => upgradeUnits());
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Upgrade Unit";
+            btn2.onClick.AddListener(() => upgradeUnits());
+        }
+        if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
+
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildAtck");
+            Button btn3 = tempOBj.GetComponent<Button>();
+            Text btn3Text = btn3.GetComponentInChildren<Text>();
+            btn3Text.text = "Send Scout";
+            btn3.onClick.AddListener(() => sendScout());
+
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Repair Unit";
+            btn.onClick.AddListener(() => repair());
+
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Upgrade Unit";
+            btn2.onClick.AddListener(() => upgradeUnits());
+        }
     }
 
     void repair()
@@ -347,7 +386,6 @@ public class SpecialUnit : NetworkBehaviour
         else
             activeMarker = false;
         structure.panel.SetActive(activeMarker);
-        //Debug.Log("sent repair");
     }
 
     IEnumerator repairDeployed(Transform target, float repairDuration, float repairCooldown)
@@ -526,7 +564,6 @@ public class SpecialUnit : NetworkBehaviour
                     message += " upgrade crew ready;";
                 else
                     message += " upgrade crew regenarating;";
-
                 return message;
             }
         }

@@ -43,11 +43,10 @@ public class AttackingUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        //Debug.Log("The client with auth : " + GetComponent<NetworkIdentity>().clientAuthorityOwner);
         if (localPlayerAuthority && hasAuthority)
         {
-            Debug.Log("Player 1 playerControllerId: " + GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId);
-            Debug.Log("Player 2 playerControllerId: " + GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId);
+            //Debug.Log("Player 1 playerControllerId: " + GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId);
+            //Debug.Log("Player 2 playerControllerId: " + GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId);
             structure = this.GetComponent<UnitStructure>();
             structure.HP = 250;
             structure.HPMax = 250;
@@ -103,7 +102,6 @@ public class AttackingUnit : NetworkBehaviour
             if (!started)
             {
                 started = true;
-                //co = rockFlurr ();
                 StartCoroutine(co);
             }
             if (structure.HP <= 0f)
@@ -117,37 +115,74 @@ public class AttackingUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f) && (missileCurrentCharges < 3))
                 {
-                    if (hit.transform.tag == "Enemy")
+                    if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                     {
-                        target = hit.transform;
-                        targets[missileCurrentCharges] = target;
-                        MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                        damage.target = target;
-                        bool sameTarget = true;
-                        for (int i = 0; i < missileCurrentCharges; i++)
+                        if (hit.transform.tag == "Base2")
                         {
-                            if (targets[i].name != target.name)
-                                sameTarget = false;
+                            target = hit.transform;
+                            targets[missileCurrentCharges] = target;
+                            MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
+                            damage.target = target;
+                            bool sameTarget = true;
+                            for (int i = 0; i < missileCurrentCharges; i++)
+                            {
+                                if (targets[i].name != target.name)
+                                    sameTarget = false;
+                            }
+                            if (sameTarget && Time.realtimeSinceStartup - timeAtMissileLaunch <= 5.0f)
+                            {
+                                damage.missileDamagePercentage = 5 + missileCurrentCharges * upgradeMultiplier;
+                            }
+                            else
+                            {
+                                damage.missileDamagePercentage = 5;
+                            }
+                            missileCurrentCharges++;
+                            timeAtMissileLaunch = Time.realtimeSinceStartup;
+                            SpawnMissile(missile.gameObject);
+                            missile.LookAt(target.position);
+                            triggeredMissileLaunch = false;
+                            if (missileCurrentCharges == 3)
+                            {
+                                missileAbilityAvailable = false;
+                                StartCoroutine(co);
+                                StartCoroutine(rechargeMissile(missileCooldown));
+                            }
                         }
-                        if (sameTarget && Time.realtimeSinceStartup - timeAtMissileLaunch <= 5.0f)
+                    }
+                    if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+                    {
+                        if (hit.transform.tag == "Base1")
                         {
-                            damage.missileDamagePercentage = 5 + missileCurrentCharges * upgradeMultiplier;
-                        }
-                        else
-                        {
-                            damage.missileDamagePercentage = 5;
-                        }
-                        missileCurrentCharges++;
-                        timeAtMissileLaunch = Time.realtimeSinceStartup;
-                        //Instantiate(missile, gameObject.transform.position, Quaternion.identity);
-                        SpawnMissile(missile.gameObject);
-                        missile.LookAt(target.position);
-                        triggeredMissileLaunch = false;
-                        if (missileCurrentCharges == 3)
-                        {
-                            missileAbilityAvailable = false;
-                            StartCoroutine(co);
-                            StartCoroutine(rechargeMissile(missileCooldown));
+                            target = hit.transform;
+                            targets[missileCurrentCharges] = target;
+                            MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
+                            damage.target = target;
+                            bool sameTarget = true;
+                            for (int i = 0; i < missileCurrentCharges; i++)
+                            {
+                                if (targets[i].name != target.name)
+                                    sameTarget = false;
+                            }
+                            if (sameTarget && Time.realtimeSinceStartup - timeAtMissileLaunch <= 5.0f)
+                            {
+                                damage.missileDamagePercentage = 5 + missileCurrentCharges * upgradeMultiplier;
+                            }
+                            else
+                            {
+                                damage.missileDamagePercentage = 5;
+                            }
+                            missileCurrentCharges++;
+                            timeAtMissileLaunch = Time.realtimeSinceStartup;
+                            SpawnMissile(missile.gameObject);
+                            missile.LookAt(target.position);
+                            triggeredMissileLaunch = false;
+                            if (missileCurrentCharges == 3)
+                            {
+                                missileAbilityAvailable = false;
+                                StartCoroutine(co);
+                                StartCoroutine(rechargeMissile(missileCooldown));
+                            }
                         }
                     }
                 }
@@ -157,16 +192,31 @@ public class AttackingUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    if (hit.transform.tag == "enemy_Resource")
+                    if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
                     {
-                        MudDrop droplet = mud.GetComponent<MudDrop>();
-                        droplet.target = hit.transform;
-                        droplet.speedRed = mudImpactSpeed;
-                        droplet.dur = mudImpactDuration;
-                        //Instantiate(mud, gameObject.transform.position, Quaternion.identity);
-                        SpawnMud(mud.gameObject);
-                        mud.LookAt(hit.transform.position);
-                        StartCoroutine(gatherMud());
+                        if (hit.transform.tag == "Base2_Resource")
+                        {
+                            MudDrop droplet = mud.GetComponent<MudDrop>();
+                            droplet.target = hit.transform;
+                            droplet.speedRed = mudImpactSpeed;
+                            droplet.dur = mudImpactDuration;
+                            SpawnMud(mud.gameObject);
+                            mud.LookAt(hit.transform.position);
+                            StartCoroutine(gatherMud());
+                        }
+                    }
+                    if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+                    {
+                        if (hit.transform.tag == "Base1_Resource")
+                        {
+                            MudDrop droplet = mud.GetComponent<MudDrop>();
+                            droplet.target = hit.transform;
+                            droplet.speedRed = mudImpactSpeed;
+                            droplet.dur = mudImpactDuration;
+                            SpawnMud(mud.gameObject);
+                            mud.LookAt(hit.transform.position);
+                            StartCoroutine(gatherMud());
+                        }
                     }
                 }
             }
@@ -202,7 +252,7 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
@@ -220,7 +270,7 @@ public class AttackingUnit : NetworkBehaviour
             btn2text.text = "Throw Mud";
             btn2.onClick.AddListener(() => mudSplatter());
         }
-        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();

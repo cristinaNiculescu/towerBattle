@@ -36,37 +36,53 @@ public class DefensiveUnit : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 500;
-        structure.HPMax = 500;
-        attributeCosts();
-        structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
-        structure.isInConstruction = true;
-        StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
-
-        structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = structure.HPMax;
-        structure.HP_Bar.value = structure.HP;
-
-        structure.name = "Defensive Unit";
-        GameObject temp = GameObject.Find("Base");
-        structure.BaseUnit = temp.GetComponent<BaseManager>();
-
-        tempName = gameObject.name.Substring(0, 9);
-        structure.panel = GameObject.Find("BuildPanelfor" + tempName);
-        changePanel();
-        structure.panel.SetActive(activeMarker);
-
-        disorientDuration = 10f;
-        rockCooldown = 60;
+        if (localPlayerAuthority && hasAuthority)
+        {
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 500;
+            structure.HPMax = 500;
+            attributeCosts();
+            structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
+            structure.isInConstruction = true;
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            GameObject temp = null;
+            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            {
+                Debug.Log("Player 2 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
+                temp = GameObject.Find("Enemy_base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
+            }
+            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            {
+                Debug.Log("Player 1 has auth for go: " + gameObject.name);
+                structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+                temp = GameObject.Find("Base(Clone)");
+                tempName = gameObject.name.Substring(0, 9);
+                structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            }
+            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = structure.HPMax;
+            structure.HP_Bar.value = structure.HP;
+            structure.name = "Defensive Unit";
+            //GameObject temp = GameObject.Find("Base");
+            structure.BaseUnit = temp.GetComponent<BaseManager>();
+            //tempName = gameObject.name.Substring(0, 9);
+            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
+            changePanel();
+            structure.panel.SetActive(activeMarker);
+            disorientDuration = 10f;
+            rockCooldown = 60;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
+        if (!localPlayerAuthority && !hasAuthority)
         {
             return;
         }
@@ -84,18 +100,37 @@ public class DefensiveUnit : NetworkBehaviour
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 10000f))
             {
-                if (hit.transform.tag == "Enemy")
+                if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                 {
-                    BigRockBehavior cliffBit = cliff.GetComponent<BigRockBehavior>();
-                    cliffBit.target = hit.transform;
-                    cliffBit.dur = disorientDuration;
-                    cliffBit.damagePercentage = rockPercentageDamage;
-                    //Instantiate(cliff, gameObject.transform.position, Quaternion.identity);
-                    SpawnCliff(cliff.gameObject);
-                    cliff.LookAt(hit.transform.position);
-                    rockReady = false;
-                    rockTriggered = false;
-                    StartCoroutine(throwCliff());
+                    if (hit.transform.tag == "Base2")
+                    {
+                        BigRockBehavior cliffBit = cliff.GetComponent<BigRockBehavior>();
+                        cliffBit.target = hit.transform;
+                        cliffBit.dur = disorientDuration;
+                        cliffBit.damagePercentage = rockPercentageDamage;
+                        //Instantiate(cliff, gameObject.transform.position, Quaternion.identity);
+                        SpawnCliff(cliff.gameObject);
+                        cliff.LookAt(hit.transform.position);
+                        rockReady = false;
+                        rockTriggered = false;
+                        StartCoroutine(throwCliff());
+                    }
+                }
+                if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+                {
+                    if (hit.transform.tag == "Base1")
+                    {
+                        BigRockBehavior cliffBit = cliff.GetComponent<BigRockBehavior>();
+                        cliffBit.target = hit.transform;
+                        cliffBit.dur = disorientDuration;
+                        cliffBit.damagePercentage = rockPercentageDamage;
+                        //Instantiate(cliff, gameObject.transform.position, Quaternion.identity);
+                        SpawnCliff(cliff.gameObject);
+                        cliff.LookAt(hit.transform.position);
+                        rockReady = false;
+                        rockTriggered = false;
+                        StartCoroutine(throwCliff());
+                    }
                 }
             }
         }
@@ -148,25 +183,42 @@ public class DefensiveUnit : NetworkBehaviour
 
     void changePanel()
     {
-
-        GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
-        Text panelTitle = tempOBj.GetComponent<Text>();
-        panelTitle.text = "Abilities";
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
-        Button btn = tempOBj.GetComponent<Button>();
-        Text btnText = btn.GetComponentInChildren<Text>();
-        btnText.text = "Set Cloud";
-        btn.onClick.AddListener(() => setCloud());
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/buildAtck");
-        tempOBj.SetActive(false);
-
-        tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
-        Button btn2 = tempOBj.GetComponent<Button>();
-        Text btn2text = btn2.GetComponentInChildren<Text>();
-        btn2text.text = "Throw Rock";
-        btn2.onClick.AddListener(() => throwRock());
+        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Set Cloud";
+            btn.onClick.AddListener(() => setCloud());
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildAtck");
+            tempOBj.SetActive(false);
+            tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Throw Rock";
+            btn2.onClick.AddListener(() => throwRock());
+        }
+        if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
+        {
+            GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
+            Text panelTitle = tempOBj.GetComponent<Text>();
+            panelTitle.text = "Abilities";
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildDef");
+            Button btn = tempOBj.GetComponent<Button>();
+            Text btnText = btn.GetComponentInChildren<Text>();
+            btnText.text = "Set Cloud";
+            btn.onClick.AddListener(() => setCloud());
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildAtck");
+            tempOBj.SetActive(false);
+            tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/BuildSpec");
+            Button btn2 = tempOBj.GetComponent<Button>();
+            Text btn2text = btn2.GetComponentInChildren<Text>();
+            btn2text.text = "Throw Rock";
+            btn2.onClick.AddListener(() => throwRock());
+        }
     }
 
     /// <summary>
@@ -195,7 +247,6 @@ public class DefensiveUnit : NetworkBehaviour
     {
         yield return new WaitForSeconds(cloudCooldown);
         cloudReady = true;
-
     }
 
     /// <summary>

@@ -80,7 +80,6 @@ public class UnitConstruction : NetworkBehaviour
                 hpbar.SetActive(true);
                 BuildUnit(unit.gameObject, player);//Build the unit.
                 //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
-                unit.transform.position = this.gameObject.transform.position;
                 uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
                 //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
                 GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
@@ -167,6 +166,7 @@ public class UnitConstruction : NetworkBehaviour
     {
         GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
         GameObject go = GameObject.Instantiate(unitToBuild);
+        go.transform.position = this.gameObject.transform.position;
         NetworkServer.SpawnWithClientAuthority(go, player);
         Debug.Log("Server: player to give auth = " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
     }

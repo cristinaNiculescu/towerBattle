@@ -137,7 +137,6 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     [ClientCallback]
     public void SpawnUnitSpots(GameObject unitSpot, GameObject player)
-    //public void SpawnUnitSpots(GameObject unitSpot, NetworkConnection player)
     {
         int prefabIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(unitSpot);
         CmdSpawnUnitSpots(prefabIndex, player);
