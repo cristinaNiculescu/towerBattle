@@ -93,7 +93,7 @@ public class AttackingUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority || !isLocalPlayer)
+        if (!localPlayerAuthority && !hasAuthority)
         {
             return;
         }
@@ -115,10 +115,12 @@ public class AttackingUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f) && (missileCurrentCharges < 3))
                 {
+                    Debug.Log(hit.transform.tag);
                     if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                     {
                         if (hit.transform.tag == "Base2")
                         {
+                            Debug.Log("Base2 is going to get hit!");
                             target = hit.transform;
                             targets[missileCurrentCharges] = target;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
@@ -154,6 +156,7 @@ public class AttackingUnit : NetworkBehaviour
                     {
                         if (hit.transform.tag == "Base1")
                         {
+                            Debug.Log("Base1 is going to get hit!");
                             target = hit.transform;
                             targets[missileCurrentCharges] = target;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
@@ -499,7 +502,6 @@ public class AttackingUnit : NetworkBehaviour
     {
         int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
         GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        Debug.Log("Player missile : " + player.name);
         CmdSpawnMissile(missileIndex, player);
     }
 
@@ -509,6 +511,8 @@ public class AttackingUnit : NetworkBehaviour
         GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
         GameObject go = GameObject.Instantiate(missileToLaunch);
         go.transform.position = this.gameObject.transform.position;
+        go.GetComponent<MissileChargeAndMove>().target = this.target;
+        go.transform.LookAt(this.target);
         NetworkServer.SpawnWithClientAuthority(go, player);
     }
 

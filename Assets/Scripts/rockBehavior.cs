@@ -17,7 +17,7 @@ public class RockBehavior : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority || !isLocalPlayer)
+        if (!localPlayerAuthority && !hasAuthority)
         {
             return;
         }

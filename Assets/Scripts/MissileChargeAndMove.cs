@@ -28,11 +28,15 @@ public class MissileChargeAndMove : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!localPlayerAuthority && !hasAuthority)
+        {
+            return;
+        }
         this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target.position, projectileSpeed * Time.deltaTime);
     }
 
     void OnCollisionEnter(Collision col)
-    {	
+    {
         if (col.transform.tag == "Base1")
         {
             col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
@@ -57,7 +61,7 @@ public class MissileChargeAndMove : NetworkBehaviour
     /// </summary>
     void LerpPosition()
     {
-        if (!isLocalPlayer || !hasAuthority)
+        if (!isLocalPlayer)
         {
             myTransform.position = Vector3.Lerp(myTransform.position, syncPos, projectileSpeed * Time.deltaTime);
         }

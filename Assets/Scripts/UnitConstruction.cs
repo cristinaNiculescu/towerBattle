@@ -81,7 +81,6 @@ public class UnitConstruction : NetworkBehaviour
                 RemoveListenersFromUnitSpot(player);//Remove all listeners before we spawn the new unit to replace this Spot.
                 BuildUnit(unit.gameObject, player);//Build the unit.
                 uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
-                Debug.Log("The ID of the Unit : " + ID);
                 GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
                 for (int i = 0; i < instanceArray.Length; i++)
                 {
@@ -89,8 +88,6 @@ public class UnitConstruction : NetworkBehaviour
                         BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
                     BaseUnit.reCheckShield();
                 }
-                //Destroy(gameObject);
-                Debug.Log(gameObject.name + ", gameObject to be UnSpawned");
                 Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
@@ -178,9 +175,6 @@ public class UnitConstruction : NetworkBehaviour
     {
         GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
         NetworkServer.UnSpawn(unspawnedObj);
-        //NetworkServer.Destroy(unspawnedObj);
-        //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
-        //RpcSetInvisible(objID);
     }
 
     [Command]
@@ -190,7 +184,6 @@ public class UnitConstruction : NetworkBehaviour
         GameObject go = GameObject.Instantiate(unitToBuild);
         go.transform.position = this.gameObject.transform.position;
         NetworkServer.SpawnWithClientAuthority(go, player);
-        Debug.Log("Server: player to give auth = " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
     }
 
     [ClientRpc]
