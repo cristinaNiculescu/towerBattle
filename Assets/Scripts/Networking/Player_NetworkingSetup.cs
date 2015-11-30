@@ -86,19 +86,40 @@ public class Player_NetworkingSetup : NetworkBehaviour
             return;
         if (this.unitSpotsSpawned.Count == 5 && !hasChecked)
         {
-            int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
-            foreach (GameObject unitSpot in unitSpotsSpawned)
+            Debug.Log("name " + gameObject.name);
+            if (gameObject.name == "Player 1")
             {
-                GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
-                btns = panel.GetComponentsInChildren<Button>();
-                int j = 0;
-                foreach (Button btn in btns)
+                int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
+                foreach (GameObject unitSpot in unitSpotsSpawned)
                 {
-                    AddListener(btn, unitSpot, j);
-                    j++;
+                    GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
+                    btns = panel.GetComponentsInChildren<Button>();
+                    int j = 0;
+                    foreach (Button btn in btns)
+                    {
+                        AddListener(btn, unitSpot, j);
+                        j++;
+                    }
+                    k++;
+                    unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
                 }
-                k++;
-                unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
+            }
+            if (gameObject.name == "Player 7")
+            {
+                int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
+                foreach (GameObject unitSpot in unitSpotsSpawned)
+                {
+                    GameObject panel = GameObject.Find("BuildPanelfor2UnitSpot" + (k));
+                    btns = panel.GetComponentsInChildren<Button>();
+                    int j = 0;
+                    foreach (Button btn in btns)
+                    {
+                        AddListener(btn, unitSpot, j);
+                        j++;
+                    }
+                    k++;
+                    unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
+                }
             }
             hasChecked = true;
         }
