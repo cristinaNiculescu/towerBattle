@@ -63,7 +63,7 @@ public class BaseManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
+        if (!localPlayerAuthority && !hasAuthority || !isLocalPlayer)
         {
             return;
         }

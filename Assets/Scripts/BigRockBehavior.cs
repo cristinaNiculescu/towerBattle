@@ -19,7 +19,7 @@ public class BigRockBehavior : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
+        if (!localPlayerAuthority && !hasAuthority || !isLocalPlayer)
         {
             return;
         }

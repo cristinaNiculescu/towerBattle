@@ -78,23 +78,48 @@ public class UnitConstruction : NetworkBehaviour
                 BaseManager.resources -= constructionCost;
                 BaseManager.notEnough = "";
                 hpbar.SetActive(true);
+                RemoveListenersFromUnitSpot(player);//Remove all listeners before we spawn the new unit to replace this Spot.
                 BuildUnit(unit.gameObject, player);//Build the unit.
                 uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
                 Debug.Log("The ID of the Unit : " + ID);
-                //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
-                GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
+                GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
                 for (int i = 0; i < instanceArray.Length; i++)
                 {
-                    //if (instanceArray[i].GetInstanceID() == ID)
-                    if (instanceArray[i].GetComponent<NetworkIdentity>().netId.Value == ID)
+                    if (instanceArray[i].GetInstanceID() == ID)
                         BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
                     BaseUnit.reCheckShield();
                 }
                 //Destroy(gameObject);
-                //gameObject.GetComponent<MeshRenderer>().enabled = false;
+                Debug.Log(gameObject.name + ", gameObject to be UnSpawned");
                 Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
+        }
+    }
+
+    /// <summary>
+    /// Remove unused listeners related to the UnitSpot.
+    /// </summary>
+    /// <param name="player"></param>
+    private void RemoveListenersFromUnitSpot(GameObject player)
+    {
+        if (player.name == "Player 1")
+        {
+            GameObject panel = GameObject.Find("BuildPanelfor" + gameObject.name.Substring(0, 9));
+            Button[] btns = panel.GetComponentsInChildren<Button>();
+            foreach (Button btn in btns)
+            {
+                btn.onClick.RemoveAllListeners();
+            }
+        }
+        else if (player.name == "Player 7")
+        {
+            GameObject panel = GameObject.Find("BuildPanelfor2" + gameObject.name.Substring(0, 9));
+            Button[] btns = panel.GetComponentsInChildren<Button>();
+            foreach (Button btn in btns)
+            {
+                btn.onClick.RemoveAllListeners();
+            }
         }
     }
 
@@ -152,10 +177,10 @@ public class UnitConstruction : NetworkBehaviour
     public void CmdUnspawnUnit(NetworkInstanceId objID)
     {
         GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
-        //NetworkServer.UnSpawn(unspawnedObj);
+        NetworkServer.UnSpawn(unspawnedObj);
         //NetworkServer.Destroy(unspawnedObj);
         //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
-        RpcSetInvisible(objID);
+        //RpcSetInvisible(objID);
     }
 
     [Command]
