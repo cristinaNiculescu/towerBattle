@@ -79,8 +79,8 @@ public class UnitConstruction : NetworkBehaviour
                 BaseManager.notEnough = "";
                 hpbar.SetActive(true);
                 BuildUnit(unit.gameObject, player);//Build the unit.
-                //int ID = Instantiate(unit, gameObject.transform.position, Quaternion.identity).GetInstanceID();
                 uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
+                Debug.Log("The ID of the Unit : " + ID);
                 //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
                 GameObject[] instanceArray = player.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.ToArray();
                 for (int i = 0; i < instanceArray.Length; i++)
@@ -152,10 +152,10 @@ public class UnitConstruction : NetworkBehaviour
     public void CmdUnspawnUnit(NetworkInstanceId objID)
     {
         GameObject unspawnedObj = NetworkServer.FindLocalObject(objID);
-        NetworkServer.UnSpawn(unspawnedObj);
+        //NetworkServer.UnSpawn(unspawnedObj);
         //NetworkServer.Destroy(unspawnedObj);
         //For the server we don't want to see it, but it will stil exists, because we need the reference to the old object due to buttons listeners.
-        //unspawnedObj.GetComponent<MeshRenderer>().enabled = false;
+        RpcSetInvisible(objID);
     }
 
     [Command]
@@ -166,5 +166,11 @@ public class UnitConstruction : NetworkBehaviour
         go.transform.position = this.gameObject.transform.position;
         NetworkServer.SpawnWithClientAuthority(go, player);
         Debug.Log("Server: player to give auth = " + go.GetComponent<NetworkIdentity>().clientAuthorityOwner);
+    }
+
+    [ClientRpc]
+    void RpcSetInvisible(NetworkInstanceId unitSpot)
+    {
+        ClientScene.FindLocalObject(unitSpot).GetComponent<MeshRenderer>().enabled = false;
     }
 }

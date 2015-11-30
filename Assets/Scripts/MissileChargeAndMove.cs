@@ -32,12 +32,18 @@ public class MissileChargeAndMove : NetworkBehaviour
     }
 
     void OnCollisionEnter(Collision col)
-    {	//Debug.Log (col.transform.tag);
-        if (col.transform.tag == "Enemy")
+    {	
+        if (col.transform.tag == "Base1")
         {
             col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
                 missileDamagePercentage / 100;
-            Destroy(gameObject);
+            DestroyMissile(gameObject);
+        }
+        if (col.transform.tag == "Base2")
+        {
+            col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                missileDamagePercentage / 100;
+            DestroyMissile(gameObject);
         }
     }
 
@@ -80,5 +86,17 @@ public class MissileChargeAndMove : NetworkBehaviour
             CmdProvidePositionToServer(transform.position);
             lastPosition = myTransform.position;
         }
+    }
+
+    [ClientCallback]
+    void DestroyMissile(GameObject missile)
+    {
+        CmdDestroyMissile(missile);
+    }
+
+    [Command]
+    void CmdDestroyMissile(GameObject missile)
+    {
+        NetworkServer.Destroy(missile);
     }
 }

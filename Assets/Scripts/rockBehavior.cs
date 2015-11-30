@@ -2,56 +2,67 @@
 using UnityEngine.Networking;
 using System.Collections;
 
-public class RockBehavior : NetworkBehaviour {
+public class RockBehavior : NetworkBehaviour
+{
+    float posX;
+    float posZ;
+    Renderer seen;
+    public Vector3 direction;
 
-	float posX;
-	float posZ;
-	Renderer seen;
-	public Vector3 direction;
+    // Use this for initialization
+    void Start()
+    {
+    }
 
-	// Use this for initialization
-	void Start () {
-		//gameObject.GetComponent<Rigidbody>().velocity =new Vector3(0, 0, 0);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		//direction.x = direction.x * 0.5f;
-		//direction.y = direction.y * 0f;
-		//direction.z = direction.z * 0.5f;
+    // Update is called once per frame
+    void Update()
+    {
+        if (!localPlayerAuthority && !hasAuthority)
+        {
+            return;
+        }
+        transform.position += direction * 0.5f;
+        if (transform.position.x <= -1000f || transform.position.x >= 1000f ||
+            transform.position.z <= -1000f || transform.position.z >= 1000f)
+        {
+            //Destroy(gameObject, 1f);
+            DestroyRock(gameObject);
+        }
+    }
 
-		transform.position += direction*0.5f;	
-		if (transform.position.x <= -1000f || transform.position.x >= 1000f ||
-			transform.position.z <= -1000f || transform.position.z >= 1000f) {
-			Destroy (gameObject, 1f);
-			//Debug.Log("Destroyed");
-			}
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.transform.tag == "Base1")
+        {
+            if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    0.05f;
+            else
+                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    0.05f;
+            DestroyRock(gameObject);
+        }
+        if (col.transform.tag == "Base2")
+        {
+            if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    0.05f;
+            else
+                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    0.05f;
+            DestroyRock(gameObject);
+        }
+    }
 
+    [ClientCallback]
+    void DestroyRock(GameObject rock)
+    {
+        CmdDestroyRock(rock);
+    }
 
-	}
-
-	void OnCollisionEnter(Collision col)
-	{	
-
-		if (col.transform.tag == "Enemy") {
-			if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower>0)
-				col.gameObject.GetComponent<UnitStructure> ().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure> ().HPMax *
-					0.05f;
-			else
-			col.gameObject.GetComponent<UnitStructure> ().HP -= col.gameObject.GetComponent<UnitStructure> ().HPMax *
-				0.05f;
-			Destroy(gameObject);	
-		}
-		/*if (col.transform.tag == "Enemy_Scout") {
-			Destroy(col.gameObject);
-		}*/
-
-	}
-
-	/*void OnBecameInvisible()
-	{ 	//wish this would have worked properly - sometimes it gets stuck and the invisible is way way too far. 
-		Destroy (gameObject);
-	}*/
-
-
+    [Command]
+    void CmdDestroyRock(GameObject rock)
+    {
+        NetworkServer.Destroy(rock);
+    }
 }

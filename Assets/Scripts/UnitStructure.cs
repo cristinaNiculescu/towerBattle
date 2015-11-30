@@ -48,16 +48,9 @@ public class UnitStructure : NetworkBehaviour
         {
             progress += increment;
             gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.white, color, progress);
-
             yield return new WaitForSeconds(smoothness);
         }
         isInConstruction = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public IEnumerator dizzy(float duration)

@@ -7,7 +7,7 @@ public class BaseManager : NetworkBehaviour
 {
     public int shieldDamageTaken = 0;
     public float shieldPower = 500;
-    public GameObject[] UnitsBuilt;
+    public GameObject[] UnitsBuilt = new GameObject[5];
     float shieldMultiplier = 0;
     public static int resources = 200;
     float gatheringSpeed;
@@ -27,7 +27,7 @@ public class BaseManager : NetworkBehaviour
         structure.HPMax = 2000;
         UnitsBuilt = new GameObject[5];
 
-        if (gameObject.tag == "Enemy")//Player 2
+        if (gameObject.tag == "Base2")//Player 2
             structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
         else
             structure.healthBar = GameObject.Find("HealthBarforBase");
@@ -63,10 +63,10 @@ public class BaseManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (GetComponent<NetworkIdentity>().clientAuthorityOwner == null)
-        //{
-        //    return;
-        //}
+        if (!localPlayerAuthority && !hasAuthority)
+        {
+            return;
+        }
         structure.HP_Bar.value = structure.HP;
         if (this.name == "Base(Clone)")
         {
