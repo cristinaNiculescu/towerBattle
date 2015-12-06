@@ -181,7 +181,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
     void CmdSpawnBase(int spawnIndex, GameObject thePlayer)
     {
         GameObject baseSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
-        NetworkServer.SpawnWithClientAuthority(baseSpawned, thePlayer);
+        GameObject go = Instantiate(baseSpawned);
+        NetworkServer.SpawnWithClientAuthority(go, thePlayer);
     }
 
     [Command]

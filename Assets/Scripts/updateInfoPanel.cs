@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using UnityEngine.UI;
 
-public class updateInfoPanel : MonoBehaviour
+public class updateInfoPanel : NetworkBehaviour
 {
     public GameObject InfoPanel;
     public Text[] infos;
@@ -16,23 +17,26 @@ public class updateInfoPanel : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (this.tag == "Player 1")
+        if (hasAuthority)
         {
-            infos = new Text[7];
-            InfoPanel = GameObject.Find("InfoPanel");
-            int i = 0;
-            Traverse(InfoPanel, 0);
-            UnitsBuilt = new GameObject[5];
+            if (this.tag == "Player 1")
+            {
+                infos = new Text[7];
+                InfoPanel = GameObject.Find("InfoPanel");
+                int i = 0;
+                Traverse(InfoPanel, 0);
+                UnitsBuilt = new GameObject[5];
+            }
+            else if (this.tag == "Player 2")
+            {
+                infos = new Text[7];
+                InfoPanel = GameObject.Find("InfoPanel2");
+                int i = 0;
+                Traverse(InfoPanel, 0);
+                UnitsBuilt = new GameObject[5];
+            }
+            friendlyBase = baseF.GetComponent<BaseManager>();
         }
-        else if (this.tag == "Player 2")
-        {
-            infos = new Text[7];
-            InfoPanel = GameObject.Find("InfoPanel2");
-            int i = 0;
-            Traverse(InfoPanel, 0);
-            UnitsBuilt = new GameObject[5];
-        }
-        friendlyBase = baseF.GetComponent<BaseManager>();
     }
 
     void Traverse(GameObject obj, int i)
@@ -47,29 +51,32 @@ public class updateInfoPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 1"))
+        if (hasAuthority)
         {
-            needsRefresh = true;
-            for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
+            if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 1"))
             {
-                if (friendlyBase.UnitsBuilt[i])
+                needsRefresh = true;
+                for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
                 {
-                    UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
+                    if (friendlyBase.UnitsBuilt[i])
+                    {
+                        UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
+                    }
                 }
+                updateText();
             }
-            updateText();
-        }
-        else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 2"))
-        {
-            needsRefresh = true;
-            for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
+            else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 2"))
             {
-                if (friendlyBase.UnitsBuilt[i])
+                needsRefresh = true;
+                for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
                 {
-                    UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
+                    if (friendlyBase.UnitsBuilt[i])
+                    {
+                        UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
+                    }
                 }
+                updateText();
             }
-            updateText();
         }
     }
 

@@ -15,7 +15,7 @@ public class MissileChargeAndMove : NetworkBehaviour
 
     void Start()
     {
-        if (isLocalPlayer)
+        if (hasAuthority)
             tranny = transform;
     }
 
@@ -28,30 +28,26 @@ public class MissileChargeAndMove : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.tag == "Player 1")
+        if (hasAuthority)
         {
-            print("Hitting the base 1");
-            col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
-                missileDamagePercentage / 100;
-            DestroyMissile(gameObject);
-        }
-        if (col.transform.tag == "Player 2")
-        {
-            print("Hitting the base 2");
-            col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
-                missileDamagePercentage / 100;
-            DestroyMissile(gameObject);
+            if (col.transform.tag == "Player 1")
+            {
+                print("Hitting the base 1");
+                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    missileDamagePercentage / 100;
+                DestroyMissile(gameObject);
+            }
+            if (col.transform.tag == "Player 2")
+            {
+                print("Hitting the base 2");
+                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
+                    missileDamagePercentage / 100;
+                DestroyMissile(gameObject);
+            }
         }
     }
 
-    [ClientCallback]
     void DestroyMissile(GameObject missile)
-    {
-        CmdDestroyMissile(missile);
-    }
-
-    [Command]
-    void CmdDestroyMissile(GameObject missile)
     {
         NetworkServer.Destroy(missile);
     }
