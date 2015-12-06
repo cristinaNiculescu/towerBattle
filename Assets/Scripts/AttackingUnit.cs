@@ -54,7 +54,7 @@ public class AttackingUnit : NetworkBehaviour
             structure.isInConstruction = true;
             StartCoroutine(structure.waitConstruction(1f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
-            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            if (GameObject.Find("Player 2") != null && GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
@@ -62,7 +62,7 @@ public class AttackingUnit : NetworkBehaviour
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
             }
-            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            else if (GameObject.Find("Player 1") != null && GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
@@ -119,13 +119,13 @@ public class AttackingUnit : NetworkBehaviour
                     Debug.Log(hit.transform.tag);
                     if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                     {
-                        if (hit.transform.tag == "Base2")
+                        if (hit.transform.tag == "Player 2")
                         {
                             SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                            damage.target = target.position;
-                            Debug.Log("damage.target = " + damage.target);
+                            //damage.target = target.position;
+                            //Debug.Log("damage.target = " + damage.target);
                             missile.LookAt(target.position);
                             targets[missileCurrentCharges] = target;
                             bool sameTarget = true;
@@ -153,15 +153,15 @@ public class AttackingUnit : NetworkBehaviour
                             }
                         }
                     }
-                    if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+                    if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                     {
-                        if (hit.transform.tag == "Base1")
+                        if (hit.transform.tag == "Player 1")
                         {
                             SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
                             MissileChargeAndMove damage = missile.GetComponent<MissileChargeAndMove>();
-                            damage.target = target.position;
-                            Debug.Log("damage.target = " + damage.target);
+                            //damage.target = target.position;
+                            //Debug.Log("damage.target = " + damage.target);
                             missile.LookAt(target.position);
                             targets[missileCurrentCharges] = target;
                             bool sameTarget = true;
@@ -209,7 +209,7 @@ public class AttackingUnit : NetworkBehaviour
                             StartCoroutine(gatherMud());
                         }
                     }
-                    if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+                    if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)
                     {
                         if (hit.transform.tag == "Base1_Resource")
                         {
@@ -256,7 +256,7 @@ public class AttackingUnit : NetworkBehaviour
 
     void changePanel()
     {
-        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+        if (GameObject.Find("Player 2") != null && GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
@@ -274,7 +274,7 @@ public class AttackingUnit : NetworkBehaviour
             btn2text.text = "Throw Mud";
             btn2.onClick.AddListener(() => mudSplatter());
         }
-        else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
+        else if (GameObject.Find("Player 1") != null && GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();

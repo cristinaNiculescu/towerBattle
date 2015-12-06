@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class UnitStructure : NetworkBehaviour
 {
+    [SyncVar]
     public float HP;
+    [SyncVar]
     public float HPMax;
     public bool isInConstruction = false;
     public int upgrades = 0;

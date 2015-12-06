@@ -2,24 +2,27 @@
 using System.Collections;
 using UnityEngine.Networking;
 
-public class Player_ID : NetworkBehaviour {
-
+public class Player_ID : NetworkBehaviour
+{
     [SyncVar]
     public string playerUniqueIdentity;
     NetworkInstanceId playerNetID;
     Transform myTransform;
+    GameManager gameManager;
 
-	void Awake () {
+    void Awake()
+    {
         myTransform = transform;
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         if (myTransform.name == "" || myTransform.name == "Player(Clone)")
         {
             SetIdentity();
         }
-	}
+    }
 
     public override void OnStartLocalPlayer()
     {
@@ -31,7 +34,9 @@ public class Player_ID : NetworkBehaviour {
     void GetNetIdentity()
     {
         playerNetID = GetComponent<NetworkIdentity>().netId;
-        CmdTellServerMyIdentity(MakeUniqueIdentity());
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        CmdGameManagerAddPlayer(gameManager.GetComponent<NetworkIdentity>());
+        CmdTellServerMyIdentity(MakeUniqueIdentity(gameManager.players));
     }
 
     void SetIdentity()
@@ -42,13 +47,14 @@ public class Player_ID : NetworkBehaviour {
         }
         else
         {
-            myTransform.name = MakeUniqueIdentity();
+            myTransform.name = MakeUniqueIdentity(gameManager.players);
         }
     }
 
-    string MakeUniqueIdentity()
+    string MakeUniqueIdentity(int numberOfPlayers)
     {
-        string uniqueIdentity = "Player " + playerNetID.ToString();
+        //string uniqueIdentity = "Player " + playerNetID.ToString();
+        string uniqueIdentity = "Player " + (numberOfPlayers+1);
         return uniqueIdentity;
     }
 
@@ -56,5 +62,11 @@ public class Player_ID : NetworkBehaviour {
     void CmdTellServerMyIdentity(string identity)
     {
         playerUniqueIdentity = identity;
+    }
+
+    [Command]
+    void CmdGameManagerAddPlayer(NetworkIdentity gameManagerID)
+    {
+        NetworkServer.FindLocalObject(gameManagerID.netId).GetComponent<GameManager>().players++;
     }
 }

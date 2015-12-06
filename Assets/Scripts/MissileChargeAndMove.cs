@@ -28,14 +28,14 @@ public class MissileChargeAndMove : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.tag == "Base1")
+        if (col.transform.tag == "Player 1")
         {
             print("Hitting the base 1");
             col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
                 missileDamagePercentage / 100;
             DestroyMissile(gameObject);
         }
-        if (col.transform.tag == "Base2")
+        if (col.transform.tag == "Player 2")
         {
             print("Hitting the base 2");
             col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *

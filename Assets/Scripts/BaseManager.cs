@@ -26,32 +26,35 @@ public class BaseManager : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        structure = this.GetComponent<UnitStructure>();
-        structure.HP = 2000;
-        structure.HPMax = 2000;
-        UnitsBuilt = new GameObject[5];
-
-        if (gameObject.tag == "Base2")//Player 2
-            structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
-        else
-            structure.healthBar = GameObject.Find("HealthBarforBase");
-        structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
-        structure.HP_Bar.minValue = 0;
-        structure.HP_Bar.maxValue = 2000;
-        structure.HP_Bar.value = structure.HP;
-        structure.BaseUnit = this;
-
-        if (this.name == "Base(Clone)")//Player 1
+        if (hasAuthority)
         {
-            infos = new Text[7];
-            InfoPanel = GameObject.Find("InfoPanel");
-            Traverse(InfoPanel, 0);
-        }
-        if (this.name == "Enemy_base(Clone)")//Player 2
-        {
-            infos = new Text[7];
-            InfoPanel = GameObject.Find("InfoPanel2");
-            Traverse(InfoPanel, 0);
+            structure = this.GetComponent<UnitStructure>();
+            structure.HP = 2000;
+            structure.HPMax = 2000;
+            UnitsBuilt = new GameObject[5];
+
+            if (gameObject.tag == "Player 2")//Player 2
+                structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
+            else
+                structure.healthBar = GameObject.Find("HealthBarforBase");
+            structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
+            structure.HP_Bar.minValue = 0;
+            structure.HP_Bar.maxValue = 2000;
+            structure.HP_Bar.value = structure.HP;
+            structure.BaseUnit = this;
+
+            if (this.name == "Base(Clone)")//Player 1
+            {
+                infos = new Text[7];
+                InfoPanel = GameObject.Find("InfoPanel");
+                Traverse(InfoPanel, 0);
+            }
+            if (this.name == "Enemy_base(Clone)")//Player 2
+            {
+                infos = new Text[7];
+                InfoPanel = GameObject.Find("InfoPanel2");
+                Traverse(InfoPanel, 0);
+            }
         }
     }
 

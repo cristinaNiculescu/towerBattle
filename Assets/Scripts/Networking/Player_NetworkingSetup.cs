@@ -28,21 +28,26 @@ public class Player_NetworkingSetup : NetworkBehaviour
 
     void Start()
     {
-        if (base.netId.Value == 1)
+        if (hasAuthority)
         {
-            Instantiate(canvas);
-            Instantiate(playerBase);
-            HideCanvasWhenClientConnect();
-        }
-        else if (base.netId.Value == 7)
-        {
-            Instantiate(clientCanvas);
-            Instantiate(enemyBase);
-            HideCanvasWhenClientConnect();
-        }
-        for (int i = 0; i < unitSpots.Count; i++)
-        {
-            SpawnUnitSpots(unitSpots[i], this.gameObject);
+            //if (base.netId.Value == 1)
+            if (base.gameObject.name == "Player 1")
+            {
+                Instantiate(canvas);
+                SpawnBase(playerBase, this.gameObject);
+                HideCanvasWhenClientConnect();
+            }
+            //else if (base.netId.Value == 7)
+            else if (base.gameObject.name == "Player 2")
+            {
+                Instantiate(clientCanvas);
+                SpawnBase(enemyBase, this.gameObject);
+                HideCanvasWhenClientConnect();
+            }
+            for (int i = 0; i < unitSpots.Count; i++)
+            {
+                SpawnUnitSpots(unitSpots[i], this.gameObject);
+            }
         }
     }
 
@@ -51,7 +56,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
     /// </summary>
     private void HideCanvasWhenClientConnect()
     {
-        if (base.netId.Value == 1)
+        //if (base.netId.Value == 1)
+        if (base.gameObject.name == "Player 1")
         {
             if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
             {
@@ -65,7 +71,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 }
             }
         }
-        else if (base.netId.Value == 7)
+        //else if (base.netId.Value == 7)
+        else if (base.gameObject.name == "Player 2")
         {
             if (GameObject.Find("Canvas(Clone)") != null)//Player 1
             {
@@ -105,7 +112,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 }
                 CmdHideCanvasOnPlayer(canvas.name);
             }
-            else if (gameObject.name == "Player 7")
+            else if (gameObject.name == "Player 2")
             {
                 int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
                 foreach (GameObject unitSpot in unitSpotsSpawned)
@@ -161,6 +168,20 @@ public class Player_NetworkingSetup : NetworkBehaviour
             go.transform.position = new Vector3(-go.transform.position.x, go.transform.position.y, -go.transform.position.z);
             NetworkServer.SpawnWithClientAuthority(go, thePlayer);
         }
+    }
+
+    [ClientCallback]
+    public void SpawnBase(GameObject theBase, GameObject player)
+    {
+        int prefabIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theBase);
+        CmdSpawnUnitSpots(prefabIndex, player);
+    }
+
+    [Command]
+    void CmdSpawnBase(int spawnIndex, GameObject thePlayer)
+    {
+        GameObject baseSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
+        NetworkServer.SpawnWithClientAuthority(baseSpawned, thePlayer);
     }
 
     [Command]

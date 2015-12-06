@@ -16,7 +16,7 @@ public class updateInfoPanel : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (this.tag == "Base1")
+        if (this.tag == "Player 1")
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel");
@@ -24,7 +24,7 @@ public class updateInfoPanel : MonoBehaviour
             Traverse(InfoPanel, 0);
             UnitsBuilt = new GameObject[5];
         }
-        else if (this.tag == "Base2")
+        else if (this.tag == "Player 2")
         {
             infos = new Text[7];
             InfoPanel = GameObject.Find("InfoPanel2");
@@ -47,33 +47,29 @@ public class updateInfoPanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Base1"))
+        if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 1"))
         {
+            needsRefresh = true;
+            for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
             {
-                needsRefresh = true;
-                for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
+                if (friendlyBase.UnitsBuilt[i])
                 {
-                    if (friendlyBase.UnitsBuilt[i])
-                    {
-                        UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
-                    }
+                    UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
                 }
-                updateText();
             }
+            updateText();
         }
-        else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Base2"))
+        else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 2"))
         {
+            needsRefresh = true;
+            for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
             {
-                needsRefresh = true;
-                for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
+                if (friendlyBase.UnitsBuilt[i])
                 {
-                    if (friendlyBase.UnitsBuilt[i])
-                    {
-                        UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
-                    }
+                    UnitsBuilt[i] = friendlyBase.UnitsBuilt[i];
                 }
-                updateText();
             }
+            updateText();
         }
     }
 

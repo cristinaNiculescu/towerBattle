@@ -28,16 +28,16 @@ public class UnitConstruction : NetworkBehaviour
     {
         if (localPlayerAuthority && hasAuthority)
         {
-            if (GameObject.Find("Player 7") != null)
+            if (GameObject.Find("Player 2") != null)
             {
-                GameObject clientPlayer2 = GameObject.Find("Player 7");//Player 2
-                //Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
+                GameObject clientPlayer2 = GameObject.Find("Player 2");//Player 2
+                Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer2.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
             }
             else
             {
                 GameObject clientPlayer1 = GameObject.Find("Player 1");//Player 1
-                //Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
+                Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer1.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
             }
         }
