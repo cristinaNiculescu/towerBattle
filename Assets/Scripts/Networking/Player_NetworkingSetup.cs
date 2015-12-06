@@ -181,10 +181,6 @@ public class Player_NetworkingSetup : NetworkBehaviour
     void CmdSpawnBase(int spawnIndex, GameObject thePlayer)
     {
         GameObject baseSpawned = NetworkManager.singleton.spawnPrefabs[spawnIndex];
-        if (base.connectionToClient.connectionId == 2)//If player 2
-        {
-            baseSpawned.transform.position = new Vector3(Mathf.Abs(baseSpawned.transform.position.x), baseSpawned.transform.position.y, Mathf.Abs(baseSpawned.transform.position.z));
-        }
         NetworkServer.SpawnWithClientAuthority(baseSpawned, thePlayer);
     }
 
