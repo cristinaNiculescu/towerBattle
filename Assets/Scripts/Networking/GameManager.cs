@@ -40,12 +40,14 @@ public class GameManager : NetworkBehaviour
                 player1_Base.GetComponent<BaseManager>().Lost();
                 player2_Base.GetComponent<BaseManager>().Won();
                 Time.timeScale = 0;
+                RpcSetVictorAndLoser(player1_Base.GetComponent<NetworkIdentity>().playerControllerId);
             }
             else if (player2_UnitStructure.HP <= 0)//Player 2 Lost.
             {
                 player1_Base.GetComponent<BaseManager>().Won();
                 player2_Base.GetComponent<BaseManager>().Lost();
                 Time.timeScale = 0;
+                RpcSetVictorAndLoser(player2_Base.GetComponent<NetworkIdentity>().playerControllerId);
             }
         }
     }
@@ -64,5 +66,11 @@ public class GameManager : NetworkBehaviour
             player1_UnitStructure = player1_Base.GetComponent<UnitStructure>();
             player2_UnitStructure = player2_Base.GetComponent<UnitStructure>();
         }
+    }
+
+    [ClientRpc]
+    public void RpcSetVictorAndLoser(short whoLostPlayerControllerId)
+    {
+
     }
 }

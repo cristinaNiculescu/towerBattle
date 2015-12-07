@@ -9,21 +9,27 @@ public class MissileChargeAndMove : NetworkBehaviour
     [SerializeField]
     float projectileSpeed = 60f;
     [SyncVar]
-    public Vector3 target;
-    [SerializeField]
-    Transform tranny;
+    public Vector3 target = Vector3.zero;
+    //[SyncVar]
+    //Transform tranny;
+    //Rigidbody missileRigidBody;
 
     void Start()
     {
-        if (hasAuthority)
-            tranny = transform;
+        //if (hasAuthority)
+        //{
+        //tranny = transform;
+        //missileRigidBody = GetComponent<Rigidbody>();
+        //}
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (target != null)
-            this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target, projectileSpeed * Time.deltaTime);
+        if (hasAuthority)
+        {
+            if (target != Vector3.zero)
+                this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target, projectileSpeed * Time.deltaTime);
+        }
     }
 
     void OnCollisionEnter(Collision col)
@@ -33,21 +39,31 @@ public class MissileChargeAndMove : NetworkBehaviour
             if (col.transform.tag == "Player 1")
             {
                 print("Hitting the base 1");
-                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
-                    missileDamagePercentage / 100;
-                DestroyMissile(gameObject);
+                //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * missileDamagePercentage / 100;
+                float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * missileDamagePercentage / 100;
+                CmdDealDamage(col.gameObject.GetComponent<NetworkIdentity>(), damageAmount);
+                CmdDestroyMissile(gameObject);
             }
             if (col.transform.tag == "Player 2")
             {
                 print("Hitting the base 2");
-                col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax *
-                    missileDamagePercentage / 100;
-                DestroyMissile(gameObject);
+                //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * missileDamagePercentage / 100;
+                float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * missileDamagePercentage / 100;
+                CmdDealDamage(col.gameObject.GetComponent<NetworkIdentity>(), damageAmount);
+                CmdDestroyMissile(gameObject);
             }
         }
     }
 
-    void DestroyMissile(GameObject missile)
+    [Command]
+    void CmdDealDamage(NetworkIdentity target, float damageAmount)
+    {
+        GameObject baseObj = NetworkServer.FindLocalObject(target.netId);
+        baseObj.GetComponent<UnitStructure>().HP -= (damageAmount * 100);
+    }
+
+    [Command]
+    void CmdDestroyMissile(GameObject missile)
     {
         NetworkServer.Destroy(missile);
     }

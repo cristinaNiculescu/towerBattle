@@ -40,6 +40,8 @@ public class AttackingUnit : NetworkBehaviour
     IEnumerator co;
     bool throwingRocks = false;
 
+    GameObject theLocalPlayer;
+
     // Use this for initialization
     void Start()
     {
@@ -56,6 +58,7 @@ public class AttackingUnit : NetworkBehaviour
             GameObject temp = null;
             if (GameObject.Find("Player 2") != null && GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
+                theLocalPlayer = GameObject.Find("Player 2");
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
                 temp = GameObject.Find("Enemy_base(Clone)");
@@ -64,6 +67,7 @@ public class AttackingUnit : NetworkBehaviour
             }
             else if (GameObject.Find("Player 1") != null && GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
+                theLocalPlayer = GameObject.Find("Player 1");
                 Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
                 temp = GameObject.Find("Base(Clone)");
@@ -502,25 +506,26 @@ public class AttackingUnit : NetworkBehaviour
     void SpawnMissile(GameObject missile, Vector3 target)
     {
         int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
-        CmdSpawnMissile(missileIndex, target);
+        CmdSpawnMissile(missileIndex, target, theLocalPlayer);
     }
 
     [Command]
-    void CmdSpawnMissile(int missileIndex, Vector3 target)
+    void CmdSpawnMissile(int missileIndex, Vector3 target, GameObject thePlayer)
     {
         GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
         GameObject go = GameObject.Instantiate(missileToLaunch);
-        go.transform.position = this.gameObject.transform.position;
+        go.transform.position = new Vector3(this.gameObject.transform.position.x, 20f, this.gameObject.transform.position.z);
         go.GetComponent<MissileChargeAndMove>().target = target;
-        NetworkServer.Spawn(go);
+        NetworkServer.SpawnWithClientAuthority(go, thePlayer);
     }
 
     [ClientCallback]
     void SpawnMud(GameObject mud)
     {
         int mudIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(mud);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnMud(mudIndex, player);
+        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        //CmdSpawnMud(mudIndex, player);
+        CmdSpawnMud(mudIndex, theLocalPlayer);
     }
 
     [Command]
@@ -536,8 +541,9 @@ public class AttackingUnit : NetworkBehaviour
     void SpawnRock(GameObject rock)
     {
         int rockIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(rock);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnRock(rockIndex, player);
+        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        //CmdSpawnRock(rockIndex, player);
+        CmdSpawnRock(rockIndex, theLocalPlayer);
     }
 
     [Command]

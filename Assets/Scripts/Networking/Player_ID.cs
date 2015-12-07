@@ -6,7 +6,7 @@ public class Player_ID : NetworkBehaviour
 {
     [SyncVar]
     public string playerUniqueIdentity;
-    NetworkInstanceId playerNetID;
+    //NetworkInstanceId playerNetID;
     Transform myTransform;
     GameManager gameManager;
 
@@ -33,7 +33,7 @@ public class Player_ID : NetworkBehaviour
     [ClientCallback]
     void GetNetIdentity()
     {
-        playerNetID = GetComponent<NetworkIdentity>().netId;
+        //playerNetID = GetComponent<NetworkIdentity>().netId;
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         CmdGameManagerAddPlayer(gameManager.GetComponent<NetworkIdentity>());
         CmdTellServerMyIdentity(MakeUniqueIdentity(gameManager.players));
