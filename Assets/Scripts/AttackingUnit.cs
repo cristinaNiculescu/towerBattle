@@ -97,7 +97,7 @@ public class AttackingUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!hasAuthority)
+        if (!localPlayerAuthority || !hasAuthority)
         {
             return;
         }
@@ -506,17 +506,17 @@ public class AttackingUnit : NetworkBehaviour
     void SpawnMissile(GameObject missile, Vector3 target)
     {
         int missileIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(missile);
-        CmdSpawnMissile(missileIndex, target, theLocalPlayer);
+        CmdSpawnMissile(missileIndex, target);
     }
 
     [Command]
-    void CmdSpawnMissile(int missileIndex, Vector3 target, GameObject thePlayer)
+    void CmdSpawnMissile(int missileIndex, Vector3 target)
     {
         GameObject missileToLaunch = NetworkManager.singleton.spawnPrefabs[missileIndex];
         GameObject go = GameObject.Instantiate(missileToLaunch);
         go.transform.position = new Vector3(this.gameObject.transform.position.x, 20f, this.gameObject.transform.position.z);
         go.GetComponent<MissileChargeAndMove>().target = target;
-        NetworkServer.SpawnWithClientAuthority(go, thePlayer);
+        NetworkServer.Spawn(go);
     }
 
     [ClientCallback]
@@ -564,7 +564,7 @@ public class AttackingUnit : NetworkBehaviour
     [Command]
     void CmdDestroyMePlease(GameObject obj, float time)
     {
-        Debug.Log("Going to destroy : " + obj.name);
+        Debug.Log("Going to destroy : " + obj.name);//Will only be visible on the server.
         Destroy(obj, time);
     }
 }

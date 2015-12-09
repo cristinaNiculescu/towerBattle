@@ -37,17 +37,17 @@ public class GameManager : NetworkBehaviour
         {
             if (player1_UnitStructure.HP <= 0)//Player 1 Lost.
             {
-                player1_Base.GetComponent<BaseManager>().Lost();
-                player2_Base.GetComponent<BaseManager>().Won();
-                Time.timeScale = 0;
-                RpcSetVictorAndLoser(player1_Base.GetComponent<NetworkIdentity>().playerControllerId);
+                //player1_Base.GetComponent<BaseManager>().Lost();
+                //player2_Base.GetComponent<BaseManager>().Won();
+                //Time.timeScale = 0;
+                //RpcSetVictorAndLoser(player1_Base.GetComponent<NetworkIdentity>().playerControllerId);
             }
             else if (player2_UnitStructure.HP <= 0)//Player 2 Lost.
             {
-                player1_Base.GetComponent<BaseManager>().Won();
-                player2_Base.GetComponent<BaseManager>().Lost();
-                Time.timeScale = 0;
-                RpcSetVictorAndLoser(player2_Base.GetComponent<NetworkIdentity>().playerControllerId);
+                //player1_Base.GetComponent<BaseManager>().Won();
+                //player2_Base.GetComponent<BaseManager>().Lost();
+                //Time.timeScale = 0;
+                //RpcSetVictorAndLoser(player2_Base.GetComponent<NetworkIdentity>().playerControllerId);
             }
         }
     }
@@ -68,9 +68,9 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    public void RpcSetVictorAndLoser(short whoLostPlayerControllerId)
-    {
-
-    }
+    //[ClientRpc]
+    //public void RpcSetVictorAndLoser(short whoLostPlayerControllerId)
+    //{
+    //    Debug.Log("Who lost? : " + whoLostPlayerControllerId);
+    //}
 }

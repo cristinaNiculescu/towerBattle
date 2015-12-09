@@ -109,7 +109,7 @@ public class UnitConstruction : NetworkBehaviour
                 btn.onClick.RemoveAllListeners();
             }
         }
-        else if (player.name == "Player 7")
+        else if (player.name == "Player 2")
         {
             GameObject panel = GameObject.Find("BuildPanelfor2" + gameObject.name.Substring(0, 9));
             Button[] btns = panel.GetComponentsInChildren<Button>();
@@ -120,6 +120,9 @@ public class UnitConstruction : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Setup the appropriately.
+    /// </summary>
     public void SetupCanvas()
     {
         if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
@@ -186,9 +189,9 @@ public class UnitConstruction : NetworkBehaviour
         NetworkServer.SpawnWithClientAuthority(go, player);
     }
 
-    [ClientRpc]
-    void RpcSetInvisible(NetworkInstanceId unitSpot)
-    {
-        ClientScene.FindLocalObject(unitSpot).GetComponent<MeshRenderer>().enabled = false;
-    }
+    //[ClientRpc]
+    //void RpcSetInvisible(NetworkInstanceId unitSpot)
+    //{
+    //    ClientScene.FindLocalObject(unitSpot).GetComponent<MeshRenderer>().enabled = false;
+    //}
 }

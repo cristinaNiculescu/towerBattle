@@ -61,4 +61,12 @@ public class UnitStructure : NetworkBehaviour
         yield return new WaitForSeconds(duration);
         isDisoriented = false;
     }
+
+    [Command]
+    public void CmdTakeDamage(float amount)
+    {
+        if (!isServer)
+            return;
+        HP -= amount;
+    }
 }

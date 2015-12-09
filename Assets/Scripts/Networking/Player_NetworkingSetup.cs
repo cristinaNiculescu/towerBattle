@@ -35,14 +35,14 @@ public class Player_NetworkingSetup : NetworkBehaviour
             {
                 Instantiate(canvas);
                 SpawnBase(playerBase, this.gameObject);
-                HideCanvasWhenClientConnect();
+                //HideCanvasWhenClientConnect();
             }
             //else if (base.netId.Value == 7)
             else if (base.gameObject.name == "Player 2")
             {
                 Instantiate(clientCanvas);
                 SpawnBase(enemyBase, this.gameObject);
-                HideCanvasWhenClientConnect();
+                //HideCanvasWhenClientConnect();
             }
             for (int i = 0; i < unitSpots.Count; i++)
             {
@@ -110,7 +110,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                     k++;
                     unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
                 }
-                CmdHideCanvasOnPlayer(canvas.name);
+                //CmdHideCanvasOnPlayer(canvas.name);
             }
             else if (gameObject.name == "Player 2")
             {
@@ -128,7 +128,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                     k++;
                     unitSpot.GetComponent<UnitConstruction>().SetupCanvas();
                 }
-                CmdHideCanvasOnPlayer(clientCanvas.name);
+                //CmdHideCanvasOnPlayer(clientCanvas.name);
             }
             hasChecked = true;
         }
@@ -185,37 +185,37 @@ public class Player_NetworkingSetup : NetworkBehaviour
         NetworkServer.SpawnWithClientAuthority(go, thePlayer);
     }
 
-    [Command]
-    void CmdHideCanvasOnPlayer(string canvasName)
-    {
-        RpcHideCanvas(canvasName);
-    }
+    //[Command]
+    //void CmdHideCanvasOnPlayer(string canvasName)
+    //{
+    //    RpcHideCanvas(canvasName);
+    //}
 
-    [ClientRpc]
-    public void RpcHideCanvas(string canvas)
-    {
-        Debug.Log("The canvas name = " + canvas);
-        if (GameObject.Find(canvas + "(Clone)") != null && canvas == "CanvasClient")//Player 2
-        {
-            GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
-            foreach (Transform child in csPlayer2.transform)
-            {
-                if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
-                {
-                    child.gameObject.SetActive(false);
-                }
-            }
-        }
-        if (GameObject.Find(canvas + "(Clone)") != null && canvas == "Canvas")//Player 1
-        {
-            GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
-            foreach (Transform child in csPlayer1.transform)
-            {
-                if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
-                {
-                    child.gameObject.SetActive(false);
-                }
-            }
-        }
-    }
+    //[ClientRpc]
+    //public void RpcHideCanvas(string canvas)
+    //{
+    //    Debug.Log("The canvas name = " + canvas);
+    //    if (GameObject.Find(canvas + "(Clone)") != null && canvas == "CanvasClient")//Player 2
+    //    {
+    //        GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
+    //        foreach (Transform child in csPlayer2.transform)
+    //        {
+    //            if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
+    //            {
+    //                child.gameObject.SetActive(false);
+    //            }
+    //        }
+    //    }
+    //    if (GameObject.Find(canvas + "(Clone)") != null && canvas == "Canvas")//Player 1
+    //    {
+    //        GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
+    //        foreach (Transform child in csPlayer1.transform)
+    //        {
+    //            if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
+    //            {
+    //                child.gameObject.SetActive(false);
+    //            }
+    //        }
+    //    }
+    //}
 }
