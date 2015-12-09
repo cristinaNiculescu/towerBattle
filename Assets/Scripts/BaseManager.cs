@@ -75,38 +75,6 @@ public class BaseManager : NetworkBehaviour
             return;
         }
         structure.HP_Bar.value = structure.HP;
-        //if (this.name == "Base(Clone)")
-        //{
-        //    if (structure.HP <= 0)
-        //    {
-        //        Lost();
-        //        Time.timeScale = 0;
-        //    }
-        //    if (GameObject.Find("Enemy_base(Clone)") != null)
-        //    {
-        //        if (GameObject.Find("Enemy_base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
-        //        {
-        //            Won();
-        //            Time.timeScale = 0;
-        //        }
-        //    }
-        //}
-        //if (this.name == "Enemy_base(Clone)")
-        //{
-        //    if (structure.HP <= 0)
-        //    {
-        //        Lost();
-        //        Time.timeScale = 0;
-        //    }
-        //    if (GameObject.Find("Base(Clone)") != null)
-        //    {
-        //        if (GameObject.Find("Base(Clone)").GetComponent<UnitStructure>().BaseUnit.GetComponent<UnitStructure>().HP <= 0)
-        //        {
-        //            Won();
-        //            Time.timeScale = 0;
-        //        }
-        //    }
-        //}
     }
 
     public void reCheckShield()
