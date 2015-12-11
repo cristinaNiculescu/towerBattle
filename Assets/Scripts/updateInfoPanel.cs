@@ -55,7 +55,7 @@ public class updateInfoPanel : NetworkBehaviour
     {
         if (hasAuthority)
         {
-            if ((friendlyBase.shieldPower > 500 || !needsRefresh) && (this.tag == "Player 1"))
+            if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 1"))
             {
                 needsRefresh = true;
                 for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
@@ -67,7 +67,7 @@ public class updateInfoPanel : NetworkBehaviour
                 }
                 updateText();
             }
-            else if ((friendlyBase.shieldPower > 500 || !needsRefresh) && (this.tag == "Player 2"))
+            else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 2"))
             {
                 needsRefresh = true;
                 for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
@@ -95,8 +95,7 @@ public class updateInfoPanel : NetworkBehaviour
                 if (i >= 1 && i <= 5)
                 {
                     infos[i].fontSize = 8;
-                    //if (UnitsBuilt[i - 1])
-                    if (UnitsBuilt.Length > 0)
+                    if (UnitsBuilt[i - 1])
                     {
                         print("UPDATE THAT TEXT IN INFO-PANELS!");
                         UnitStructure temp = UnitsBuilt[i - 1].GetComponent<UnitStructure>();

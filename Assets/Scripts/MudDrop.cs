@@ -35,12 +35,11 @@ public class MudDrop : NetworkBehaviour
     }
 
     IEnumerator slowed(float speedReduction, float duration)
-    {	//Debug.Log ("started cor");
+    {
         resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed *= speedReduction;
         resourceFieldTargeted.GetComponent<Renderer>().material = mud;
         yield return new WaitForSeconds(duration);
         resourceFieldTargeted.gameObject.GetComponent<ResourceField>().speed = initialSpeed;
-        //Debug.Log("changedMaterialback");
         resourceFieldTargeted.GetComponent<Renderer>().material = resource;
         Destroy(gameObject);
     }

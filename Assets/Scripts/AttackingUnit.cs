@@ -350,8 +350,8 @@ public class AttackingUnit : NetworkBehaviour
         mov.direction = new Vector3(x - gameObject.transform.position.x, 0f, z - gameObject.transform.position.z);
         mov.gameObject.tag = this.gameObject.tag;
         //Instantiate(projectile, shootingPosition, rotation);
-        SpawnRock(projectile.gameObject);
-        projectile.position = shootingPosition;
+        //projectile.position = shootingPosition;
+        SpawnRock(projectile.gameObject, shootingPosition, rotation);
         if (topToBottom)
             if (startAngle < 180)
             {
@@ -532,23 +532,25 @@ public class AttackingUnit : NetworkBehaviour
     {
         GameObject mud = NetworkManager.singleton.spawnPrefabs[mudIndex];
         GameObject go = GameObject.Instantiate(mud);
-        //go.transform.position = this.gameObject.transform.position;
+        go.transform.position = this.gameObject.transform.position;
         //NetworkServer.SpawnWithClientAuthority(go, player);
         NetworkServer.Spawn(go);
     }
 
     [ClientCallback]
-    void SpawnRock(GameObject rock)
+    void SpawnRock(GameObject rock, Vector3 shootingPosition, Quaternion rotation)
     {
         int rockIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(rock);
-        CmdSpawnRock(rockIndex, theLocalPlayer);
+        CmdSpawnRock(rockIndex, shootingPosition, rotation, theLocalPlayer);
     }
 
     [Command]
-    void CmdSpawnRock(int rockIndex, GameObject player)
+    void CmdSpawnRock(int rockIndex, Vector3 shootingPosition, Quaternion rotation, GameObject player)
     {
         GameObject rock = NetworkManager.singleton.spawnPrefabs[rockIndex];
         GameObject go = GameObject.Instantiate(rock);
+        go.transform.position = shootingPosition;
+        go.transform.rotation = rotation;
         //NetworkServer.SpawnWithClientAuthority(go, player);
         NetworkServer.Spawn(go);
     }

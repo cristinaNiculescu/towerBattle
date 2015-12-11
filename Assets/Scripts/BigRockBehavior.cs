@@ -4,6 +4,7 @@ using System.Collections;
 
 public class BigRockBehavior : NetworkBehaviour
 {
+    [SyncVar]
     public Transform target;
     bool started;
     float projectileSpeed = 80f;
@@ -19,10 +20,6 @@ public class BigRockBehavior : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
-        {
-            return;
-        }
         this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target.position, projectileSpeed * Time.deltaTime);
         if (this.gameObject.transform.position == target.position)
         {
