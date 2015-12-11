@@ -83,10 +83,12 @@ public class BaseManager : NetworkBehaviour
     {
         shieldMultiplier = 0;
         for (int i = 0; i < 5; i++)
+        {
             if (UnitsBuilt[i] != null)
             {
                 shieldMultiplier++;
             }
+        }
         float temp = shieldMultiplier * 0.15f * 500;
         shieldPower = (int)temp + shieldPower;
     }

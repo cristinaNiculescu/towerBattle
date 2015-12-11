@@ -94,7 +94,7 @@ public class UnitConstruction : NetworkBehaviour
                 //    if (instanceArray[i].GetInstanceID() == ID)
                 //        BaseUnit.UnitsBuilt[index] = instanceArray[i];
                 //}
-                BaseUnit.reCheckShield();
+                //BaseUnit.reCheckShield();
                 Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
@@ -207,6 +207,7 @@ public class UnitConstruction : NetworkBehaviour
             {
                 print("It was I who Structured " + unit.name);
                 BaseUnit.UnitsBuilt[index - 1] = unit;
+                BaseUnit.reCheckShield();
             }
         }
     }
