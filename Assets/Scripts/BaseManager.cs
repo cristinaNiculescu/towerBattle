@@ -43,13 +43,15 @@ public class BaseManager : NetworkBehaviour
             structure.HP_Bar.value = structure.HP;
             structure.BaseUnit = this;
 
-            if (this.name == "Base(Clone)")//Player 1
+            //if (this.name == "Base(Clone)")//Player 1
+            if (this.gameObject.tag == "Player 1")//Player 1
             {
                 infos = new Text[7];
                 InfoPanel = GameObject.Find("InfoPanel");
                 Traverse(InfoPanel, 0);
             }
-            if (this.name == "Enemy_base(Clone)")//Player 2
+            //if (this.name == "Enemy_base(Clone)")//Player 2
+            if (this.gameObject.tag == "Player 2")//Player 2
             {
                 infos = new Text[7];
                 InfoPanel = GameObject.Find("InfoPanel2");

@@ -19,13 +19,15 @@ public class updateInfoPanel : NetworkBehaviour
     {
         if (hasAuthority)
         {
+            friendlyBase = baseF.GetComponent<BaseManager>();
             if (this.tag == "Player 1")
             {
                 infos = new Text[7];
                 InfoPanel = GameObject.Find("InfoPanel");
                 int i = 0;
                 Traverse(InfoPanel, 0);
-                UnitsBuilt = new GameObject[5];
+                //UnitsBuilt = new GameObject[5];
+                UnitsBuilt = friendlyBase.UnitsBuilt;
             }
             else if (this.tag == "Player 2")
             {
@@ -33,9 +35,9 @@ public class updateInfoPanel : NetworkBehaviour
                 InfoPanel = GameObject.Find("InfoPanel2");
                 int i = 0;
                 Traverse(InfoPanel, 0);
-                UnitsBuilt = new GameObject[5];
+                //UnitsBuilt = new GameObject[5];
+                UnitsBuilt = friendlyBase.UnitsBuilt;
             }
-            friendlyBase = baseF.GetComponent<BaseManager>();
         }
     }
 
@@ -53,7 +55,7 @@ public class updateInfoPanel : NetworkBehaviour
     {
         if (hasAuthority)
         {
-            if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 1"))
+            if ((friendlyBase.shieldPower > 500 || !needsRefresh) && (this.tag == "Player 1"))
             {
                 needsRefresh = true;
                 for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
@@ -65,7 +67,7 @@ public class updateInfoPanel : NetworkBehaviour
                 }
                 updateText();
             }
-            else if ((friendlyBase.shieldPower > 500 || needsRefresh) && (this.tag == "Player 2"))
+            else if ((friendlyBase.shieldPower > 500 || !needsRefresh) && (this.tag == "Player 2"))
             {
                 needsRefresh = true;
                 for (int i = 0; i < friendlyBase.UnitsBuilt.Length; i++)
@@ -93,8 +95,10 @@ public class updateInfoPanel : NetworkBehaviour
                 if (i >= 1 && i <= 5)
                 {
                     infos[i].fontSize = 8;
-                    if (UnitsBuilt[i - 1])
+                    //if (UnitsBuilt[i - 1])
+                    if (UnitsBuilt.Length > 0)
                     {
+                        print("UPDATE THAT TEXT IN INFO-PANELS!");
                         UnitStructure temp = UnitsBuilt[i - 1].GetComponent<UnitStructure>();
                         switch (temp.tag)
                         {

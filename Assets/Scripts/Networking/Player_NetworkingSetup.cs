@@ -99,6 +99,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
                 foreach (GameObject unitSpot in unitSpotsSpawned)
                 {
+                    unitSpot.tag = "Player 1";
                     GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
                     btns = panel.GetComponentsInChildren<Button>();
                     int j = 0;
@@ -117,6 +118,7 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 int k = 1;//Begin from '1' because the numbering of panels start from '1' and ends with '5'.
                 foreach (GameObject unitSpot in unitSpotsSpawned)
                 {
+                    unitSpot.tag = "Player 2";
                     GameObject panel = GameObject.Find("BuildPanelfor2UnitSpot" + (k));
                     btns = panel.GetComponentsInChildren<Button>();
                     int j = 0;

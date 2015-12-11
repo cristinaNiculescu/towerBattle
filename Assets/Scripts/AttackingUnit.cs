@@ -47,8 +47,6 @@ public class AttackingUnit : NetworkBehaviour
     {
         if (localPlayerAuthority && hasAuthority)
         {
-            //Debug.Log("Player 1 playerControllerId: " + GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId);
-            //Debug.Log("Player 2 playerControllerId: " + GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId);
             structure = this.GetComponent<UnitStructure>();
             structure.HP = 250;
             structure.HPMax = 250;
@@ -75,15 +73,11 @@ public class AttackingUnit : NetworkBehaviour
                 structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             }
             Debug.Log("Temp base = " + temp.name);
-            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = structure.HPMax;
             structure.name = "Attacking Unit";
-            //GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();
-            //tempName = gameObject.name.Substring(0, 9);
-            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             changePanel();
             structure.panel.SetActive(activeMarker);
             targets = new Transform[3];
@@ -111,10 +105,12 @@ public class AttackingUnit : NetworkBehaviour
             if (structure.HP <= 0f)
             {
                 //Destroy(gameObject, 0.1f);
-                DestroyMePlease(gameObject, 0.1f);
+                //DestroyMePlease(gameObject, 0.1f);
+                Destroy(gameObject);
                 structure.BaseUnit.reCheckShield();
             }
             structure.HP_Bar.value = structure.HP;
+            #region Launch Missile
             if (triggeredMissileLaunch && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -195,14 +191,17 @@ public class AttackingUnit : NetworkBehaviour
                     }
                 }
             }
+            #endregion
+            #region Throw Mud
             if (mudTriggered && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+                    if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player1
                     {
-                        if (hit.transform.tag == "Base2_Resource")
+                        //if (hit.transform.tag == "Base2_Resource")
+                        if (hit.transform.tag == "Player 2")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform;
@@ -213,9 +212,10 @@ public class AttackingUnit : NetworkBehaviour
                             StartCoroutine(gatherMud());
                         }
                     }
-                    if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)
+                    if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player2
                     {
-                        if (hit.transform.tag == "Base1_Resource")
+                        //if (hit.transform.tag == "Base1_Resource")
+                        if (hit.transform.tag == "Player 1")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform;
@@ -228,6 +228,7 @@ public class AttackingUnit : NetworkBehaviour
                     }
                 }
             }
+            #endregion
         }
         else
             if (started)
@@ -523,8 +524,6 @@ public class AttackingUnit : NetworkBehaviour
     void SpawnMud(GameObject mud)
     {
         int mudIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(mud);
-        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        //CmdSpawnMud(mudIndex, player);
         CmdSpawnMud(mudIndex, theLocalPlayer);
     }
 
@@ -533,16 +532,15 @@ public class AttackingUnit : NetworkBehaviour
     {
         GameObject mud = NetworkManager.singleton.spawnPrefabs[mudIndex];
         GameObject go = GameObject.Instantiate(mud);
-        go.transform.position = this.gameObject.transform.position;
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        //go.transform.position = this.gameObject.transform.position;
+        //NetworkServer.SpawnWithClientAuthority(go, player);
+        NetworkServer.Spawn(go);
     }
 
     [ClientCallback]
     void SpawnRock(GameObject rock)
     {
         int rockIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(rock);
-        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        //CmdSpawnRock(rockIndex, player);
         CmdSpawnRock(rockIndex, theLocalPlayer);
     }
 
@@ -551,20 +549,20 @@ public class AttackingUnit : NetworkBehaviour
     {
         GameObject rock = NetworkManager.singleton.spawnPrefabs[rockIndex];
         GameObject go = GameObject.Instantiate(rock);
-        go.transform.position = shootingPosition;
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        //NetworkServer.SpawnWithClientAuthority(go, player);
+        NetworkServer.Spawn(go);
     }
 
-    [ClientCallback]
-    void DestroyMePlease(GameObject obj, float time)
-    {
-        CmdDestroyMePlease(obj, time);
-    }
+    //[ClientCallback]
+    //void DestroyMePlease(GameObject obj, float time)
+    //{
+    //    CmdDestroyMePlease(obj, time);
+    //}
 
-    [Command]
-    void CmdDestroyMePlease(GameObject obj, float time)
-    {
-        Debug.Log("Going to destroy : " + obj.name);//Will only be visible on the server.
-        Destroy(obj, time);
-    }
+    //[Command]
+    //void CmdDestroyMePlease(GameObject obj, float time)
+    //{
+    //    Debug.Log("Going to destroy : " + obj.name);//Will only be visible on the server.
+    //    Destroy(obj, time);
+    //}
 }

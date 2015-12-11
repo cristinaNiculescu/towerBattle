@@ -71,7 +71,10 @@ public class UnitConstruction : NetworkBehaviour
         if (localPlayerAuthority && hasAuthority)
         {
             unit.name = gameObject.name.Substring(0, 9);
-            int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+            //print("The name of the unit : " + unit.name);
+            //int index = (int)(gameObject.name[gameObject.name.Length - 1]);
+            int index = (int)Int32.Parse(gameObject.name.Substring(8, 1));
+            //print("The index of the unit : " + index);
             int constructionCost = unit.GetComponent<UnitStructure>().costs[0];
             if (BaseManager.resources - constructionCost >= 0)
             {
@@ -79,15 +82,19 @@ public class UnitConstruction : NetworkBehaviour
                 BaseManager.notEnough = "";
                 hpbar.SetActive(true);
                 RemoveListenersFromUnitSpot(player);//Remove all listeners before we spawn the new unit to replace this Spot.
-                BuildUnit(unit.gameObject, player);//Build the unit.
-                uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
-                GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
-                for (int i = 0; i < instanceArray.Length; i++)
-                {
-                    if (instanceArray[i].GetInstanceID() == ID)
-                        BaseUnit.UnitsBuilt[index - 49] = instanceArray[i];
-                    BaseUnit.reCheckShield();
-                }
+                //GameObject[] instanceBeforeArray = GameObject.FindGameObjectsWithTag(unit.tag);
+                BuildUnit(unit.gameObject, player, index);//Build the unit.
+                //uint ID = unit.GetComponent<NetworkIdentity>().netId.Value;
+                //int ID = unit.GetInstanceID();
+                //print("The ID of the unit : " + ID);
+                //GameObject[] instanceArray = GameObject.FindGameObjectsWithTag(unit.tag);
+                //for (int i = 0; i < instanceArray.Length; i++)
+                //{
+                //    print("The tag of the unit : " + unit.tag);
+                //    if (instanceArray[i].GetInstanceID() == ID)
+                //        BaseUnit.UnitsBuilt[index] = instanceArray[i];
+                //}
+                BaseUnit.reCheckShield();
                 Unspawn(gameObject);
             }
             else BaseManager.notEnough = "not enough resources";
@@ -167,10 +174,10 @@ public class UnitConstruction : NetworkBehaviour
     }
 
     [ClientCallback]
-    void BuildUnit(GameObject theUnitToBuild, GameObject player)
+    public void BuildUnit(GameObject theUnitToBuild, GameObject player, int index)
     {
         int theUnitToBuildIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(theUnitToBuild);
-        CmdBuildUnit(theUnitToBuildIndex, player);
+        CmdBuildUnit(theUnitToBuildIndex, player, index);
     }
 
     [Command]
@@ -181,17 +188,26 @@ public class UnitConstruction : NetworkBehaviour
     }
 
     [Command]
-    public void CmdBuildUnit(int unitIndex, GameObject player)
+    public void CmdBuildUnit(int unitIndex, GameObject player, int index)
     {
         GameObject unitToBuild = NetworkManager.singleton.spawnPrefabs[unitIndex];
         GameObject go = GameObject.Instantiate(unitToBuild);
         go.transform.position = this.gameObject.transform.position;
         NetworkServer.SpawnWithClientAuthority(go, player);
+        RpcAddNewUnitToUnitsBuilt(go, index, player);
     }
 
-    //[ClientRpc]
-    //void RpcSetInvisible(NetworkInstanceId unitSpot)
-    //{
-    //    ClientScene.FindLocalObject(unitSpot).GetComponent<MeshRenderer>().enabled = false;
-    //}
+    [ClientRpc]
+    public void RpcAddNewUnitToUnitsBuilt(GameObject unit, int index, GameObject player)
+    {
+        if (hasAuthority && (GameObject.Find("Player 1") == player || GameObject.Find("Player 2") == player))
+        {
+            print("Unit = " + unit.name + ", index = " + index + ", player = " + player.name + ", BaseUnit = " + BaseUnit.gameObject.tag);
+            if (BaseUnit.transform.tag == player.name)
+            {
+                print("It was I who Structured " + unit.name);
+                BaseUnit.UnitsBuilt[index - 1] = unit;
+            }
+        }
+    }
 }
