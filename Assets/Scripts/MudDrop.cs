@@ -45,6 +45,7 @@ public class MudDrop : NetworkBehaviour
                 //StartCoroutine(slowed(speedRed, dur));
                 col.gameObject.GetComponent<ResourceField>().SlowDownResource(speedRed, dur);
                 started = true;
+                Destroy(gameObject, 25f);
             }
             else
                 Destroy(gameObject, 25f);
@@ -59,6 +60,7 @@ public class MudDrop : NetworkBehaviour
                 //StartCoroutine(slowed(speedRed, dur));
                 col.gameObject.GetComponent<ResourceField>().SlowDownResource(speedRed, dur);
                 started = true;
+                Destroy(gameObject, 25f);
             }
             else
                 Destroy(gameObject, 25f);

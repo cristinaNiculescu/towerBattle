@@ -25,8 +25,8 @@ public class RockBehavior : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.tag == "Base1")
-        //if (col.transform.tag == "Player 1")
+        //if (col.transform.tag == "Base1")
+        if (col.gameObject.name.StartsWith("Base"))
         {
             if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
             {
@@ -43,8 +43,8 @@ public class RockBehavior : NetworkBehaviour
             //DestroyRock(gameObject);
             Destroy(gameObject);
         }
-        if (col.transform.tag == "Base2")
-        //if (col.transform.tag == "Player 2")
+        //if (col.transform.tag == "Base2")
+        if (col.gameObject.name.StartsWith("Enemy_base"))
         {
             if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
             {
