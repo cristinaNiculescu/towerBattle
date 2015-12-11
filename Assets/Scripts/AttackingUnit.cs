@@ -204,10 +204,10 @@ public class AttackingUnit : NetworkBehaviour
                         if (hit.transform.tag == "Player 2")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
-                            droplet.target = hit.transform;
+                            droplet.target = hit.transform.position;
                             droplet.speedRed = mudImpactSpeed;
                             droplet.dur = mudImpactDuration;
-                            SpawnMud(mud.gameObject);
+                            SpawnMud(mud.gameObject, droplet.target, droplet.speedRed, droplet.dur);
                             mud.LookAt(hit.transform.position);
                             StartCoroutine(gatherMud());
                         }
@@ -218,10 +218,10 @@ public class AttackingUnit : NetworkBehaviour
                         if (hit.transform.tag == "Player 1")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
-                            droplet.target = hit.transform;
+                            droplet.target = hit.transform.position;
                             droplet.speedRed = mudImpactSpeed;
                             droplet.dur = mudImpactDuration;
-                            SpawnMud(mud.gameObject);
+                            SpawnMud(mud.gameObject, droplet.target, droplet.speedRed, droplet.dur);
                             mud.LookAt(hit.transform.position);
                             StartCoroutine(gatherMud());
                         }
@@ -521,18 +521,22 @@ public class AttackingUnit : NetworkBehaviour
     }
 
     [ClientCallback]
-    void SpawnMud(GameObject mud)
+    void SpawnMud(GameObject mud, Vector3 target, float speedReduction, float duration)
     {
         int mudIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(mud);
-        CmdSpawnMud(mudIndex, theLocalPlayer);
+        CmdSpawnMud(mudIndex, target, speedReduction, duration, theLocalPlayer);
     }
 
     [Command]
-    void CmdSpawnMud(int mudIndex, GameObject player)
+    void CmdSpawnMud(int mudIndex, Vector3 target, float speedReduction, float duration, GameObject player)
     {
         GameObject mud = NetworkManager.singleton.spawnPrefabs[mudIndex];
         GameObject go = GameObject.Instantiate(mud);
         go.transform.position = this.gameObject.transform.position;
+        MudDrop droplet = go.GetComponent<MudDrop>();
+        droplet.target = target;
+        droplet.speedRed = speedReduction;
+        droplet.dur = duration;
         //NetworkServer.SpawnWithClientAuthority(go, player);
         NetworkServer.Spawn(go);
     }
