@@ -9,8 +9,10 @@ public class GameManager : NetworkBehaviour
     public int players = 0;
     GameObject player1_Base;
     GameObject player2_Base;
-    UnitStructure player1_UnitStructure;
-    UnitStructure player2_UnitStructure;
+    [SerializeField]
+    float player1_HP;
+    [SerializeField]
+    float player2_HP;
     bool hasChecked = false;
 
     // Use this for initialization
@@ -35,15 +37,17 @@ public class GameManager : NetworkBehaviour
     {
         if (hasChecked)
         {
-            if (player1_UnitStructure.HP <= 0)//Player 1 Lost.
+            if (player1_HP <= 0)//Player 1 Lost.
             {
+                print("Player 1 lsot");
                 //player1_Base.GetComponent<BaseManager>().Lost();
                 //player2_Base.GetComponent<BaseManager>().Won();
                 //Time.timeScale = 0;
                 //RpcSetVictorAndLoser(player1_Base.GetComponent<NetworkIdentity>().playerControllerId);
             }
-            else if (player2_UnitStructure.HP <= 0)//Player 2 Lost.
+            else if (player2_HP <= 0)//Player 2 Lost.
             {
+                print("Player 2 lsot");
                 //player1_Base.GetComponent<BaseManager>().Won();
                 //player2_Base.GetComponent<BaseManager>().Lost();
                 //Time.timeScale = 0;
@@ -63,8 +67,8 @@ public class GameManager : NetworkBehaviour
             print("2 players has joined!");
             player1_Base = GameObject.Find("Base(Clone)");//Player 1 Base;
             player2_Base = GameObject.Find("Enemy_base(Clone)");//Player 2 Base;
-            player1_UnitStructure = player1_Base.GetComponent<UnitStructure>();
-            player2_UnitStructure = player2_Base.GetComponent<UnitStructure>();
+            player1_HP = player1_Base.GetComponent<UnitStructure>().HP;
+            player2_HP = player2_Base.GetComponent<UnitStructure>().HP;
         }
     }
 
