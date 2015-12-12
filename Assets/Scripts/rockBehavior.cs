@@ -28,16 +28,17 @@ public class RockBehavior : NetworkBehaviour
         //if (col.transform.tag == "Base1")
         if (col.gameObject.name.StartsWith("Base"))
         {
-            if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+            print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
+            if (col.gameObject.GetComponent<BaseManager>().shieldPower > 0)
             {
                 float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
-                col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                col.gameObject.GetComponent<BaseManager>().ShieldTakeDamage(damageAmount);
                 //col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
             }
             else
             {
                 float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
-                col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                col.gameObject.GetComponent<UnitStructure>().TakeDamage(damageAmount);
                 //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
             }
             //DestroyRock(gameObject);
@@ -46,16 +47,17 @@ public class RockBehavior : NetworkBehaviour
         //if (col.transform.tag == "Base2")
         if (col.gameObject.name.StartsWith("Enemy_base"))
         {
-            if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+            print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
+            if (col.gameObject.GetComponent<BaseManager>().shieldPower > 0)
             {
                 float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
-                col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                col.gameObject.GetComponent<BaseManager>().ShieldTakeDamage(damageAmount);
                 //col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
             }
             else
             {
                 float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
-                col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                col.gameObject.GetComponent<UnitStructure>().TakeDamage(damageAmount);
                 //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * 0.05f;
             }
             //DestroyRock(gameObject);

@@ -49,22 +49,24 @@ public class BigRockBehavior : NetworkBehaviour
             print("Hitting the base 1");
             if (!started)
             {
-                if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
+                if (col.gameObject.GetComponent<BaseManager>().shieldPower > 0)
                 {
                     //target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
                     float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
-                    col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                    col.gameObject.GetComponent<BaseManager>().ShieldTakeDamage(damageAmount);
                 }
                 else
                 {
                     //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
                     float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
-                    col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                    col.gameObject.GetComponent<UnitStructure>().TakeDamage(damageAmount);
                 }
                 col.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
                 col.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
                 StartCoroutine(col.gameObject.GetComponent<UnitStructure>().dizzy(dur));
                 started = true;
+                Destroy(gameObject, 1f);
             }
             else
                 Destroy(gameObject);
@@ -74,22 +76,24 @@ public class BigRockBehavior : NetworkBehaviour
             print("Hitting the base 2");
             if (!started)
             {
-                if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
+                if (col.gameObject.GetComponent<BaseManager>().shieldPower > 0)
                 {
                     //target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
                     float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
-                    col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                    col.gameObject.GetComponent<BaseManager>().ShieldTakeDamage(damageAmount);
                 }
                 else
                 {
                     //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
                     float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
-                    col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                    col.gameObject.GetComponent<UnitStructure>().TakeDamage(damageAmount);
                 }
                 col.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
                 col.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
                 StartCoroutine(col.gameObject.GetComponent<UnitStructure>().dizzy(dur));
                 started = true;
+                Destroy(gameObject, 1f);
             }
             else
                 Destroy(gameObject);

@@ -62,8 +62,8 @@ public class UnitStructure : NetworkBehaviour
         isDisoriented = false;
     }
 
-    [Command]
-    public void CmdTakeDamage(float amount)
+    //[Command]
+    public void TakeDamage(float amount)
     {
         if (!isServer)
             return;

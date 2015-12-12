@@ -186,38 +186,4 @@ public class Player_NetworkingSetup : NetworkBehaviour
         GameObject go = Instantiate(baseSpawned);
         NetworkServer.SpawnWithClientAuthority(go, thePlayer);
     }
-
-    //[Command]
-    //void CmdHideCanvasOnPlayer(string canvasName)
-    //{
-    //    RpcHideCanvas(canvasName);
-    //}
-
-    //[ClientRpc]
-    //public void RpcHideCanvas(string canvas)
-    //{
-    //    Debug.Log("The canvas name = " + canvas);
-    //    if (GameObject.Find(canvas + "(Clone)") != null && canvas == "CanvasClient")//Player 2
-    //    {
-    //        GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
-    //        foreach (Transform child in csPlayer2.transform)
-    //        {
-    //            if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
-    //            {
-    //                child.gameObject.SetActive(false);
-    //            }
-    //        }
-    //    }
-    //    if (GameObject.Find(canvas + "(Clone)") != null && canvas == "Canvas")//Player 1
-    //    {
-    //        GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
-    //        foreach (Transform child in csPlayer1.transform)
-    //        {
-    //            if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
-    //            {
-    //                child.gameObject.SetActive(false);
-    //            }
-    //        }
-    //    }
-    //}
 }

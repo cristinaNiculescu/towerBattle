@@ -9,10 +9,8 @@ public class GameManager : NetworkBehaviour
     public int players = 0;
     GameObject player1_Base;
     GameObject player2_Base;
-    [SerializeField]
-    float player1_HP;
-    [SerializeField]
-    float player2_HP;
+    public float player1_HP;
+    public float player2_HP;
     bool hasChecked = false;
 
     // Use this for initialization
@@ -37,21 +35,19 @@ public class GameManager : NetworkBehaviour
     {
         if (hasChecked)
         {
+            player1_HP = player1_Base.GetComponent<UnitStructure>().HP;
+            player2_HP = player2_Base.GetComponent<UnitStructure>().HP;
             if (player1_HP <= 0)//Player 1 Lost.
             {
                 print("Player 1 lsot");
-                //player1_Base.GetComponent<BaseManager>().Lost();
-                //player2_Base.GetComponent<BaseManager>().Won();
-                //Time.timeScale = 0;
-                //RpcSetVictorAndLoser(player1_Base.GetComponent<NetworkIdentity>().playerControllerId);
+                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().Lost();
+                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().Won();
             }
             else if (player2_HP <= 0)//Player 2 Lost.
             {
                 print("Player 2 lsot");
-                //player1_Base.GetComponent<BaseManager>().Won();
-                //player2_Base.GetComponent<BaseManager>().Lost();
-                //Time.timeScale = 0;
-                //RpcSetVictorAndLoser(player2_Base.GetComponent<NetworkIdentity>().playerControllerId);
+                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().Won();
+                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().Lost();
             }
         }
     }
@@ -59,7 +55,7 @@ public class GameManager : NetworkBehaviour
     /// <summary>
     /// IF both abses has spawned, setup the refernces.
     /// </summary>
-    private void SetReferencesToBases()
+    void SetReferencesToBases()
     {
         if (GameObject.Find("Base(Clone)") != null && GameObject.Find("Enemy_base(Clone)") != null && players > 1 && !hasChecked)
         {
@@ -71,10 +67,4 @@ public class GameManager : NetworkBehaviour
             player2_HP = player2_Base.GetComponent<UnitStructure>().HP;
         }
     }
-
-    //[ClientRpc]
-    //public void RpcSetVictorAndLoser(short whoLostPlayerControllerId)
-    //{
-    //    Debug.Log("Who lost? : " + whoLostPlayerControllerId);
-    //}
 }
