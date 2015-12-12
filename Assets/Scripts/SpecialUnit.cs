@@ -59,7 +59,7 @@ public class SpecialUnit : NetworkBehaviour
             structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
             structure.isInConstruction = true;
             structure.statusUpdater = status();
-            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            StartCoroutine(structure.waitConstruction(1f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
             if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
             {
@@ -99,7 +99,7 @@ public class SpecialUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
+        if (!localPlayerAuthority || !hasAuthority)
         {
             return;
         }
@@ -163,11 +163,12 @@ public class SpecialUnit : NetworkBehaviour
                 {
                     BaseManager.resources -= structure.costs[4] - (int)scoutMissionDuration / 4;
                     BaseManager.notEnough = "";
-                    SpawnScout(scout);
-                    uint ID = scout.GetComponent<NetworkIdentity>().netId.Value;
+                    scout.transform.position = this.gameObject.transform.position;
+                    int ID = Instantiate(scout).GetInstanceID();
                     GameObject[] scouts = GameObject.FindGameObjectsWithTag("Scout");
+                    print("Scout length : " + scouts.Length);
                     for (int i = 0; i < scouts.Length; i++)
-                        if (scouts[i].GetComponent<NetworkIdentity>().netId.Value == ID)
+                        if (scouts[i].GetInstanceID() == ID)
                             scoutInstantiated = scouts[i];
                     timeScoutSpawned = Time.realtimeSinceStartup;
                     steps = positions.Count;
@@ -232,10 +233,6 @@ public class SpecialUnit : NetworkBehaviour
 
     void OnGUI()
     {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
         if (scoutTriggered)
         {
             float width = 3.0f;
@@ -558,20 +555,20 @@ public class SpecialUnit : NetworkBehaviour
             return message;
     }
 
-    [ClientCallback]
-    void SpawnScout(GameObject scout)
-    {
-        int scoutIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(scout);
-        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnScout(scoutIndex);
-    }
+    //[ClientCallback]
+    //void SpawnScout(GameObject scout)
+    //{
+    //    int scoutIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(scout);
+    //    //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+    //    CmdSpawnScout(scoutIndex);
+    //}
 
-    [Command]
-    void CmdSpawnScout(int scoutIndex)
-    {
-        GameObject scout = NetworkManager.singleton.spawnPrefabs[scoutIndex];
-        GameObject go = GameObject.Instantiate(scout);
-        go.transform.position = this.gameObject.transform.position;
-        NetworkServer.Spawn(go);
-    }
+    //[Command]
+    //void CmdSpawnScout(int scoutIndex)
+    //{
+    //    GameObject scout = NetworkManager.singleton.spawnPrefabs[scoutIndex];
+    //    GameObject go = GameObject.Instantiate(scout);
+    //    go.transform.position = this.gameObject.transform.position;
+    //    NetworkServer.Spawn(go);
+    //}
 }
