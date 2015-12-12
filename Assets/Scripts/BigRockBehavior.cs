@@ -5,52 +5,106 @@ using System.Collections;
 public class BigRockBehavior : NetworkBehaviour
 {
     [SyncVar]
-    public Transform target;
+    public Vector3 target;
     bool started;
+    [SerializeField]
     float projectileSpeed = 80f;
+    [SerializeField]
     public float dur;
+    [SerializeField]
     public float damagePercentage;
 
-    // Use this for initialization
-    void Start()
+    // Update is called once per frame
+    void FixedUpdate()
     {
-
+        this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target, projectileSpeed * Time.deltaTime);
+        //if (this.gameObject.transform.position == target)
+        //{
+        //if (!started)
+        //{
+        //    if (target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+        //    {
+        //        //target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+        //        float damage = target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+        //    }
+        //    else
+        //    {
+        //        target.gameObject.GetComponent<UnitStructure>().HP -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+        //    }
+        //    target.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
+        //    target.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
+        //    StartCoroutine(target.gameObject.GetComponent<UnitStructure>().dizzy(dur));
+        //    started = true;
+        //}
+        //else
+        //    //Destroy(gameObject);
+        //    Destroy(gameObject);
+        //}
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnCollisionEnter(Collision col)
     {
-        this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position, target.position, projectileSpeed * Time.deltaTime);
-        if (this.gameObject.transform.position == target.position)
+        if (col.transform.tag == "Player 1")
         {
+            print("Hitting the base 1");
             if (!started)
             {
-                if (target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
-                    target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -=
-                    target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                {
+                    //target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                }
                 else
-                    target.gameObject.GetComponent<UnitStructure>().HP -=
-                        target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
-                target.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
-                target.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
-                StartCoroutine(target.gameObject.GetComponent<UnitStructure>().dizzy(dur));
+                {
+                    //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                }
+                col.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
+                col.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
+                StartCoroutine(col.gameObject.GetComponent<UnitStructure>().dizzy(dur));
                 started = true;
             }
             else
-                //Destroy(gameObject);
-                DestroyBigRock(gameObject);
+                Destroy(gameObject);
+        }
+        if (col.transform.tag == "Player 2")
+        {
+            print("Hitting the base 2");
+            if (!started)
+            {
+                if (col.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower > 0)
+                {
+                    //target.gameObject.GetComponent<UnitStructure>().BaseUnit.shieldPower -= target.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    col.gameObject.GetComponent<UnitStructure>().CmdShieldTakeDamage(damageAmount);
+                }
+                else
+                {
+                    //col.gameObject.GetComponent<UnitStructure>().HP -= col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    float damageAmount = col.gameObject.GetComponent<UnitStructure>().HPMax * damagePercentage;
+                    col.gameObject.GetComponent<UnitStructure>().CmdTakeDamage(damageAmount);
+                }
+                col.gameObject.GetComponent<UnitStructure>().isDisoriented = true;
+                col.gameObject.GetComponent<UnitStructure>().disorientDur = dur;
+                StartCoroutine(col.gameObject.GetComponent<UnitStructure>().dizzy(dur));
+                started = true;
+            }
+            else
+                Destroy(gameObject);
         }
     }
 
-    [ClientCallback]
-    void DestroyBigRock(GameObject rockBig)
-    {
-        CmdDestroyBigRock(rockBig);
-    }
+    //[ClientCallback]
+    //void DestroyBigRock(GameObject rockBig)
+    //{
+    //    CmdDestroyBigRock(rockBig);
+    //}
 
-    [Command]
-    void CmdDestroyBigRock(GameObject rockBig)
-    {
-        NetworkServer.Destroy(rockBig);
-    }
+    //[Command]
+    //void CmdDestroyBigRock(GameObject rockBig)
+    //{
+    //    NetworkServer.Destroy(rockBig);
+    //}
 }

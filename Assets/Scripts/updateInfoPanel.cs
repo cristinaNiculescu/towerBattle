@@ -97,7 +97,6 @@ public class updateInfoPanel : NetworkBehaviour
                     infos[i].fontSize = 8;
                     if (UnitsBuilt[i - 1])
                     {
-                        print("UPDATE THAT TEXT IN INFO-PANELS!");
                         UnitStructure temp = UnitsBuilt[i - 1].GetComponent<UnitStructure>();
                         switch (temp.tag)
                         {

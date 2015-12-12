@@ -44,9 +44,9 @@ public class DefensiveUnit : NetworkBehaviour
             attributeCosts();
             structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
             structure.isInConstruction = true;
-            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
+            StartCoroutine(structure.waitConstruction(1f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
-            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            if (GameObject.Find("Player 2") != null && GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
@@ -54,7 +54,7 @@ public class DefensiveUnit : NetworkBehaviour
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor2" + tempName);
             }
-            else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
+            else if (GameObject.Find("Player 1") != null && GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)
             {
                 Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
@@ -62,16 +62,12 @@ public class DefensiveUnit : NetworkBehaviour
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             }
-            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = structure.HPMax;
             structure.HP_Bar.value = structure.HP;
             structure.name = "Defensive Unit";
-            //GameObject temp = GameObject.Find("Base");
             structure.BaseUnit = temp.GetComponent<BaseManager>();
-            //tempName = gameObject.name.Substring(0, 9);
-            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             changePanel();
             structure.panel.SetActive(activeMarker);
             disorientDuration = 10f;
@@ -82,7 +78,7 @@ public class DefensiveUnit : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!localPlayerAuthority && !hasAuthority)
+        if (!localPlayerAuthority || !hasAuthority)
         {
             return;
         }
@@ -90,7 +86,8 @@ public class DefensiveUnit : NetworkBehaviour
         {
             if (structure.HP <= 0f)
             {
-                Destroy(gameObject, 0.1f);
+                //Destroy(gameObject, 0.1f);
+                Destroy(gameObject);
                 structure.BaseUnit.reCheckShield();
             }
             structure.HP_Bar.value = structure.HP;
@@ -102,28 +99,30 @@ public class DefensiveUnit : NetworkBehaviour
             {
                 if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                 {
-                    if (hit.transform.tag == "Base2")
+                    print("WTF Who is the target ? " + hit.transform.gameObject.name);
+                    if (hit.transform.tag == "Player 2")
                     {
+                        SpawnCliff(cliff.gameObject, hit.transform.position, disorientDuration, rockPercentageDamage);
                         BigRockBehavior cliffBit = cliff.GetComponent<BigRockBehavior>();
-                        cliffBit.target = hit.transform;
+                        cliffBit.target = hit.transform.position;
                         cliffBit.dur = disorientDuration;
                         cliffBit.damagePercentage = rockPercentageDamage;
-                        SpawnCliff(cliff.gameObject);
                         cliff.LookAt(hit.transform.position);
                         rockReady = false;
                         rockTriggered = false;
                         StartCoroutine(throwCliff());
                     }
                 }
-                if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+                if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                 {
-                    if (hit.transform.tag == "Base1")
+                    print("WTF Who is the target ? " + hit.transform.gameObject.name);
+                    if (hit.transform.tag == "Player 1")
                     {
+                        SpawnCliff(cliff.gameObject, hit.transform.position, disorientDuration, rockPercentageDamage);
                         BigRockBehavior cliffBit = cliff.GetComponent<BigRockBehavior>();
-                        cliffBit.target = hit.transform;
+                        cliffBit.target = hit.transform.position;
                         cliffBit.dur = disorientDuration;
                         cliffBit.damagePercentage = rockPercentageDamage;
-                        SpawnCliff(cliff.gameObject);
                         cliff.LookAt(hit.transform.position);
                         rockReady = false;
                         rockTriggered = false;
@@ -137,23 +136,52 @@ public class DefensiveUnit : NetworkBehaviour
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 10000f) && cloudCharges <= 1)
             {
-                if (hit.transform.tag != "Enemy" && hit.transform.tag != "Untagged")
+                if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                 {
-                    CloudSetting puff = cloud.GetComponent<CloudSetting>();
-                    puff.target = hit.transform;
-                    puff.dur = cloudDuration;
-                    puff.size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
-                    puff.position = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
-                    //Instantiate(cloud, puff.position, Quaternion.identity);
-                    puffPosition = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
-                    SpawnCloud(cloud.gameObject);
-                    cloudCharges++;
-                    cloudTriggered = false;
-                    if (cloudCharges == 2)
+                    if (hit.transform.tag != "UnitSpot" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 2" && hit.transform.tag != "Untagged")
                     {
-                        cloudReady = false;
-                        cloudCharges = 0;
-                        StartCoroutine(settleCloud());
+                        Vector3 size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
+                        Vector3 puffPos = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        SpawnCloud(cloud.gameObject, cloudDuration, size, puffPos);
+                        //CloudSetting puff = cloud.GetComponent<CloudSetting>();
+                        //puff.target = hit.transform.position;
+                        //puff.dur = cloudDuration;
+                        //puff.size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
+                        //puff.position = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        //Instantiate(cloud, puff.position, Quaternion.identity);
+                        //puffPosition = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        cloudCharges++;
+                        cloudTriggered = false;
+                        if (cloudCharges == 2)
+                        {
+                            cloudReady = false;
+                            cloudCharges = 0;
+                            StartCoroutine(settleCloud());
+                        }
+                    }
+                }
+                if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+                {
+                    if (hit.transform.tag != "UnitSpot" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 1" && hit.transform.tag != "Untagged")
+                    {
+                        Vector3 size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
+                        Vector3 puffPos = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        SpawnCloud(cloud.gameObject, cloudDuration, size, puffPos);
+                        //CloudSetting puff = cloud.GetComponent<CloudSetting>();
+                        //puff.target = hit.transform.position;
+                        //puff.dur = cloudDuration;
+                        //puff.size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
+                        //puff.position = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        //Instantiate(cloud, puff.position, Quaternion.identity);
+                        //puffPosition = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
+                        cloudCharges++;
+                        cloudTriggered = false;
+                        if (cloudCharges == 2)
+                        {
+                            cloudReady = false;
+                            cloudCharges = 0;
+                            StartCoroutine(settleCloud());
+                        }
                     }
                 }
             }
@@ -181,7 +209,7 @@ public class DefensiveUnit : NetworkBehaviour
 
     void changePanel()
     {
-        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+        if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
@@ -276,7 +304,6 @@ public class DefensiveUnit : NetworkBehaviour
     {
         yield return new WaitForSeconds(rockCooldown);
         rockReady = true;
-
     }
 
     void attributeCosts()
@@ -317,7 +344,6 @@ public class DefensiveUnit : NetworkBehaviour
             else BaseManager.notEnough = "not enough resources";
         }
     }
-
 
     public string status()
     {
@@ -362,36 +388,44 @@ public class DefensiveUnit : NetworkBehaviour
     }
 
     [ClientCallback]
-    void SpawnCliff(GameObject cliff)
+    void SpawnCliff(GameObject cliff, Vector3 target, float duration, float damagePercentage)
     {
         int cliffIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(cliff);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnCliff(cliffIndex, player);
+        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        CmdSpawnCliff(cliffIndex, target, duration, damagePercentage);
     }
 
     [Command]
-    void CmdSpawnCliff(int cliffIndex, GameObject player)
+    void CmdSpawnCliff(int cliffIndex, Vector3 target, float duration, float damagePercentage)
     {
         GameObject cliff = NetworkManager.singleton.spawnPrefabs[cliffIndex];
         GameObject go = GameObject.Instantiate(cliff);
         go.transform.position = this.gameObject.transform.position;
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        BigRockBehavior cliffBit = go.GetComponent<BigRockBehavior>();
+        cliffBit.target = target;
+        cliffBit.dur = duration;
+        cliffBit.damagePercentage = damagePercentage;
+        NetworkServer.Spawn(go);
     }
 
     [ClientCallback]
-    void SpawnCloud(GameObject cloud)
+    void SpawnCloud(GameObject cloud, float duration, Vector3 size, Vector3 position)
     {
         int cloudIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(cloud);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnCloud(cloudIndex, player);
+        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        CmdSpawnCloud(cloudIndex, duration, size, position);
     }
 
     [Command]
-    void CmdSpawnCloud(int cloudIndex, GameObject player)
+    void CmdSpawnCloud(int cloudIndex, float duration, Vector3 size, Vector3 position)
     {
         GameObject cloud = NetworkManager.singleton.spawnPrefabs[cloudIndex];
         GameObject go = GameObject.Instantiate(cloud);
-        go.transform.position = this.puffPosition;
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        go.transform.position = position;
+        CloudSetting puff = go.GetComponent<CloudSetting>();
+        puff.dur = duration;
+        puff.size = size;
+        puff.position = position;
+        NetworkServer.Spawn(go);
     }
 }

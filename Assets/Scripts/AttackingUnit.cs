@@ -72,7 +72,6 @@ public class AttackingUnit : NetworkBehaviour
                 tempName = gameObject.name.Substring(0, 9);
                 structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             }
-            Debug.Log("Temp base = " + temp.name);
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = structure.HPMax;
