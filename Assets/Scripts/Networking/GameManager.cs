@@ -39,15 +39,15 @@ public class GameManager : NetworkBehaviour
             player2_HP = player2_Base.GetComponent<UnitStructure>().HP;
             if (player1_HP <= 0)//Player 1 Lost.
             {
-                print("Player 1 lsot");
-                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().Lost();
-                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().Won();
+                print("Player 1 lost");
+                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().lost = true;
+                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().won = true;
             }
             else if (player2_HP <= 0)//Player 2 Lost.
             {
-                print("Player 2 lsot");
-                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().Won();
-                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().Lost();
+                print("Player 2 lost");
+                GameObject.Find("Base(Clone)").GetComponent<BaseManager>().won = true;
+                GameObject.Find("Enemy_base(Clone)").GetComponent<BaseManager>().lost = true;
             }
         }
     }

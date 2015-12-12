@@ -20,6 +20,11 @@ public class BaseManager : NetworkBehaviour
     public GameObject imageWin;
     public GameObject imageLost;
 
+    [SyncVar]
+    public bool lost = false;
+    [SyncVar]
+    public bool won = false;
+
     // Use this for initialization
     void Start()
     {
@@ -31,9 +36,45 @@ public class BaseManager : NetworkBehaviour
             UnitsBuilt = new GameObject[5];
 
             if (gameObject.tag == "Player 2")//Player 2
-                structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
+            {
+                //structure.healthBar = GameObject.Find("HealthBarforEnemyBase");
+                GameObject canvas = GameObject.Find("CanvasClient(Clone)");
+                foreach (Transform trans in canvas.transform)
+                {
+                    if (trans.gameObject.name == "ImageWin")
+                    {
+                        imageWin = trans.gameObject;
+                    }
+                    if (trans.gameObject.name == "ImageLost")
+                    {
+                        imageWin = trans.gameObject;
+                    }
+                    if (trans.gameObject.name == "HealthBarforEnemyBase")
+                    {
+                        structure.healthBar = trans.gameObject;
+                    }
+                }
+            }
             else
-                structure.healthBar = GameObject.Find("HealthBarforBase");
+            {
+                //structure.healthBar = GameObject.Find("HealthBarforBase");
+                GameObject canvas = GameObject.Find("Canvas(Clone)");
+                foreach (Transform trans in canvas.transform)
+                {
+                    if (trans.gameObject.name == "ImageWin")
+                    {
+                        imageWin = trans.gameObject;
+                    }
+                    if (trans.gameObject.name == "ImageLost")
+                    {
+                        imageWin = trans.gameObject;
+                    }
+                    if (trans.gameObject.name == "HealthBarforBase")
+                    {
+                        structure.healthBar = trans.gameObject;
+                    }
+                }
+            }
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = 2000;
@@ -74,6 +115,7 @@ public class BaseManager : NetworkBehaviour
             return;
         }
         structure.HP_Bar.value = structure.HP;
+        StateOfGame();
     }
 
     public void reCheckShield()
@@ -98,14 +140,22 @@ public class BaseManager : NetworkBehaviour
             clicked = true;
     }
 
-    public void Lost()
+    void StateOfGame()
     {
-        imageLost.SetActive(true);
-    }
-
-    public void Won()
-    {
-        imageWin.SetActive(true);
+        if (won)
+        {
+            print("I WON! YAAAY!");
+            imageWin.SetActive(true);
+            won = false;
+            Time.timeScale = 0;
+        }
+        if (lost)
+        {
+            print("OH NOOOOS I LOST!! DAMMIT!");
+            imageLost.SetActive(true);
+            lost = false;
+            Time.timeScale = 0;
+        }
     }
 
     public void ShieldTakeDamage(float amount)
