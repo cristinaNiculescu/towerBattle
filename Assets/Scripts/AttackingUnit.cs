@@ -200,7 +200,7 @@ public class AttackingUnit : NetworkBehaviour
                     if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player1
                     {
                         //if (hit.transform.tag == "Base2_Resource")
-                        if (hit.transform.tag == "Player 2")
+                        if (hit.transform.tag == "Base2_Resources" && hit.transform.gameObject.name.StartsWith("resourceField"))
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform.position;
@@ -214,7 +214,7 @@ public class AttackingUnit : NetworkBehaviour
                     if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player2
                     {
                         //if (hit.transform.tag == "Base1_Resource")
-                        if (hit.transform.tag == "Player 1")
+                        if (hit.transform.tag == "Base1_Resources" && hit.transform.gameObject.name.StartsWith("resourceField"))
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform.position;

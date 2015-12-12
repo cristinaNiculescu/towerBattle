@@ -61,7 +61,7 @@ public class SpecialUnit : NetworkBehaviour
             structure.statusUpdater = status();
             StartCoroutine(structure.waitConstruction(20f, structure.colorUnit));
             GameObject temp = null;
-            if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+            if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
             {
                 Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
@@ -82,16 +82,12 @@ public class SpecialUnit : NetworkBehaviour
                 resourceFields = GameObject.FindGameObjectsWithTag("Base1_Resources");
             }
             BaseManager.resources -= structure.costs[0];
-            //structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;
             structure.HP_Bar.maxValue = structure.HPMax;
             structure.HP_Bar.value = structure.HP;
             structure.name = "Special Unit";
-            //GameObject temp = GameObject.Find("Base(Clone)");
             structure.BaseUnit = temp.GetComponent<BaseManager>();
-            //tempName = gameObject.name.Substring(0, 9);
-            //structure.panel = GameObject.Find("BuildPanelfor" + tempName);
             changePanel();
             structure.panel.SetActive(activeMarker);
             upgradeDuration = 30f;
@@ -112,14 +108,9 @@ public class SpecialUnit : NetworkBehaviour
             if (repairDeployedTeam && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //Debug.Log(Physics.Raycast (ray, out hit, 10000f)+" "+ray);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    //Debug.Log (hit.transform.tag);
-
-                    if (hit.transform.tag == "attacking" ||
-                        hit.transform.tag == "defense" ||
-                        hit.transform.tag == "special")
+                    if (hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
                     {
                         target = hit.transform;
                         float repairCost = target.GetComponent<UnitStructure>().costs[0];
@@ -128,13 +119,10 @@ public class SpecialUnit : NetworkBehaviour
                         else if (target.GetComponent<UnitStructure>().upgrades == 1)
                             repairCost += target.GetComponent<UnitStructure>().costs[3];
                         repairCost *= 0.1f;
-
                         if (BaseManager.resources - repairCost >= 0)
                         {
                             BaseManager.resources -= (int)repairCost;
                             BaseManager.notEnough = " ";
-
-                            //Debug.Log(hit.transform.name + " " + hit.transform.tag + " is under repair");
                             target.GetComponent<UnitStructure>().isUnderRepair = true;
                             StartCoroutine(repairDeployed(target, repairDuration, repairCooldown));
                             repairDeployedTeam = false;
@@ -150,9 +138,7 @@ public class SpecialUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    if (hit.transform.tag == "attacking" ||
-                        hit.transform.tag == "defense" ||
-                        hit.transform.tag == "special")
+                    if (hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
                     {
                         target = hit.transform;
                         target.GetComponent<UnitStructure>().isUnderRepair = true;
@@ -177,12 +163,10 @@ public class SpecialUnit : NetworkBehaviour
                 {
                     BaseManager.resources -= structure.costs[4] - (int)scoutMissionDuration / 4;
                     BaseManager.notEnough = "";
-                    //int ID = Instantiate(scout, transform.position, Quaternion.identity).GetInstanceID();
                     SpawnScout(scout);
                     uint ID = scout.GetComponent<NetworkIdentity>().netId.Value;
                     GameObject[] scouts = GameObject.FindGameObjectsWithTag("Scout");
                     for (int i = 0; i < scouts.Length; i++)
-                        //if (scouts[i].GetInstanceID() == ID)
                         if (scouts[i].GetComponent<NetworkIdentity>().netId.Value == ID)
                             scoutInstantiated = scouts[i];
                     timeScoutSpawned = Time.realtimeSinceStartup;
@@ -322,7 +306,7 @@ public class SpecialUnit : NetworkBehaviour
 
     void changePanel()
     {
-        if (GameObject.Find("Player 7").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
+        if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
         {
             GameObject tempOBj = GameObject.Find("BuildPanelfor2" + tempName + "/Text");
             Text panelTitle = tempOBj.GetComponent<Text>();
@@ -453,6 +437,9 @@ public class SpecialUnit : NetworkBehaviour
         gatherResources();
     }
 
+    /// <summary>
+    /// Setup for sending out a Scout unit.
+    /// </summary>
     void sendScout()
     {
         if (scoutReady)
@@ -486,6 +473,10 @@ public class SpecialUnit : NetworkBehaviour
         structure.costs[4] = 60; //to update
     }
 
+    /// <summary>
+    /// Upgrades a target friendly unit structure.
+    /// </summary>
+    /// <param name="upgradeDur"></param>
     public void upgrade(float upgradeDur)
     {
         structure.upgrades++;
@@ -571,16 +562,16 @@ public class SpecialUnit : NetworkBehaviour
     void SpawnScout(GameObject scout)
     {
         int scoutIndex = NetworkManager.singleton.spawnPrefabs.IndexOf(scout);
-        GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
-        CmdSpawnScout(scoutIndex, player);
+        //GameObject player = GameObject.FindWithTag("MainCamera");//The localplayer is the only one with camera enabled.
+        CmdSpawnScout(scoutIndex);
     }
 
     [Command]
-    void CmdSpawnScout(int scoutIndex, GameObject player)
+    void CmdSpawnScout(int scoutIndex)
     {
         GameObject scout = NetworkManager.singleton.spawnPrefabs[scoutIndex];
         GameObject go = GameObject.Instantiate(scout);
         go.transform.position = this.gameObject.transform.position;
-        NetworkServer.SpawnWithClientAuthority(go, player);
+        NetworkServer.Spawn(go);
     }
 }
