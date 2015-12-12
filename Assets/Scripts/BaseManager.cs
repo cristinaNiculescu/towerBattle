@@ -45,9 +45,9 @@ public class BaseManager : NetworkBehaviour
                     {
                         imageWin = trans.gameObject;
                     }
-                    if (trans.gameObject.name == "ImageLost")
+                    if (trans.gameObject.name == "ImageLose")
                     {
-                        imageWin = trans.gameObject;
+                        imageLost = trans.gameObject;
                     }
                     if (trans.gameObject.name == "HealthBarforEnemyBase")
                     {
@@ -65,9 +65,9 @@ public class BaseManager : NetworkBehaviour
                     {
                         imageWin = trans.gameObject;
                     }
-                    if (trans.gameObject.name == "ImageLost")
+                    if (trans.gameObject.name == "ImageLose")
                     {
-                        imageWin = trans.gameObject;
+                        imageLost = trans.gameObject;
                     }
                     if (trans.gameObject.name == "HealthBarforBase")
                     {
