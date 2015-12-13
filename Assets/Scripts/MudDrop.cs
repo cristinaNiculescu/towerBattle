@@ -24,7 +24,7 @@ public class MudDrop : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.tag == "Base1_Resources" && col.gameObject.name.StartsWith("resourceField"))
+        if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base1_Resources" && col.gameObject.name.StartsWith("resourceField"))
         {
             if (!started)
             {
@@ -35,7 +35,7 @@ public class MudDrop : NetworkBehaviour
             else
                 Destroy(gameObject, 25f);
         }
-        if (col.transform.tag == "Base2_Resources" && col.gameObject.name.StartsWith("resourceField"))
+        if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base2_Resources" && col.gameObject.name.StartsWith("resourceField"))
         {
             if (!started)
             {

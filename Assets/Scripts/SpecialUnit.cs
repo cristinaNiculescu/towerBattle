@@ -110,7 +110,7 @@ public class SpecialUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    if (hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
+                    if (hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
                     {
                         target = hit.transform;
                         float repairCost = target.GetComponent<UnitStructure>().costs[0];
@@ -138,7 +138,7 @@ public class SpecialUnit : NetworkBehaviour
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out hit, 10000f))
                 {
-                    if (hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
+                    if (hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag == "attacking" || hit.transform.tag == "defense" || hit.transform.tag == "special")
                     {
                         target = hit.transform;
                         target.GetComponent<UnitStructure>().isUnderRepair = true;

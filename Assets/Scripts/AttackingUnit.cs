@@ -118,7 +118,7 @@ public class AttackingUnit : NetworkBehaviour
                     //Debug.Log(hit.transform.tag);
                     if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
                     {
-                        if (hit.transform.tag == "Player 2")
+                        if (!hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag != "UnitSpots" && !hit.transform.name.StartsWith("resource"))
                         {
                             SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
@@ -154,7 +154,7 @@ public class AttackingUnit : NetworkBehaviour
                     }
                     if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                     {
-                        if (hit.transform.tag == "Player 1")
+                        if (!hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag != "UnitSpots" && !hit.transform.name.StartsWith("resource"))
                         {
                             SpawnMissile(missile.gameObject, hit.transform.position);
                             target = hit.transform;
@@ -557,17 +557,4 @@ public class AttackingUnit : NetworkBehaviour
         //NetworkServer.SpawnWithClientAuthority(go, player);
         NetworkServer.Spawn(go);
     }
-
-    //[ClientCallback]
-    //void DestroyMePlease(GameObject obj, float time)
-    //{
-    //    CmdDestroyMePlease(obj, time);
-    //}
-
-    //[Command]
-    //void CmdDestroyMePlease(GameObject obj, float time)
-    //{
-    //    Debug.Log("Going to destroy : " + obj.name);//Will only be visible on the server.
-    //    Destroy(obj, time);
-    //}
 }

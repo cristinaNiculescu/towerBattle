@@ -44,9 +44,8 @@ public class BigRockBehavior : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.tag == "Player 1")
+        if (!col.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Player 1" || col.transform.tag == "attacking" || col.transform.tag == "defense" || col.transform.tag == "defense")
         {
-            print("Hitting the base 1");
             if (!started)
             {
                 print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
@@ -71,9 +70,8 @@ public class BigRockBehavior : NetworkBehaviour
             else
                 Destroy(gameObject);
         }
-        if (col.transform.tag == "Player 2")
+        if (!col.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Player 2" || col.transform.tag == "attacking" || col.transform.tag == "defense" || col.transform.tag == "defense")
         {
-            print("Hitting the base 2");
             if (!started)
             {
                 print("Basemanager ShieldPower ? " + col.gameObject.GetComponent<BaseManager>().shieldPower);
@@ -99,16 +97,4 @@ public class BigRockBehavior : NetworkBehaviour
                 Destroy(gameObject);
         }
     }
-
-    //[ClientCallback]
-    //void DestroyBigRock(GameObject rockBig)
-    //{
-    //    CmdDestroyBigRock(rockBig);
-    //}
-
-    //[Command]
-    //void CmdDestroyBigRock(GameObject rockBig)
-    //{
-    //    NetworkServer.Destroy(rockBig);
-    //}
 }

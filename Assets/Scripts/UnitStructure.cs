@@ -69,12 +69,4 @@ public class UnitStructure : NetworkBehaviour
             return;
         HP -= amount;
     }
-
-    //[Command]
-    //public void CmdShieldTakeDamage(float amount)
-    //{
-    //    if (!isServer)
-    //        return;
-    //    BaseUnit.shieldPower -= amount;
-    //}
 }

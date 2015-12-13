@@ -54,39 +54,39 @@ public class Player_NetworkingSetup : NetworkBehaviour
     /// <summary>
     /// Hides the canvas when the player joins
     /// </summary>
-    private void HideCanvasWhenClientConnect()
-    {
-        //if (base.netId.Value == 1)
-        if (base.gameObject.name == "Player 1")
-        {
-            if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
-            {
-                GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
-                foreach (Transform child in csPlayer2.transform)
-                {
-                    if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
-                    {
-                        child.gameObject.SetActive(false);
-                    }
-                }
-            }
-        }
-        //else if (base.netId.Value == 7)
-        else if (base.gameObject.name == "Player 2")
-        {
-            if (GameObject.Find("Canvas(Clone)") != null)//Player 1
-            {
-                GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
-                foreach (Transform child in csPlayer1.transform)
-                {
-                    if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
-                    {
-                        child.gameObject.SetActive(false);
-                    }
-                }
-            }
-        }
-    }
+    //private void HideCanvasWhenClientConnect()
+    //{
+    //    //if (base.netId.Value == 1)
+    //    if (base.gameObject.name == "Player 1")
+    //    {
+    //        if (GameObject.Find("CanvasClient(Clone)") != null)//Player 2
+    //        {
+    //            GameObject csPlayer2 = GameObject.Find("CanvasClient(Clone)");
+    //            foreach (Transform child in csPlayer2.transform)
+    //            {
+    //                if (child.name.StartsWith("BuildPanelfor2") || child.name.StartsWith("HealthBarfor2"))
+    //                {
+    //                    child.gameObject.SetActive(false);
+    //                }
+    //            }
+    //        }
+    //    }
+    //    //else if (base.netId.Value == 7)
+    //    else if (base.gameObject.name == "Player 2")
+    //    {
+    //        if (GameObject.Find("Canvas(Clone)") != null)//Player 1
+    //        {
+    //            GameObject csPlayer1 = GameObject.Find("Canvas(Clone)");
+    //            foreach (Transform child in csPlayer1.transform)
+    //            {
+    //                if (child.name.StartsWith("BuildPanelfor") || child.name.StartsWith("HealthBarfor"))
+    //                {
+    //                    child.gameObject.SetActive(false);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     void Update()
     {
@@ -101,6 +101,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 {
                     unitSpot.tag = "Player 1";
                     GameObject panel = GameObject.Find("BuildPanelforUnitSpot" + (k));
+                    GameObject.Find("HealthBarforUnitSpot" + (k) + "(Clone)").GetComponent<HealthSlider>().unitSpot = unitSpot;
+                    Debug.Log("UnitSpot name = " + unitSpot.gameObject.name + ", hpbar name" + GameObject.Find("HealthBarfor2UnitSpot" + (k) + "(Clone)").GetComponent<HealthSlider>().unitSpot.name);
                     btns = panel.GetComponentsInChildren<Button>();
                     int j = 0;
                     foreach (Button btn in btns)
@@ -120,6 +122,8 @@ public class Player_NetworkingSetup : NetworkBehaviour
                 {
                     unitSpot.tag = "Player 2";
                     GameObject panel = GameObject.Find("BuildPanelfor2UnitSpot" + (k));
+                    GameObject.Find("HealthBarfor2UnitSpot" + (k) + "(Clone)").GetComponent<HealthSlider>().unitSpot = unitSpot;
+                    Debug.Log("UnitSpot name = " + unitSpot.gameObject.name + ", hpbar name" + GameObject.Find("HealthBarfor2UnitSpot" + (k) + "(Clone)").GetComponent<HealthSlider>().unitSpot.name);
                     btns = panel.GetComponentsInChildren<Button>();
                     int j = 0;
                     foreach (Button btn in btns)

@@ -6,6 +6,7 @@ public class HealthSlider : MonoBehaviour
 {
     Slider healthSlider;
     UnitStructure unitStructure;
+    public GameObject unitSpot = null;
 
     // Use this for initialization
     void Start()
@@ -18,6 +19,12 @@ public class HealthSlider : MonoBehaviour
     {
         if (unitStructure == null)
         {
+            if (unitSpot != null)
+            {
+                unitStructure = unitSpot.GetComponent<UnitStructure>();
+                healthSlider.maxValue = unitStructure.HPMax;
+                return;
+            }
             if (this.transform.parent.gameObject.tag == "Player 1")
             {
                 unitStructure = GameObject.Find("Enemy_base(Clone)").GetComponent<UnitStructure>();

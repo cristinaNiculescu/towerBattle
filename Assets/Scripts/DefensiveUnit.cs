@@ -138,18 +138,12 @@ public class DefensiveUnit : NetworkBehaviour
             {
                 if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                 {
-                    if (hit.transform.tag != "UnitSpot" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 2" && hit.transform.tag != "Untagged")
+                    //if (hit.transform.tag != "UnitSpots" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 2" && hit.transform.tag != "Untagged")
+                    if (hit.transform.GetComponent<NetworkIdentity>().hasAuthority && !hit.transform.name.StartsWith("resource") && !hit.transform.tag.ToString().StartsWith("UnitSpots") && !hit.transform.tag.ToString().StartsWith("Player"))
                     {
                         Vector3 size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
                         Vector3 puffPos = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
                         SpawnCloud(cloud.gameObject, cloudDuration, size, puffPos);
-                        //CloudSetting puff = cloud.GetComponent<CloudSetting>();
-                        //puff.target = hit.transform.position;
-                        //puff.dur = cloudDuration;
-                        //puff.size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
-                        //puff.position = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
-                        //Instantiate(cloud, puff.position, Quaternion.identity);
-                        //puffPosition = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
                         cloudCharges++;
                         cloudTriggered = false;
                         if (cloudCharges == 2)
@@ -162,18 +156,12 @@ public class DefensiveUnit : NetworkBehaviour
                 }
                 if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
                 {
-                    if (hit.transform.tag != "UnitSpot" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 1" && hit.transform.tag != "Untagged")
+                    //if (hit.transform.tag != "UnitSpots" && !hit.transform.gameObject.name.StartsWith("UnitSpot") && hit.transform.tag != "Player 1" && hit.transform.tag != "Untagged")
+                    if (hit.transform.GetComponent<NetworkIdentity>().hasAuthority && !hit.transform.name.StartsWith("resource") && !hit.transform.tag.ToString().StartsWith("UnitSpots") && !hit.transform.tag.ToString().StartsWith("Player"))
                     {
                         Vector3 size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
                         Vector3 puffPos = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
                         SpawnCloud(cloud.gameObject, cloudDuration, size, puffPos);
-                        //CloudSetting puff = cloud.GetComponent<CloudSetting>();
-                        //puff.target = hit.transform.position;
-                        //puff.dur = cloudDuration;
-                        //puff.size = new Vector3((float)cloudRadius, 1f, (float)cloudRadius);
-                        //puff.position = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
-                        //Instantiate(cloud, puff.position, Quaternion.identity);
-                        //puffPosition = new Vector3(hit.transform.position.x, 10f, hit.transform.position.z);
                         cloudCharges++;
                         cloudTriggered = false;
                         if (cloudCharges == 2)
