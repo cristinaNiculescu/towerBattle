@@ -23,14 +23,14 @@ public class HealthSlider : MonoBehaviour
             {
                 unitStructure = unitSpot.GetComponent<UnitStructure>();
                 healthSlider.maxValue = unitStructure.HPMax;
-                return;
+                Debug.Log("unitStructure : " + unitStructure.tag + ", US-HPMAX : " + unitStructure.HPMax);
             }
-            if (this.transform.parent.gameObject.tag == "Player 1")
+            if (this.transform.parent.gameObject.tag == "Player 1" && unitSpot == null)
             {
                 unitStructure = GameObject.Find("Enemy_base(Clone)").GetComponent<UnitStructure>();
                 healthSlider.maxValue = unitStructure.HPMax;
             }
-            if (this.transform.parent.gameObject.tag == "Player 2")
+            if (this.transform.parent.gameObject.tag == "Player 2" && unitSpot == null)
             {
                 unitStructure = GameObject.Find("Base(Clone)").GetComponent<UnitStructure>();
                 healthSlider.maxValue = unitStructure.HPMax;

@@ -38,6 +38,7 @@ public class UnitStructure : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
+        healthBar.GetComponent<HealthSlider>().unitSpot = this.gameObject;
         TeamLookingForTarget = false;
     }
 
