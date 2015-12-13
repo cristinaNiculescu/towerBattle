@@ -86,7 +86,7 @@ public class DefensiveUnit : NetworkBehaviour
         {
             if (structure.HP <= 0f)
             {
-                //Destroy(gameObject, 0.1f);
+                structure.healthBar.SetActive(false);
                 Destroy(gameObject);
                 structure.BaseUnit.reCheckShield();
             }

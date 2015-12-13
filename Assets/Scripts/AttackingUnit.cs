@@ -103,8 +103,7 @@ public class AttackingUnit : NetworkBehaviour
             }
             if (structure.HP <= 0f)
             {
-                //Destroy(gameObject, 0.1f);
-                //DestroyMePlease(gameObject, 0.1f);
+                structure.healthBar.SetActive(false);
                 Destroy(gameObject);
                 structure.BaseUnit.reCheckShield();
             }
@@ -199,8 +198,8 @@ public class AttackingUnit : NetworkBehaviour
                 {
                     if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player1
                     {
-                        //if (hit.transform.tag == "Base2_Resource")
-                        if (hit.transform.tag == "Base2_Resources" && hit.transform.gameObject.name.StartsWith("resourceField"))
+                        print("Cool shit bro......" + hit.transform.tag);
+                        if (!hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag == "Base2_Resources" && hit.transform.tag != "Untagged")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform.position;
@@ -213,8 +212,8 @@ public class AttackingUnit : NetworkBehaviour
                     }
                     if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//If we are Player2
                     {
-                        //if (hit.transform.tag == "Base1_Resource")
-                        if (hit.transform.tag == "Base1_Resources" && hit.transform.gameObject.name.StartsWith("resourceField"))
+                        print("ALLAHU AHKBAR" + hit.transform.tag);
+                        if (!hit.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && hit.transform.tag == "Base1_Resources" && hit.transform.tag != "Untagged")
                         {
                             MudDrop droplet = mud.GetComponent<MudDrop>();
                             droplet.target = hit.transform.position;

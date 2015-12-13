@@ -24,7 +24,7 @@ public class MudDrop : NetworkBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base1_Resources" && col.gameObject.name.StartsWith("resourceField"))
+        if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base1_Resources" || col.transform.tag == "Base2_Resources")
         {
             if (!started)
             {
@@ -35,16 +35,16 @@ public class MudDrop : NetworkBehaviour
             else
                 Destroy(gameObject, 25f);
         }
-        if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base2_Resources" && col.gameObject.name.StartsWith("resourceField"))
-        {
-            if (!started)
-            {
-                col.gameObject.GetComponent<ResourceField>().SlowDownResource(speedRed, dur);
-                started = true;
-                Destroy(gameObject, 25f);
-            }
-            else
-                Destroy(gameObject, 25f);
-        }
+        //if (!col.transform.gameObject.GetComponent<NetworkIdentity>().hasAuthority && col.transform.tag == "Base2_Resources" && col.gameObject.name.StartsWith("resourceField"))
+        //{
+        //    if (!started)
+        //    {
+        //        col.gameObject.GetComponent<ResourceField>().SlowDownResource(speedRed, dur);
+        //        started = true;
+        //        Destroy(gameObject, 25f);
+        //    }
+        //    else
+        //        Destroy(gameObject, 25f);
+        //}
     }
 }

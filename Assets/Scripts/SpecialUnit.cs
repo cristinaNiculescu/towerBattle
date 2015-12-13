@@ -105,6 +105,13 @@ public class SpecialUnit : NetworkBehaviour
         }
         if (!structure.isInConstruction && !structure.isUnderRepair && !structure.isDisoriented)
         {
+            if (structure.HP <= 0f)
+            {
+                structure.healthBar.SetActive(false);
+                Destroy(gameObject);
+                structure.BaseUnit.reCheckShield();
+            }
+            structure.HP_Bar.value = structure.HP;
             if (repairDeployedTeam && Input.GetMouseButtonUp(0))
             {
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
