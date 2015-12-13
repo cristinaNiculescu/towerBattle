@@ -54,6 +54,7 @@ public class BaseManager : NetworkBehaviour
                         structure.healthBar = trans.gameObject;
                     }
                 }
+                gameObject.GetComponent<Renderer>().material.color = new Color(0.0f, 0.9f, 0.12f, 1f);
             }
             else
             {
@@ -74,6 +75,7 @@ public class BaseManager : NetworkBehaviour
                         structure.healthBar = trans.gameObject;
                     }
                 }
+                gameObject.GetComponent<Renderer>().material.color = new Color(0.0f, 0.9f, 0.12f, 1f);
             }
             structure.HP_Bar = structure.healthBar.GetComponent<Slider>();
             structure.HP_Bar.minValue = 0;

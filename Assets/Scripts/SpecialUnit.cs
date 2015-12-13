@@ -59,11 +59,11 @@ public class SpecialUnit : NetworkBehaviour
             structure.colorUnit = gameObject.GetComponent<Renderer>().material.color;
             structure.isInConstruction = true;
             structure.statusUpdater = status();
-            StartCoroutine(structure.waitConstruction(1f, structure.colorUnit)); //needs to be 20;
+            StartCoroutine(structure.waitConstruction(20f, structure.colorUnit)); //needs to be 20;
             GameObject temp = null;
             if (GameObject.Find("Player 2").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 2
             {
-                Debug.Log("Player 2 has auth for go: " + gameObject.name);
+                //Debug.Log("Player 2 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor2" + gameObject.name);
                 temp = GameObject.Find("Enemy_base(Clone)");
                 tempName = gameObject.name.Substring(0, 9);
@@ -73,7 +73,7 @@ public class SpecialUnit : NetworkBehaviour
             }
             else if (GameObject.Find("Player 1").GetComponent<NetworkIdentity>().playerControllerId == 0)//Player 1
             {
-                Debug.Log("Player 1 has auth for go: " + gameObject.name);
+                //Debug.Log("Player 1 has auth for go: " + gameObject.name);
                 structure.healthBar = GameObject.Find("HealthBarfor" + gameObject.name);
                 temp = GameObject.Find("Base(Clone)");
                 tempName = gameObject.name.Substring(0, 9);

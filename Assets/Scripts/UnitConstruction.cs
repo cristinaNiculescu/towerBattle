@@ -31,14 +31,16 @@ public class UnitConstruction : NetworkBehaviour
             if (GameObject.Find("Player 2") != null)
             {
                 GameObject clientPlayer2 = GameObject.Find("Player 2");//Player 2
-                Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
+                //Debug.Log("Heya from player : " + clientPlayer2.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer2.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
+                gameObject.GetComponent<Renderer>().material.color = new Color(0.0f, 0.9f, 0.12f, 1f);
             }
             else
             {
                 GameObject clientPlayer1 = GameObject.Find("Player 1");//Player 1
-                Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
+                //Debug.Log("Heya from player : " + clientPlayer1.GetComponent<NetworkBehaviour>().netId.Value);
                 clientPlayer1.GetComponent<Player_NetworkingSetup>().unitSpotsSpawned.Add(this.gameObject);
+                gameObject.GetComponent<Renderer>().material.color = new Color(0.0f, 0.9f, 0.12f, 1f);
             }
         }
     }
@@ -162,7 +164,7 @@ public class UnitConstruction : NetworkBehaviour
         }
         else
         {
-            Debug.Log("T_T.... no canvas!");
+            //Debug.Log("T_T.... no canvas!");
         }
     }
 

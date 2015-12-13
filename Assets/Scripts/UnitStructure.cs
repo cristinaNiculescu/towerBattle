@@ -57,7 +57,7 @@ public class UnitStructure : NetworkBehaviour
 
     public IEnumerator dizzy(float duration)
     {
-        Debug.Log("is disoriented");
+        //Debug.Log("is disoriented");
         yield return new WaitForSeconds(duration);
         isDisoriented = false;
     }
